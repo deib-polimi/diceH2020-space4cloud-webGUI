@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class Settings {
 	private String instanceDir;
+	private String txtDir;
+	private String resultDir;
 	private String address;
 	private String port;
 	

@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>it.polimi.diceH2020</groupId>
 			<artifactId>SPACE4Cloud-shared</artifactId>
-			<version>0.1.2-SNAPSHOT</version>
+			<version>0.1.4-RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -80,6 +80,11 @@
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-extensions</artifactId>
 			<version>4.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xbean</groupId>
+			<artifactId>xbean-blueprint</artifactId>
+			<version>3.18</version>
 		</dependency>
 	</dependencies>
 	<repositories>

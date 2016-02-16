@@ -30,29 +30,27 @@ public class ApplicationLoader implements CommandLineRunner{
 		
 		logger.info("working dir ->"+settings.getInstanceDir());
 		
-		System.out.println("argomento ->"+arg0[0]);
+		//System.out.println("argomento ->"+arg0[0]);
 
-		DirectoryStream<Path> streamTxt = accessInstanceFolder("txt");
+		DirectoryStream<Path> streamTxt = accessInstanceFolder("txt", settings.getTxtDir());
 		streamTxt.forEach(f->experiment.send(f));
-
 		
 		
-		DirectoryStream<Path> stream = accessInstanceFolder("json");
+		DirectoryStream<Path> stream = accessInstanceFolder("json", settings.getInstanceDir());
 			stream.forEach(f->experiment.launch(f));
 
 		
 	}
 	
-	private DirectoryStream<Path> accessInstanceFolder(String extension) throws IOException{
+	private DirectoryStream<Path> accessInstanceFolder(String extension, String strDir) throws IOException{
 		
-		Path dir = FileSystems.getDefault().getPath(settings.getInstanceDir());
+		Path dir = FileSystems.getDefault().getPath(strDir);
  		if (Files.notExists(dir)) {
  			Path currentRelativePath = Paths.get("");	
- 			dir = FileSystems.getDefault().getPath(currentRelativePath.toAbsolutePath().toString()+File.pathSeparator+settings.getInstanceDir());
+ 			dir = FileSystems.getDefault().getPath(currentRelativePath.toAbsolutePath().toString()+File.pathSeparator+strDir);
 		}
 				
  		DirectoryStream<Path> stream = Files.newDirectoryStream( dir, "*.{"+extension+"}" );
- 		//stream.forEach(f->System.out.println(f.getFileName()));
  		return stream;
 		
 	}
