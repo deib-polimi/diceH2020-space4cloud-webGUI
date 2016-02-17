@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LaucherApplication{
 
 	public static void main(String[] args) {
-		SpringApplication.run(LaucherApplication.class, args);		
+		SpringApplication.run(LaucherApplication.class, args).close();		
 		//the experiment start here
 		
 	}

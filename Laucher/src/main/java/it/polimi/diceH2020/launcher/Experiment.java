@@ -2,6 +2,8 @@ package it.polimi.diceH2020.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +42,10 @@ public class Experiment {
 	private static String STATE_ENDPOINT;
 	private static String UPLOAD_ENDPOINT;
 	private static String RESULT_FOLDER;
-
+	private int analysisExecuted = 1;
+	private int totalAnalysisToExecute = -1;
+	
+	
 	public Experiment() {
 		mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
@@ -79,6 +84,7 @@ public class Experiment {
 
 	private RestTemplate restTemplate = new RestTemplate();
 
+	//main method of this class
 	public void launch(Path inputDataPath) {
 
 		String baseErrorString = "Error for experiment: " + inputDataPath.getName(inputDataPath.getNameCount() - 1);
@@ -120,7 +126,12 @@ public class Experiment {
 			return;
 		}
 		// to go to idle
-		 restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); 
+		 restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); 
+		 
+		 String percentage = BigDecimal.valueOf((double)analysisExecuted/ (double) totalAnalysisToExecute ).setScale(2, RoundingMode.HALF_EVEN).toString();
+		 String msg = String.format("%s%% experiments completed", percentage );
+		 logger.info(msg);
+		 analysisExecuted++;
 		
 	}
 
@@ -131,7 +142,6 @@ public class Experiment {
 		try {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
-			System.out.println(sol.toStringReduced());
 			logger.info(sol.toStringReduced());
 			return true;
 		} catch (JsonProcessingException e) {
@@ -253,6 +263,9 @@ public class Experiment {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	public void setTotalAnalysisToExecute(int totalAnalysisToExecute) {
+		this.totalAnalysisToExecute = totalAnalysisToExecute;
 	}
 
 }

@@ -18,6 +18,7 @@ public class ApplicationLoader implements CommandLineRunner{
 	
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+	private int numFiles=0;
 	
 	@Autowired
 	private Settings settings;
@@ -36,12 +37,25 @@ public class ApplicationLoader implements CommandLineRunner{
 		streamTxt.forEach(f->experiment.send(f));
 		
 		
+										
+		setNumFiles("json", settings.getInstanceDir());		
 		DirectoryStream<Path> stream = accessInstanceFolder("json", settings.getInstanceDir());
-			stream.forEach(f->experiment.launch(f));
+		stream.forEach(f->experiment.launch(f));
 
 		
 	}
 	
+	private void setNumFiles(String extension, String instanceDir) {
+		 try {
+			accessInstanceFolder(extension, instanceDir).forEach(f->++numFiles);
+			experiment.setTotalAnalysisToExecute(numFiles);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 	private DirectoryStream<Path> accessInstanceFolder(String extension, String strDir) throws IOException{
 		
 		Path dir = FileSystems.getDefault().getPath(strDir);
@@ -49,7 +63,6 @@ public class ApplicationLoader implements CommandLineRunner{
  			Path currentRelativePath = Paths.get("");	
  			dir = FileSystems.getDefault().getPath(currentRelativePath.toAbsolutePath().toString()+File.pathSeparator+strDir);
 		}
-				
  		DirectoryStream<Path> stream = Files.newDirectoryStream( dir, "*.{"+extension+"}" );
  		return stream;
 		
