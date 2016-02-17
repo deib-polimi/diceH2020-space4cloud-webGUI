@@ -119,7 +119,9 @@ public class Experiment {
 			logger.info(baseErrorString + "-> getting or saving final solution");
 			return;
 		}
-
+		// to go to idle
+		 restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); 
+		
 	}
 
 	private boolean saveFinalSolution() {
@@ -129,6 +131,7 @@ public class Experiment {
 		try {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
+			System.out.println(sol.toStringReduced());
 			logger.info(sol.toStringReduced());
 			return true;
 		} catch (JsonProcessingException e) {
