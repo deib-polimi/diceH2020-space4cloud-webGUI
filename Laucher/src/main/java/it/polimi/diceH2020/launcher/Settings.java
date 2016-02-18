@@ -11,6 +11,7 @@ import lombok.Data;
 public class Settings {
 	private String instanceDir;
 	private String txtDir;
+	private Integer numIterations = 1;
 	private String resultDir;
 	private String address;
 	private String port;
