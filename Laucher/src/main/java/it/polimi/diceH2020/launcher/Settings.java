@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 public class Settings {
 	private String instanceDir;
+	private String solInstanceDir;
 	private String txtDir;
 	private Integer numIterations = 1;
 	private String resultDir;

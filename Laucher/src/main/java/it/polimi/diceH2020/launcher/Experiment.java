@@ -258,7 +258,6 @@ public class Experiment {
 		} catch (IOException e) {
 			return null;
 		}
-
 	}
 
 	private boolean checkWSIdle() {
