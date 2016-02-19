@@ -16,6 +16,8 @@ public class Settings {
 	private String address;
 	private String port;
 	
+	
+	
 	public String getfullAddress(){
 		return "http://"+address+":"+port;
 	}

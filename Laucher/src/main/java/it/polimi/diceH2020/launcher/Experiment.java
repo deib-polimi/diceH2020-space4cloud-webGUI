@@ -14,9 +14,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
-import org.junit.runner.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -38,10 +38,6 @@ import it.polimi.diceH2020.launcher.repository.ResultRepository;
 public class Experiment {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	
-	
-	
-	
 	private ObjectMapper mapper;
 	@Autowired
 	private Settings settings;
@@ -49,7 +45,7 @@ public class Experiment {
 	private ExperimentRepository expRepo;
 	@Autowired
 	private ResultRepository resRepo;
-	
+
 	private static String SOLUTION_ENDPOINT;
 	private static String INPUTDATA_ENDPOINT;
 	private static String EVENT_ENDPOINT;
@@ -58,6 +54,7 @@ public class Experiment {
 	private static String RESULT_FOLDER;
 	private int analysisExecuted = 1;
 	private int totalAnalysisToExecute = -1;
+	private boolean stop = false;
 
 	public Experiment() {
 		mapper = new ObjectMapper();
@@ -104,6 +101,8 @@ public class Experiment {
 
 	// main method of this class
 	public void launch(ExperimentRecord e) {
+		if (isStop()) return;
+		
 		int num = e.getIteration();
 		Path inputDataPath = e.getInstanceName();
 		if (!Files.exists(inputDataPath)) return;
@@ -113,18 +112,18 @@ public class Experiment {
 
 		boolean idle = checkWSIdle();
 
-		if (!idle) {
+		if (!idle || isStop()) {
 			logger.info(baseErrorString + "-> service not idle");
 			return;
 		}
 
 		boolean charged_inputdata = sendInputData(inputDataPath);
 
-		if (!charged_inputdata) return;
+		if (!charged_inputdata || isStop()) return;
 
 		boolean charged_initsolution = generateInitialSolution();
 
-		if (!charged_initsolution) {
+		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> generation of the initial solution");
 			return;
 		}
@@ -137,7 +136,7 @@ public class Experiment {
 
 		boolean finish = executeLocalSearch();
 
-		if (!finish) {
+		if (!finish || isStop()) {
 			logger.info(baseErrorString + "-> local search");
 			return;
 		}
@@ -263,10 +262,23 @@ public class Experiment {
 	}
 
 	private boolean checkWSIdle() {
+		return checkWSIdle(0);
+
+	}
+
+	private boolean checkWSIdle(int iter) {
+		if (iter > 50) { return false; }
 		String res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
 		if (res.equals("IDLE")) return true;
-		else return false;
-
+		else {
+			try {
+				Thread.sleep(10000);
+				return checkWSIdle(++iter);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+				return false;
+			}
+		}
 	}
 
 	public void send(Path f) {
@@ -309,6 +321,25 @@ public class Experiment {
 			waitForWS();
 		}
 
+	}
+
+	public boolean isStop() {
+		return stop;
+	}
+
+	public void setStop(boolean stop) {
+		this.stop = stop;
+	}
+
+	public boolean stop() {
+		this.stop = true;
+		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+		if (res.equals("IDLE")) return true;
+		else {
+			logger.info(res);
+			return false;
+		}
+		
 	}
 
 }

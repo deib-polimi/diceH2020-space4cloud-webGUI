@@ -13,8 +13,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
@@ -34,8 +41,26 @@ public class Runner {
 
 	@Autowired
 	private Experiment experiment;
+	
+	
+	@Autowired
+	private SmtpMailSender mailSender;
 
-	public void exec() throws IOException {
+	
+	private String mailUsername = "michele.ciavotta@gmail.com";
+	
+	@Async
+	public void run(){
+		try {
+			exec();
+		} catch (IOException | MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void exec() throws IOException, MessagingException {
 
 		experiment.waitForWS();
 		sendSideFiles();
@@ -44,14 +69,31 @@ public class Runner {
 		printDirFiles();
 		
 		if (lstExp.size() > 0) {
+			logger.info("Some experiment pending in the database");
 			experiment.setTotalAnalysisToExecute(lstExp.size());
+			logger.info("The launcher is in running mode");
 			lstExp.forEach(e -> experiment.launch(e));
+			
 		} else {
 			setNumFiles("json", settings.getInstanceDir());
 			saveExperimentInDB().stream().forEachOrdered(e -> experiment.launch(e));
 		}
+		logger.info("The launcher is in waiting mode");
+		
+
 	}
 
+	public String stop() {
+		
+		if (experiment.stop()) {
+				//mailSender.send("michele.ciavotta@gmail.com", "Experiment ended", "Sir, the experiment ended");
+			return "WS will soon be reset";
+		}
+		else return "Error resetting the WS";
+			
+	}
+	
+	
 	private List<ExperimentRecord> retriveListUndoneExperiments() {
 		return expRecordRepo.findByDone(false);
 	}

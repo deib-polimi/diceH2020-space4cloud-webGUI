@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.Runner;
 
-public class Hello extends BaseCommand  {
+public class Stop extends BaseCommand {
 
-  @Command
-  @Usage("Say Hello")
+	@Command
+  @Usage("Start the experiment")
   public String main(InvocationContext context) throws IOException{
 	  BeanFactory beans = (BeanFactory) context.getAttributes().get("spring.beanfactory");
 	  Runner run = 	beans.getBean(Runner.class);
-	  run.exec();
-    return "HELLO";
+	  return run.stop();
+    
   }
 }
