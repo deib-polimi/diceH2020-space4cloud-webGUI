@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" http-equiv="refresh" content="5"></meta>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+</head>
+<body>
+	<div id="topBar">
+   		<div id="ios-arrow-container">
+    		<div id="ios-arrow-left" title="Home">
+    			<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    		</div>
+    	</div>
+    	<h3>FIFO SIMULATIONS</h3>
+    	<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+	<div class="resultContainer">
+		<table>
+			<thead>
+				<tr>
+					<th>Model</th>
+					<th>Size</th>
+					<th>Date</th>
+					<th>Time</th>
+					<th>Run Time[s]</th>
+					<th>Accuracy</th>
+					<th>Erlang</th>
+					<th>State</th>
+					<th>Excel</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="cursor:pointer;" th:each="manager : ${sim_manager}" th:onclick="'javascript:rowClicked(\'' + ${manager.id} + '\');'">
+					<td th:text="${manager.model}">Model</td>
+					<td th:text="${manager.num_of_completed_simulations + '/' + manager.size}">Size</td>
+					<td th:text="${manager.date}">Date</td>
+					<td th:text="${manager.time}">Time</td>
+					<td th:text="${manager.totalRuntime}">Duration</td>
+					<td th:text="${manager.accuracy}">Accuracy</td>
+					<td th:text="${manager.erlang}">Erlang</td>
+					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td th:if="*{manager.state}==completed" class="linkFather"><a class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a><img height="25" th:src="${'/images/libreOffice.png'}" style="margin: 0 auto;display:block;" /></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script>
+    function rowClicked(value) {
+        location.href = "results?id=" + value;
+    }
+</script>
+</body>
+</html>

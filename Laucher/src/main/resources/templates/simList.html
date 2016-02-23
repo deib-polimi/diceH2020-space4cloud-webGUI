@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+</head>
+<body>
+	<div id="topBar">
+   		<div id="ios-arrow-container">
+    		<div id="ios-arrow-left" title="Home">
+    			<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    		</div>
+    	</div>
+    	<h3>FIFO SIMULATIONS</h3>
+    	<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+	<div class="resultContainer">
+		<table>
+			<thead>
+				<tr>
+					<th>State</th>
+					<th>ID</th>
+					<th>Count</th>
+					<th th:each="var,iterStat : ${sim[0].map}" th:text="${'Map'+iterStat.count}">Map</th>
+					<th th:each="var,iterStat : ${sim[0].reduce}" th:text="${'Red'+iterStat.count}">Reduce</th>
+					<th th:each="var,iterStat : ${sim[0].mapTime}" th:text="${'MapTime'+iterStat.count+'[ms]'}">MapTime[ms]</th>
+					<th th:each="var,iterStat : ${sim[0].reduceTime}" th:text="${'RedTime'+iterStat.count+'[ms]'}">RedTime[ms]</th>
+					<th th:each="var,iterStat : ${sim[0].thinkTime}" th:text="${'ThinkTime'+iterStat.count+'[ms]'}">ThinkTime[ms]</th>
+					<th th:each="var,iterStat : ${sim[0].cores}" th:text="${'Core'+iterStat.count}">Cores</th>
+					<th th:each="var,iterStat : ${sim[0].users}" th:text="${'User'+iterStat.count}">Users</th>
+					<th th:each="var,iterStat : ${sim[0].throughput}" th:text="${'Throughput'+iterStat.count}">Throughput</th>
+					<th th:each="var,iterStat : ${sim[0].responseTime}" th:text="${'responseTime'+iterStat.count+'[ms]'}">ResponseTime[ms]</th>
+					<th>ThroughputEnd</th>
+					<th>ResponseTimeEnd[ms]</th>
+					<th>RunTime[ms]</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="sim: ${sim}" >
+					<td><img height="25" th:src="${'/images/' + sim.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td th:text="${sim.id}">ID</td>
+					<td th:text="${sim.counter}">COUNT</td>
+					<td th:each="var : ${sim.map}" th:text="${var}">Map</td>
+					<td th:each="var : ${sim.reduce}" th:text="${var}">Reduce</td>
+					<td th:each="var : ${sim.mapTime}" th:text="${var}">MapTime</td>
+					<td th:each="var : ${sim.reduceTime}" th:text="${var}">ReduceTime</td>
+					<td th:each="var : ${sim.thinkTime}" th:text="${var}">ThinkTime</td>
+					<td th:each="var : ${sim.cores}" th:text="${var}">Cores</td>
+					<td th:each="var : ${sim.users}" th:text="${var}">Users</td>
+					<td th:each="var : ${sim.throughput}" th:text="${var}">Throughput</td>
+					<td th:each="var : ${sim.responseTime}" th:text="${var}">ResponseTime</td>
+					<td th:text="${sim.throughputEnd}">Throughput</td>
+					<td th:text="${sim.responseTimeEnd}">ResponseTimeEnd</td>
+					<td th:text="${sim.runtime}">RunTime</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

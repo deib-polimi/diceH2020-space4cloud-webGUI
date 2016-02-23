@@ -1,0 +1,124 @@
+@CHARSET "UTF-8";
+* {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  box-sizing: border-box;
+ /* outline: none;*/
+  font-weight: normal;
+}
+body {
+  font-family: "Segoe UI", "Microsoft YaHei";
+}
+h1{
+	padding: 50px 0;
+	color: #32465f;
+}
+button {
+    padding: 10px;
+    border-radius: 20px;
+    color: white;
+    background-color: #32465f;
+    margin: 10px auto;
+    display: block;
+    box-shadow: 0 0 5px black;
+}
+button:hover{
+	cursor: pointer;
+	background-color: #4D6583;
+	box-shadow: none;
+}
+table{
+	margin: 0 auto;
+}
+.form_error{
+	color: #ae0004;
+	font-style: italic;
+	max-width: 100px;
+}
+input{
+	border-radius: 4px;
+    border: 1px solid #EEEAEA;
+    width: 50px;
+    padding: 4px;
+}
+#warnings{
+	display: table;
+	margin: 8px 0;
+}
+#errors{
+	display: table;
+	margin: 8px 0;
+}
+#warningsDiv{
+	display:none;
+	margin: 10px auto 10px auto;
+	color: #9F6000;
+    background-color: #FEEFB3;
+    border: 1px solid;
+    padding:5px;
+}
+#errorsDiv{
+	display:table;
+	margin: -10px auto 10px auto;
+	color: #cd1034;
+    background-color: #fd7370;
+    border: 1px solid;
+    padding:5px;
+}
+#warningsDiv img, #errorsDiv img{
+	float: left;
+	height: 50px;
+	margin: 0 8px;
+}
+
+.resultContainer {
+	    overflow-x: scroll;
+		min-height: 400px;
+}
+.resultContainer th{
+    background-color: #31bc86;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+.resultContainer td,.resultContainer th {
+    padding: 0.75em 1.5em;
+    /*text-align: left;*/
+}
+.resultContainer thead {
+    box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+    z-index: 100;
+    width: 100%;
+}
+.resultContainer table{    
+	border-collapse: collapse;
+    margin-bottom: 3em;
+    width: 100%;
+    background: #fff;
+    margin-top:1em;
+}
+.resultContainer thead{
+	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+}
+.resultContainer tbody th {
+	background-color: #2ea879;
+}
+.resultContainer tbody tr:nth-child(2n-1) {
+    background-color: #f5f5f5;
+    transition: all .125s ease-in-out;
+}
+.resultContainer tbody tr:hover {
+    background-color: rgba(129,208,177,.3);
+}
+.hidden{
+	visibility: hidden!important;
+	height:0!important;
+	width:0!important;
+	margin:0!important;
+	padding:0!important;
+}
+	
+	
+	
+	

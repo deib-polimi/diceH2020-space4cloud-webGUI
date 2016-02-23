@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"></meta>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+<script type="text/javascript">
+	var warnings="";
+	if(typeof(Storage) !== "undefined") {
+		//browser support sessionStorage and sessionStorage 
+		if(sessionStorage.getItem('tabID')===null){
+			//Redirect
+			redirect=true;
+		}
+	} else {
+   	 	// No Web Storage support
+   	 	warnings+="Your browser doesn't support Web Storage. <br/> Be sure you aren't filling these forms in multiple tabs!";     	 	
+	}
+	if(redirect){
+		  window.location.replace('/error');
+	}
+</script>
+</head>
+    <body>
+    	<div id="topBar">
+    		<div id="ios-arrow-container">
+    			<div id="ios-arrow-left" title="Home">
+    				<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    			</div>
+    		</div>
+    		<h3>FIFO SIMULATIONS</h3>
+    		<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    	</div>
+    	<h1>Class <!--<span th:text="*{sim_manager.id}"></span>--></h1> <!-- th:text="*{id}" -->
+        <form action="/V7/simulations2" th:action="@{/V7/simulations2}"  th:object="${sim_class}" method="post">
+        	
+        		<div id="warningsDiv">
+    			<img th:src="@{/images/warning.png}" src="../../images/warning.png"/>
+    			<p id="warnings"></p>
+    		</div>
+            <table>
+                <tr th:if="*{map}==null">
+                    <td>Number of Map of this class:</td>
+                    <td><input type="text" th:field="*{map}" /></td>
+                    <td th:if="*{#fields.hasErrors('map')}" class="form_error" th:errors="*{map}">Map Error</td>
+                </tr>
+                <tr th:unless="*{map}==null">
+                    <td>Number of Map of this class:</td>
+                    <td th:text="*{map}"></td>
+                    <input type="hidden" th:field="*{map}" th:value="*{map}"/>
+                </tr>
+                
+                <tr th:if="*{reduce}==null">
+                    <td>Number of Reduce of this class:</td>
+                    <td><input type="text" th:field="*{reduce}" /></td>
+                    <td th:if="*{#fields.hasErrors('reduce')}" class="form_error" th:errors="*{reduce}">Reduce Error</td>
+                </tr>
+                <tr th:unless="*{reduce}==null">
+                    <td>Number of Reduce of this class:</td>
+                    <td th:text="*{reduce}" ></td>
+                    <input type="hidden" th:field="*{reduce}" th:value="*{reduce}"/>
+                </tr>
+                
+				<tr th:if="*{mapTime}==null">
+                    <td>Map Time[ms] of this class:</td>
+                    <td><input type="text" th:field="*{mapTime}" /></td>
+                    <td th:if="*{#fields.hasErrors('mapTime')}" class="form_error" th:errors="*{mapTime}">Map Time Error</td>
+                </tr>
+                <tr th:unless="*{mapTime}==null">
+                    <td>Map Time[ms] of this class:</td>
+                    <td th:text="*{mapTime}"></td>
+                    <input type="hidden" th:field="*{mapTime}" th:value="*{mapTime}"/>
+                </tr>
+                
+                <tr th:if="*{reduceTime}==null">
+                    <td>Reduce Time[ms] of this class:</td>
+                    <td><input type="text" th:field="*{reduceTime}" /></td>
+                    <td th:if="*{#fields.hasErrors('reduceTime')}" class="form_error" th:errors="*{reduceTime}">Reduce Time Error</td>
+                </tr>
+                <tr th:unless="*{reduceTime}==null">
+                    <td>Reduce Time[ms] of this class:</td>
+                    <td th:text="*{reduceTime}"></td>
+                    <input type="hidden" th:field="*{reduceTime}" th:value="*{reduceTime}"/>
+                </tr>
+                
+                <tr th:if="*{thinkTime}==null">
+                    <td>Think Time[ms] of this class:</td>
+                    <td><input type="text" th:field="*{thinkTime}" /></td>
+                    <td th:if="*{#fields.hasErrors('thinkTime')}" class="form_error" th:errors="*{thinkTime}">Reduce Time Error</td>
+                </tr>
+                <tr th:unless="*{thinkTime}==null">
+                    <td>Think Time[ms] of this class:</td>
+                    <td th:text="*{thinkTime}"></td>
+                    <input type="hidden" th:field="*{thinkTime}" th:value="*{thinkTime}"/>
+                </tr>
+                
+                <tr th:if="*{minNumCores}==null">
+                    <td>Minimum number of cores of this class:</td>
+                    <td><input type="text" th:field="*{minNumCores}" /></td>
+                    <td th:if="*{#fields.hasErrors('minNumCores')}" class="form_error" th:errors="*{minNumCores}">Min Number of Cores Error</td>
+                </tr>
+                <tr th:unless="*{minNumCores}==null">
+                    <td>Minimum number of cores of this class:</td>
+                    <td th:text="*{minNumCores}"></td>
+                    <input type="hidden" th:field="*{minNumCores}" th:value="*{minNumCores}"/>
+                </tr>
+                
+                <tr th:if="*{maxNumCores}==null">
+                    <td>max number of cores of this class:</td>
+                    <td><input type="text" th:field="*{maxNumCores}" /></td>
+                    <td th:if="*{#fields.hasErrors('maxNumCores')}" class="form_error" th:errors="*{maxNumCores}">Max Number of Cores Error</td>
+                </tr>
+                <tr th:unless="*{maxNumCores}==null">
+                    <td>max number of cores of this class:</td>
+                    <td th:text="*{maxNumCores}"></td>
+                    <input type="hidden" th:field="*{maxNumCores}" th:value="*{maxNumCores}"/>
+                </tr>
+                
+                <tr th:if="*{minNumUsers}==null">
+                    <td>Minimum number of users of this class:</td>
+                    <td><input type="text" th:field="*{minNumUsers}" /></td>
+                    <td th:if="*{#fields.hasErrors('minNumUsers')}" class="form_error" th:errors="*{minNumUsers}">Min Number of Users Error</td>
+                </tr>
+                <tr th:unless="*{minNumUsers}==null">
+                    <td>Minimum number of users of this class:</td>
+                    <td th:text="*{minNumUsers}"></td>
+                    <input type="hidden" th:field="*{minNumUsers}" th:value="*{minNumUsers}"/>
+                </tr>
+                
+                <tr th:if="*{maxNumUsers}==null">
+                    <td>max number of users of this class:</td>
+                    <td><input type="text" th:field="*{maxNumUsers}" /></td>
+                    <td th:if="*{#fields.hasErrors('maxNumUsers')}" class="form_error" th:errors="*{maxNumUsers}">Max Number of Users Error</td>
+                </tr>
+                <tr th:unless="*{maxNumUsers}==null">
+                    <td>max number of users of this class:</td>
+                    <td th:text="*{maxNumUsers}"></td>
+                    <input type="hidden" th:field="*{maxNumUsers}" th:value="*{maxNumUsers}"/>
+                </tr>
+                                
+                <tr>
+                    <td><button type="submit">Create Simulations</button></td>
+                </tr>
+            </table>
+          	<input id="tabID" type="hidden" th:field="*{tabID}"/>
+        </form>
+        <script type="text/javascript">
+     		if(warnings!=""){
+     			document.getElementById("warnings").innerHTML=warnings; 
+     			document.getElementById("warningsDiv").style.display="table";
+     		}
+     		document.getElementById("tabID").value=sessionStorage.getItem("tabID");
+     	  
+     	</script>
+    </body>
+</html>

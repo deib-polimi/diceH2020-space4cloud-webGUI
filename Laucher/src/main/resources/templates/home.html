@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+</head>
+<body>
+	<div id="topBar">
+    		<div id="ios-arrow-container">
+    			<div id="ios-arrow-left" title="Home">
+    				<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    			</div>
+    		</div>
+    		<h3>GREATSPN SIMULATIONS</h3>
+    		<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+    <h1>List of Instances</h1>
+    <div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a href="/list/instances" class="link" >List</a>
+    </div>
+	<h1>Launch Simulation</h1>
+    <div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a href="/V7/simulations" class="link" >V7 - FIFO multiclass</a>
+    </div>
+	<div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a href="/V10/simulations" class="link" >V10 - FIFO singleclass</a>
+    </div>
+    <h1>Simulation Results</h1>
+    <div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a href="/list" class="link">ALL Simulations</a>
+    </div>
+    
+    <div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a th:href="@{|/listV7|}" class="link" >V7 - FIFO multiclass</a>
+    </div>
+	<div class="linkFather" style="width:200px;height:20px;margin: 10px auto;">
+        <a th:href="@{|/listV10|}" class="link" >V10 - FIFO singleclass</a>
+    </div>
+     
+</body>
+</html>

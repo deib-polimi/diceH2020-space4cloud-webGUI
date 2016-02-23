@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"></meta>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/loader.css}" href="../../css/loader.css"/>
+<script  th:src="@{/js/jquery2.1.1.js}" src="@{/js/jquery2.1.1.js}" ></script>
+<style>
+::-webkit-input-placeholder {
+   font-style: italic;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   font-style: italic; 
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   font-style: italic; 
+}
+
+:-ms-input-placeholder {  
+   font-style: italic;
+}
+</style>
+<script type="text/javascript">
+	var warnings="";
+</script>
+</head>
+    <body>    	
+    	<div id="topBar">
+    		<div id="ios-arrow-container">
+    			<div id="ios-arrow-left" title="Home">
+    				<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    			</div>
+    		</div>
+    		<h3>FIFO SIMULATIONS</h3>
+    		<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    	</div>
+    	
+    	<div id="warningsDiv">
+    		<img th:src="@{/images/warning.png}" src="../../images/warning.png"/>
+    		<p id="warnings"></p>
+    	</div>
+    	<div id="pageContent">
+        <form id="simForm" action="/V10/simulations" th:action="@{/V10/simulations}" th:object="${sim_manager}" method="post">
+        	<h1>Simulator Parameters</h1>
+        	<table>
+               <tr>
+                    <td>Erlang:</td>
+                    <td><input type="checkbox" th:field="*{erlang}" /></td>
+                    <td th:if="${#fields.hasErrors('erlang')}" class="form_error" th:errors="*{erlang}">Class Number Error</td>
+                </tr>
+                <tr>
+                    <td>100% - accuracy = [%]</td>
+                    <td><input type="text" th:field="*{accuracy}"   placeholder="5" /></td>
+                    <td th:if="${#fields.hasErrors('accuracy')}" class="form_error" th:errors="*{accuracy}">Class Number Error</td>
+                </tr>
+                <!-- <tr>
+                    <td>Confidence interval = [%]</td>
+                    <td><input type="text" th:field="*{confidenceInterval}"   placeholder="5" /></td>
+                    <td th:if="${#fields.hasErrors('confidenceInterval')}" class="form_error" th:errors="*{confidenceInterval}">Class Number Error</td>
+                </tr> -->
+                <tr>
+                    <td>Min num batch:</td>
+                    <td><input type="text" th:field="*{minNumOfBatch}"   placeholder="5" /></td>
+                    <td th:if="${#fields.hasErrors('minNumOfBatch')}" class="form_error" th:errors="*{minNumOfBatch}">Class Number Error</td>
+                </tr>
+                <tr>
+                    <td>Max num batch:</td>
+                    <td><input type="text" th:field="*{maxNumOfBatch}"   placeholder="5" /></td>
+                    <td th:if="${#fields.hasErrors('maxNumOfBatch')}" class="form_error" th:errors="*{maxNumOfBatch}">Class Number Error</td>
+                </tr>
+                <tr>
+                    <td>Increasing users with step:</td>
+                    <td><input type="text" th:field="*{stepUsrs}"   placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('stepUsrs')}" class="form_error" th:errors="*{stepUsrs}">Class Number Error</td>
+                </tr>
+                <tr>
+                    <td>Increasing cores with step:</td>
+                    <td><input type="text" th:field="*{stepCores}"   placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('stepCores')}" class="form_error" th:errors="*{stepCores}">Class Number Error</td>
+                </tr>
+			</table>    	
+    		<h1>Classes Parameters</h1>
+            <table>
+                <tr>
+                    <td>Number of Map:</td>
+                    <td><input id="map" name="map" type="text" th:field="*{map}"  placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('map')}" class="form_error" th:errors="*{map}">Map Error</td>
+                </tr>
+                <tr>
+                    <td>Number of Reduce:</td>
+                    <td><input id="reduce" name="reduce" type="text" th:field="*{reduce}"   placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('reduce')}" class="form_error" th:errors="*{reduce}">Reduce Error</td>
+                </tr>
+				<tr>
+                    <td>Map Time[ms]:</td>
+                    <td><input id="mapTime" name="mapTime" type="text" th:field="*{mapTime}" placeholder="1000" /></td>
+                    <td th:if="${#fields.hasErrors('mapTime')}" class="form_error" th:errors="*{mapTime}">Map Time Error</td>
+                </tr>
+                <tr>
+                    <td>Reduce Time[ms]:</td>
+                    <td><input id="reduceTime" name="reduceTime" type="text" th:field="*{reduceTime}" placeholder="1000" /></td>
+                    <td th:if="${#fields.hasErrors('reduceTime')}" class="form_error" th:errors="*{reduceTime}" >Reduce Time Error</td>
+                </tr>
+                <tr>
+                    <td>Think Time[ms]:</td>
+                    <td><input id="thinkTime" name="thinkTime" type="text" th:field="*{thinkTime}" placeholder="1000" /></td>
+                    <td th:if="${#fields.hasErrors('thinkTime')}" class="form_error" th:errors="*{thinkTime}" >Reduce Time Error</td>
+                </tr>
+                <tr>
+                    <td>Min number of cores:</td>
+                    <td><input id="minCores" name="minCores" type="text" th:field="*{minNumCores}" placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('minNumCores')}" class="form_error" th:errors="*{minNumCores}" >Min Number of Cores Error</td>
+                </tr>
+                <tr>
+                    <td>Max number of cores:</td>
+                    <td><input id="maxCores" name="maxCores" type="text" th:field="*{maxNumCores}"  placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('maxNumCores')}" class="form_error" th:errors="*{maxNumCores}" >Max Number of Cores Error</td>
+                </tr>
+                <tr>
+                    <td>Min number of users:</td>
+                    <td><input id="minUsers" name="minUsers" type="text" th:field="*{minNumUsers}" placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('minNumUsers')}" class="form_error" th:errors="*{minNumUsers}" >Min Number of Users Error</td>
+                </tr>
+                <tr>
+                    <td>Max number of users:</td>
+                    <td><input id="maxUsers" name="maxUsers" type="text" th:field="*{maxNumUsers}" placeholder="1" /></td>
+                    <td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error" th:errors="*{maxNumUsers}"  >Max Number of Users Error</td>
+                </tr>
+                                
+                <tr>
+                    <td colspan="3"><button id="submitButton" onclick="validate()" type="submit">Submit</button></td>
+                </tr>
+            </table>
+            <input type="hidden" th:field="*{class_number}"   placeholder="2"  readonly="true" />
+        </form>
+        </div>
+        <div id="load" style="display:none;"><h1>Executing simulations...</h1><div class="container"><div class="clear-loading loading-effect-1"><span></span><span></span><span></span></div></div></div>
+     	<script type="text/javascript">
+     	 $('#simForm').submit(function(event){
+     	    // cancels the form submission
+     		event.preventDefault();
+     	    // do whatever you want here
+     	});
+     		if(warnings!=""){
+     			document.getElementById("warnings").innerHTML=warnings; 
+     			document.getElementById("warningsDiv").style.display="table";
+     		}
+     		function redirect() {
+  			   window.location.replace("/listV10");
+  	        }
+     		function validate(){
+     			var simForm = document.getElementById("simForm");
+     			var map = document.getElementById("map");
+     			var reduce = document.getElementById("reduce");
+     			var mapTime = document.getElementById("mapTime");
+     			var reduceTime = document.getElementById("reduceTime");
+     			var thinkTime = document.getElementById("thinkTime");
+     			var minCores = document.getElementById("minCores");
+     			var maxCores = document.getElementById("maxCores");
+     			var minUsers = document.getElementById("minUsers");
+     			var maxUsers = document.getElementById("maxUsers");
+     			
+     			if(map.value.length == 0){
+     			   		alert('Map should not be empty!');
+     			   		map.focus();
+     			   		return false;
+     			}
+     			if(reduce.value.length == 0){
+  			 		alert('Reduce should not be empty!');
+  			 		reduce.focus();
+  			 		return false;
+  			  	}
+  			  
+  			  	if(mapTime.value.length == 0){
+  					alert('Map time should not be empty!');
+  					mapTime.focus();
+  					return false;
+  			    }
+  			  
+  			    if(reduceTime.value.length == 0){
+  					alert('Reduce time should not be empty!');
+  					reduceTime.focus();
+  					return false;
+  			    }
+  			  
+  			    if(thinkTime.value.length == 0){
+					alert('Think time should not be empty!');
+					thinkTime.focus();
+					return false;
+			    }
+  			    if(minCores.value.length == 0){
+					alert('Min cores should not be empty!');
+					minCores.focus();
+					return false;
+			    }
+  			    if(maxCores.value.length == 0){
+					alert('Max cores should not be empty!');
+					maxCores.focus();
+					return false;
+			    }
+  			    if(minUsers.value.length == 0){
+					alert('Min users should not be empty!');
+					minUsers.focus();
+					return false;
+			    }
+			    if(maxUsers.value.length == 0){
+					alert('Max users should not be empty!');
+					maxUsers.focus();
+					return false;
+			    }
+     			  
+     		    simForm.submit();
+     		    document.getElementById("pageContent").className ='hidden';
+		    	document.getElementById("load").style.display ='block';
+		        setTimeout(redirect, 5000); 
+     		}
+     		</script>
+    </body>
+    
+</html>
