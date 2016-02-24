@@ -5,9 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -52,11 +50,11 @@ public class SimulationsManager {
 	private  double thinkRate;     // 1/Z
 	
 	@Transient
-	private  Integer mapTime;           // 1/(Avg duration of a map)
+	private  Integer mapTime;           
 	@Transient
-	private  Integer reduceTime;        // 1/(Avg duration of a reduce)
+	private  Integer reduceTime;        
 	@Transient
-	private  Integer thinkTime;          // 1/Z
+	private  Integer thinkTime;         
 	
 	@Transient
 	private  Integer minNumUsers;	
@@ -87,10 +85,6 @@ public class SimulationsManager {
 	@Transient
 	private List<Simulations_class> classList = new ArrayList<Simulations_class>();
 	
-	/*@JoinColumn(name = "SIM_MANAGER")
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)//(mappedBy = "id", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-	*/
-	//@OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
 	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
 	@OrderColumn(name = "simManager_index")
 	private List<Simulation> simulationsList = new ArrayList<Simulation>();
@@ -104,13 +98,6 @@ public class SimulationsManager {
 	/*
 	 * COMMON ATTRIBUTES
 	 */
-	
-	@NotNull
-	@Min(1)
-	@Max(2)
-	@Transient
-	private Integer class_number; 	
-	
 	
 	private Integer num_of_completed_simulations;
 	
@@ -193,14 +180,6 @@ public class SimulationsManager {
 
 	public List<Simulations_class> getClassList() {
 		return classList;
-	}
-
-	public Integer getClass_number() {
-		return class_number;
-	}
-
-	public void setClass_number(Integer class_number) {
-		this.class_number = class_number;
 	}
 
 	public Integer getMap() {

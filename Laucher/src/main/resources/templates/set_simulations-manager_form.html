@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8"></meta>
 <title>Simulations</title>
@@ -50,29 +50,19 @@
     		<img th:src="@{/images/warning.png}" src="../../images/warning.png"/>
     		<p id="warnings"></p>
     	</div>
-        <form action="/V7/simulations" th:action="@{/V7/simulations}" th:object="${sim_manager}" method="post">
+        <form action="/sim/simulations" th:action="@{/sim/simulations}" th:object="${sim_manager}" method="post">
         	<h1>Simulator Parameters</h1>
         	<table>
-        	   <tr>
-                    <td>Simulation number of classes:</td>
-                    <td><input type="text" th:field="*{class_number}"   placeholder="2" /></td>
-                    <td th:if="${#fields.hasErrors('class_number')}" class="form_error" th:errors="*{class_number}">Class Number Error</td>
-               </tr>
-               <tr>
-                    <td>Erlang:</td>
-                    <td><input type="checkbox" th:field="*{erlang}" /></td>
-                    <td th:if="${#fields.hasErrors('erlang')}" class="form_error" th:errors="*{erlang}">Class Number Error</td>
-                </tr>
+<!--         	   <tr> -->
+<!--                     <td>Simulation number of classes:</td> -->
+<!--                     <td><input type="text" th:field="*{class_number}"   placeholder="2" /></td> -->
+<!--                     <td th:if="${#fields.hasErrors('class_number')}" class="form_error" th:errors="*{class_number}">Class Number Error</td> -->
+<!--                </tr> -->
                 <tr>
                     <td>100% - accuracy = [%]</td>
                     <td><input type="text" th:field="*{accuracy}"   placeholder="5" /></td>
-                    <td th:if="${#fields.hasErrors('accuracy')}" class="form_error" th:errors="*{accuracy}">Class Number Error</td>
+                    <td th:if="${#fields.hasErrors('accuracy')}" class="form_error" th:errors="*{accuracy}">Accuracy Error</td>
                 </tr>
-                <!--  <tr>
-                    <td>Confidence interval = [%]</td>
-                    <td><input type="text" th:field="*{confidenceInterval}"   placeholder="5" /></td>
-                    <td th:if="${#fields.hasErrors('confidenceInterval')}" class="form_error" th:errors="*{confidenceInterval}">Class Number Error</td>
-                </tr>-->
                 <tr>
                     <td>Min num batch:</td>
                     <td><input type="text" th:field="*{minNumOfBatch}"   placeholder="5" /></td>
@@ -96,7 +86,7 @@
 			</table>    	
     		<h1>Classes Common Parameters</h1>
             <table>
-                <tr colspan="3"><td colspan="3" style="text-align:center;font-style:italic;font-weight:800;">Common Parameters </td></tr><!-- blank space -->
+                <tr> <td colspan="3" style="text-align:center;font-style:italic;font-weight:800;">Common Parameters </td></tr><!-- blank space -->
                 <tr>
                 	<td style="font-style:italic;text-align:center;" colspan="3">NB: Insert a value only if the field is constant in all the classes.</td>
                 </tr>
@@ -126,22 +116,22 @@
                     <td th:if="${#fields.hasErrors('thinkTime')}" class="form_error" th:errors="*{thinkTime}" >Reduce Time Error</td>
                 </tr>
                 <tr>
-                    <td>Common min number of cores:</td>
+                    <td>Min number of VMs:</td>
                     <td><input type="text" th:field="*{minNumCores}" placeholder="1" /></td>
-                    <td th:if="${#fields.hasErrors('minNumCores')}" class="form_error" th:errors="*{minNumCores}" >Min Number of Cores Error</td>
+                    <td th:if="${#fields.hasErrors('minNumCores')}" class="form_error" th:errors="*{minNumCores}" >Min Number of VMs Error</td>
                 </tr>
                 <tr>
-                    <td>Common max number of cores:</td>
+                    <td>Max number of VMs:</td>
                     <td><input type="text" th:field="*{maxNumCores}"  placeholder="1" /></td>
-                    <td th:if="${#fields.hasErrors('maxNumCores')}" class="form_error" th:errors="*{maxNumCores}" >Max Number of Cores Error</td>
+                    <td th:if="${#fields.hasErrors('maxNumCores')}" class="form_error" th:errors="*{maxNumCores}" >Max Number of VMs Error</td>
                 </tr>
                 <tr>
-                    <td>Common min number of users:</td>
+                    <td>Minin number of users:</td>
                     <td><input type="text" th:field="*{minNumUsers}" placeholder="1" /></td>
                     <td th:if="${#fields.hasErrors('minNumUsers')}" class="form_error" th:errors="*{minNumUsers}" >Min Number of Users Error</td>
                 </tr>
                 <tr>
-                    <td>Common max number of users:</td>
+                    <td>Max number of users:</td>
                     <td><input type="text" th:field="*{maxNumUsers}" placeholder="1" /></td>
                     <td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error" th:errors="*{maxNumUsers}"  >Max Number of Users Error</td>
                 </tr>
