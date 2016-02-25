@@ -4,9 +4,9 @@
 <meta charset="UTF-8" />
 <title>Simulations</title>
 <link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
-	href="../../css/common.css" />
+	href="../css/common.css" />
 <link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
-	href="../../css/simulations.css" />
+	href="../css/simulations.css" />
 </head>
 <body>
 	<div id="topBar">
@@ -22,21 +22,33 @@
 			style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;">
 		</div>
 	</div>
-	<h1>Select instance file</h1>
-	<form id = "form" method="POST" enctype="multipart/form-data"
-		th:action="${'/sample/upload'}" 
-		style="display: table; margin: 0 auto;">
-		<p>
-		<input type="file" name="myFile" />
-		</p> 
-		<input type="submit"/>
+	<h1>Select instance files</h1>
+  
+  <div th:if ="${message} != null" class="basic-grey" > 
+   <p class ="text" th:text = "${message}"></p>
+  </div>
+  
+	<form id="form" method="POST" enctype="multipart/form-data"
+		th:action="@{/files/upload}" class="basic-grey">
+    
+		<label> <span>Select template solution file :</span> 
+    <input id="name" type="file" name="file" class="input" accept=".json"
+			required="required" />
+		</label><br /> 
+    <label> <span>Select map info file :</span> <input
+			id="name" type="file" name="file" class="input" accept=".txt"
+			required="required" />
+		</label><br /> 
+    <label> <span>Select reduce info file :</span> <input
+			id="name" type="file" name="file" class="input" accept=".txt"
+			required="required" />
+		</label> <label> <span>&nbsp;</span> <br /> <input type="submit"
+			class="button" value="Submit" />
+		</label>
 	</form>
-	<!-- 	<form action="demo_form.asp"> -->
-	<!-- 		Select a file: <input type="file" name="img"> <input -->
-	<!-- 			type="submit"> -->
-	<!-- 	</form> -->
 
-	<h1>List of Instances</h1>
+
+	<!--	<h1>List of Instances</h1>
 	<div class="linkFather"
 		style="width: 200px; height: 20px; margin: 10px auto;">
 		<a href="/list/instances" class="link">Instances</a>
@@ -60,7 +72,7 @@
 	<div class="linkFather"
 		style="width: 200px; height: 20px; margin: 10px auto;">
 		<a th:href="@{|/listV10|}" class="link">V10 - FIFO singleclass</a>
-	</div>
+	</div>-->
 
 </body>
 </html>

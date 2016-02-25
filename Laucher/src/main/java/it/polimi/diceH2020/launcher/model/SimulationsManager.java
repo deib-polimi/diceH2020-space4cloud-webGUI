@@ -20,7 +20,6 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This class contain informations about client's requested set of simulations
- * In case of V7 simulations is used also to initialize multiple classes (useful for having the form in sequential page)
  */
 @Entity
 public class SimulationsManager {
@@ -30,57 +29,52 @@ public class SimulationsManager {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	/*
-	 * COMMON ATTRIBUTES
-	 * If these attributes are initialized all the simulations have these same values.
-	 */
 	private String date;
 	private String time;
 	private String model;
-	
 	@Transient
-	private  Integer map;              //number of Maps
-	@Transient
-	private  Integer reduce;           //number of Reduce
-	@Transient
-	private  double mapRate;       // 1/(Avg duration of a map)
-	@Transient
-	private  double reduceRate;    // 1/(Avg duration of a reduce)
-	@Transient
-	private  double thinkRate;     // 1/Z
-	
-	@Transient
-	private  Integer mapTime;           
-	@Transient
-	private  Integer reduceTime;        
+	private  double thinkRate;     // 1/Z	
 	@Transient
 	private  Integer thinkTime;         
-	
 	@Transient
 	private  Integer minNumUsers;	
 	@Transient
-	private  Integer minNumCores;	
+	private  Integer minNumVMs;	
 	@Transient
 	private  Integer maxNumUsers;	
 	@Transient
-	private  Integer maxNumCores;
+	private  Integer maxNumVMs;
 	private String folderPath;
 	
+	@Transient
+	private Integer numIter;
+	
+	public Integer getNumIter() {
+		return numIter;
+	}
+
+
+	public void setNumIter(Integer numIter) {
+		this.numIter = numIter;
+	}
+
 	@NotNull
 	@Transient
-	private Integer stepCores = 1;
+	private Integer stepVMs = 1;
+	public Integer getStepVMs() {
+		return stepVMs;
+	}
+
+
+	public void setStepVMs(Integer stepVMs) {
+		this.stepVMs = stepVMs;
+	}
+
 	@NotNull
 	@Transient
-	private Integer stepUsrs = 1;
-	@NotNull
-	private boolean erlang = true;
+	private Integer stepUsers = 1;
 	@NotNull
 	private Integer accuracy = 5;
-	/*@NotNull
-	private Integer confidenceInterval; //hardcoded*/
-
-	private Integer minNumOfBatch;    
-	private Integer maxNumOfBatch;
 
 	@Transient
 	private List<Simulations_class> classList = new ArrayList<Simulations_class>();
@@ -95,11 +89,7 @@ public class SimulationsManager {
 	@Transient
 	private String tabID; //for session navigation. See the controller doc for other information
 	
-	/*
-	 * COMMON ATTRIBUTES
-	 */
-	
-	private Integer num_of_completed_simulations;
+	private Integer numCompletedSimulations;
 	
 	public SimulationsManager(){
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -109,21 +99,6 @@ public class SimulationsManager {
         this.time = timeFormat.format(date);
 	}
 	
-	public Integer getMinNumOfBatch() {
-		return minNumOfBatch;
-	}
-
-	public void setMinNumOfBatch(Integer minNumOfBatch) {
-		this.minNumOfBatch = minNumOfBatch;
-	}
-
-	public Integer getMaxNumOfBatch() {
-		return maxNumOfBatch;
-	}
-
-	public void setMaxNumOfBatch(Integer maxNumOfBatch) {
-		this.maxNumOfBatch = maxNumOfBatch;
-	}
 	
 	public Integer getAccuracy() {
 		return accuracy;
@@ -133,28 +108,13 @@ public class SimulationsManager {
 		this.accuracy = accuracy;
 	}
 
-	public boolean isErlang() {
-		return erlang;
+
+	public Integer getStepUsers() {
+		return stepUsers;
 	}
 
-	public void setErlang(boolean erlang) {
-		this.erlang = erlang;
-	}
-
-	public Integer getStepCores() {
-		return stepCores;
-	}
-
-	public void setStepCores(Integer stepCores) {
-		this.stepCores = stepCores;
-	}
-
-	public Integer getStepUsrs() {
-		return stepUsrs;
-	}
-
-	public void setStepUsrs(Integer stepUsrs) {
-		this.stepUsrs = stepUsrs;
+	public void setStepUsers(Integer stepUsrs) {
+		this.stepUsers = stepUsrs;
 	}
 
 	private int size=1;
@@ -166,12 +126,12 @@ public class SimulationsManager {
 		this.size = size;
 	}
 	
-	public Integer getNum_of_completed_simulations() {
-		return num_of_completed_simulations;
+	public Integer getNumCompletedSimulations() {
+		return numCompletedSimulations;
 	}
 
-	public void setNum_of_completed_simulations(Integer num_of_completed_simulations) {
-		this.num_of_completed_simulations = num_of_completed_simulations;
+	public void setNumCompletedSimulations(Integer num_of_completed_simulations) {
+		this.numCompletedSimulations = num_of_completed_simulations;
 	}
 
 	public void setClassList(List<Simulations_class> simulationsList) {
@@ -182,37 +142,6 @@ public class SimulationsManager {
 		return classList;
 	}
 
-	public Integer getMap() {
-		return map;
-	}
-
-	public void setMap(Integer map) {
-		this.map = map;
-	}
-
-	public Integer getReduce() {
-		return reduce;
-	}
-
-	public void setReduce(Integer reduce) {
-		this.reduce = reduce;
-	}
-
-	public double getMapRate() {
-		return mapRate;
-	}
-
-	public void setMapRate(double mapRate) {
-		this.mapRate = mapRate;
-	}
-
-	public double getReduceRate() {
-		return reduceRate;
-	}
-
-	public void setReduceRate(double reduceRate) {
-		this.reduceRate = reduceRate;
-	}
 
 	public double getThinkRate() {
 		return thinkRate;
@@ -222,21 +151,6 @@ public class SimulationsManager {
 		this.thinkRate = thinkRate;
 	}
 
-	public Integer getMapTime() {
-		return mapTime;
-	}
-
-	public void setMapTime(Integer mapTime) {
-		this.mapTime = mapTime;
-	}
-
-	public Integer getReduceTime() {
-		return reduceTime;
-	}
-
-	public void setReduceTime(Integer reduceTime) {
-		this.reduceTime = reduceTime;
-	}
 
 	public Integer getThinkTime() {
 		return thinkTime;
@@ -254,12 +168,12 @@ public class SimulationsManager {
 		this.minNumUsers = minUsers;
 	}
 
-	public Integer getMinNumCores() {
-		return minNumCores;
+	public Integer getMinNumVMs() {
+		return minNumVMs;
 	}
 
-	public void setMinNumCores(Integer minCores) {
-		this.minNumCores = minCores;
+	public void setMinNumVMs(Integer minCores) {
+		this.minNumVMs = minCores;
 	}
 
 	public Integer getMaxNumUsers() {
@@ -270,12 +184,12 @@ public class SimulationsManager {
 		this.maxNumUsers = maxNumUsers;
 	}
 
-	public Integer getMaxNumCores() {
-		return maxNumCores;
+	public Integer getMaxNumVMs() {
+		return maxNumVMs;
 	}
 
-	public void setMaxNumCores(Integer maxNumCores) {
-		this.maxNumCores = maxNumCores;
+	public void setMaxNumVMs(Integer maxNumCores) {
+		this.maxNumVMs = maxNumCores;
 	}
 
 	public int getTotalRuntime() {
@@ -345,13 +259,4 @@ public class SimulationsManager {
 		this.folderPath = folderPath;
 	}
 	
-
-	/*
-	public Integer getConfidenceInterval() {
-		return confidenceInterval;
-	}
-
-	public void setConfidenceInterval(Integer confidenceInterval) {
-		this.confidenceInterval = confidenceInterval;
-	}*/
 }

@@ -44,40 +44,37 @@ public class SimulationController {
 		return "error";
 	}
 
-	@RequestMapping(value = "/simulations", method = RequestMethod.GET)
+	@RequestMapping(value = "/simulationSetup", method = RequestMethod.GET)
 	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model) {
 		sessionStatus.setComplete();
-		SimulationsManager sim_manager = new SimulationsManager();
-		model.addAttribute("sim_manager", sim_manager);
-		return "set_simulations-manager_form";
+		SimulationsManager simManager = new SimulationsManager();
+		model.addAttribute("sim_manager", simManager);
+		return "simulationSetup";
 	}
 
 	@RequestMapping(value = "/simulations", method = RequestMethod.POST)
-	public String checkSimulationsManagerForm(@Valid @ModelAttribute("sim_manager") SimulationsManager sim_manager, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) return "set_simulations-manager_form";
+	public String checkSimulationsManagerForm(@Valid @ModelAttribute("sim_manager") SimulationsManager simManager, 
+												BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) return "simulationSetup";
 
 		Boolean allCommon = true;
-		if (sim_manager.getMap() == null) allCommon = false;
-		if (sim_manager.getReduce() == null) allCommon = false;
-		if (sim_manager.getMapTime() == null) allCommon = false;
-		if (sim_manager.getReduceTime() == null) allCommon = false;
-		if (sim_manager.getThinkTime() == null) allCommon = false;
-		if (sim_manager.getMinNumCores() == null) allCommon = false;
-		if (sim_manager.getMaxNumCores() == null) allCommon = false;
-		if (sim_manager.getMinNumUsers() == null) allCommon = false;
-		if (sim_manager.getMaxNumUsers() == null) allCommon = false;
+		if (simManager.getThinkTime() == null) allCommon = false;
+		if (simManager.getMinNumVMs() == null) allCommon = false;
+		if (simManager.getMaxNumVMs() == null) allCommon = false;
+		if (simManager.getMinNumUsers() == null) allCommon = false;
+		if (simManager.getMaxNumUsers() == null) allCommon = false;
 
 		if (allCommon) { // the simulation can start
 			Simulations_class sim_class = new Simulations_class();
-			setUpClass(sim_manager, sim_class);
+			setUpClass(simManager, sim_class);
 			setRates(sim_class);
-			sim_manager.getClassList().add(sim_class);
+			simManager.getClassList().add(sim_class);
 
-			setUpSize(sim_manager);
+			setUpSize(simManager);
 			return "createSimulations";
 		} else {
 			int b = 0;
-			sim_manager.setNum_of_completed_simulations(b);
+			simManager.setNumCompletedSimulations(b);
 			return "redirect:/sim/simulations2"; // at list one class
 													// -->simulations2 :D
 		}
@@ -133,16 +130,16 @@ public class SimulationController {
 		fixLoopParams(sim_class);
 		setRates(sim_class);
 
-		int a = sim_manager.getNum_of_completed_simulations();
+		int a = sim_manager.getNumCompletedSimulations();
 		a++;
-		if (a == 1){
-				//sim_manager.getClass_number()) {
+		if (a == 1) {
+			// sim_manager.getClass_number()) {
 			setUpSize(sim_manager);
-			sim_manager.setNum_of_completed_simulations(a);
+			sim_manager.setNumCompletedSimulations(a);
 			sim_manager.getClassList().add(sim_class);
 			return "createSimulations";
 		} else {
-			sim_manager.setNum_of_completed_simulations(a);
+			sim_manager.setNumCompletedSimulations(a);
 			sim_manager.getClassList().add(sim_class);
 			return "redirect:/sim/simulations2";
 		}
@@ -164,13 +161,13 @@ public class SimulationController {
 		if (sim_manager.getSize() == 1) {
 			for (int i = 0; i < sim_manager.getClassList().size(); i++) {
 				int maxNumCores = sim_manager.getClassList().get(i).getMaxNumCores();
-				int minCores = sim_manager.getClassList().get(i).getMinNumCores();
-				int stepCores = sim_manager.getStepCores();
+				int minCores = sim_manager.getClassList().get(i).getMinNumVMs();
+				int stepVMs = sim_manager.getStepVMs();
 				int maxNumUsers = sim_manager.getClassList().get(i).getMaxNumUsers();
 				int minNumUsers = sim_manager.getClassList().get(i).getMinNumUsers();
-				int stepUsrs = sim_manager.getStepUsrs();
+				int stepUsrs = sim_manager.getStepUsers();
 
-				size *= ((int) Math.floor((maxNumCores - minCores) / stepCores) + 1) * ((int) Math.floor((maxNumUsers - minNumUsers) / stepUsrs) + 1);
+				size *= ((int) Math.floor((maxNumCores - minCores) / stepVMs) + 1) * ((int) Math.floor((maxNumUsers - minNumUsers) / stepUsrs) + 1);
 			}
 			sim_manager.setSize(size);
 		}
@@ -179,19 +176,11 @@ public class SimulationController {
 	private void setUpClass(SimulationsManager simManager, Simulations_class simClass) {
 		fixParams(simManager);
 
-		if (simManager.getMap() != null) simClass.setMap(simManager.getMap());
-
-		if (simManager.getReduce() != null) simClass.setReduce(simManager.getReduce());
-
-		if (simManager.getMapTime() != null) simClass.setMapTime(simManager.getMapTime());
-
-		if (simManager.getReduceTime() != null) simClass.setReduceTime(simManager.getReduceTime());
-
 		if (simManager.getThinkTime() != null) simClass.setThinkTime(simManager.getThinkTime());
 
-		if (simManager.getMinNumCores() != null) simClass.setMinNumCores(simManager.getMinNumCores());
+		if (simManager.getMinNumVMs() != null) simClass.setMinNumVMs(simManager.getMinNumVMs());
 
-		if (simManager.getMaxNumCores() != null) simClass.setMaxNumCores(simManager.getMaxNumCores());
+		if (simManager.getMaxNumVMs() != null) simClass.setMaxNumCores(simManager.getMaxNumVMs());
 
 		if (simManager.getMinNumUsers() != null) simClass.setMinNumUsers(simManager.getMinNumUsers());
 
@@ -199,29 +188,25 @@ public class SimulationController {
 
 	}
 
-	private void fixParams(SimulationsManager sim_manager) {
+	private void fixParams(SimulationsManager simManager) {
 
-		if (sim_manager.getMinNumCores() != null && sim_manager.getMaxNumCores() != null) {
-			if (sim_manager.getMinNumCores() > sim_manager.getMaxNumCores()) {
-				sim_manager.setMinNumCores(sim_manager.getMaxNumCores());
+		if (simManager.getMinNumVMs() != null && simManager.getMaxNumVMs() != null) {
+			if (simManager.getMinNumVMs() > simManager.getMaxNumVMs()) {
+				simManager.setMinNumVMs(simManager.getMaxNumVMs());
 			}
 		}
 
-		if (sim_manager.getMinNumUsers() != null && sim_manager.getMaxNumUsers() != null) {
-			if (sim_manager.getMinNumUsers() > sim_manager.getMaxNumUsers()) {
-				sim_manager.setMinNumUsers(sim_manager.getMaxNumUsers());
+		if (simManager.getMinNumUsers() != null && simManager.getMaxNumUsers() != null) {
+			if (simManager.getMinNumUsers() > simManager.getMaxNumUsers()) {
+				simManager.setMinNumUsers(simManager.getMaxNumUsers());
 			}
-		}
-		if (sim_manager.getMinNumOfBatch() == null || sim_manager.getMaxNumOfBatch() == null) {
-			sim_manager.setMinNumOfBatch(0);
-			sim_manager.setMaxNumOfBatch(0);
 		}
 	}
 
 	private void fixLoopParams(Simulations_class sim_class) {
-		if (sim_class.getMinNumCores() != null && sim_class.getMaxNumCores() != null) {
-			if (sim_class.getMinNumCores() > sim_class.getMaxNumCores()) {
-				sim_class.setMinNumCores(sim_class.getMaxNumCores());
+		if (sim_class.getMinNumVMs() != null && sim_class.getMaxNumCores() != null) {
+			if (sim_class.getMinNumVMs() > sim_class.getMaxNumCores()) {
+				sim_class.setMinNumVMs(sim_class.getMaxNumCores());
 			}
 		}
 		if (sim_class.getMinNumUsers() != null && sim_class.getMaxNumUsers() != null) {
@@ -232,8 +217,6 @@ public class SimulationController {
 	}
 
 	private void setRates(Simulations_class sim_class) {
-		sim_class.setMapRate(round((double) 1 / sim_class.getMapTime(), 7, BigDecimal.ROUND_HALF_UP));
-		sim_class.setReduceRate(round((double) 1 / sim_class.getReduceTime(), 7, BigDecimal.ROUND_HALF_UP));
 		sim_class.setThinkRate(round((double) 1 / sim_class.getThinkTime(), 7, BigDecimal.ROUND_HALF_UP));
 	}
 

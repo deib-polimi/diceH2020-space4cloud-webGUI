@@ -43,12 +43,6 @@ public class Runner {
 	private Experiment experiment;
 	
 	
-	@Autowired
-	private SmtpMailSender mailSender;
-
-	
-	private String mailUsername = "michele.ciavotta@gmail.com";
-	
 	@Async
 	public void run(){
 		try {

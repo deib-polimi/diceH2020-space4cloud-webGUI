@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import it.polimi.diceH2020.launcher.model.Simulation;
@@ -101,35 +98,32 @@ public class DiceService {
 //	    return taskExecutor;
 //	}
 	
-	public void simulation(SimulationsManager sim_manager){
+
+	public void simulation(SimulationsManager simManager){
 		
 		long startTime = System.currentTimeMillis();
 		DiceServiceImpl ds =(DiceServiceImpl) context.getBean("diceServiceImpl");
 		ds.setSSHConnection(host, user, pk, setKnownHosts,psw);
-		String path =  ds.setParams(sim_manager.getModel(),sim_manager.isErlang(),sim_manager.getAccuracy());
-		sim_manager.setFolderPath(path); 
-		sim_manager.setNum_of_completed_simulations(0);
+		String path =  ds.setParams(simManager.getModel(),simManager.getAccuracy());
+		simManager.setFolderPath(path); 
+		simManager.setNumCompletedSimulations(0);
 		//COMMON PARAMS
-		int num =  sim_manager.getClassList().size(); //new int [num]
+		int num =  simManager.getClassList().size(); //new int [num]
 		List<Future<Float>> objectiv= new ArrayList<Future<Float>>(); //necessary for join
 		
     	int[] map=new int[num], reduce=new int [num], mapTime=new int[num], reduceTime=new int[num], thinkTime=new int[num];
     	double[] mapRate=new double[num], reduceRate=new double[num], thinkRate=new double[num];
     	for(int i=0;i<num;i++){
-    		map[i] = sim_manager.getClassList().get(i).getMap();
-    		reduce[i] = sim_manager.getClassList().get(i).getReduce();
-    		mapTime[i] = sim_manager.getClassList().get(i).getMapTime();
-    		reduceTime[i] = sim_manager.getClassList().get(i).getReduceTime();
-    		thinkTime[i] = sim_manager.getClassList().get(i).getThinkTime();
-    		mapRate[i] = sim_manager.getClassList().get(i).getMapRate();
-    		reduceRate[i] = sim_manager.getClassList().get(i).getReduceRate();
-    		thinkRate[i] = sim_manager.getClassList().get(i).getThinkRate();
+    		map[i] = simManager.getClassList().get(i).getMap();
+    		reduce[i] = simManager.getClassList().get(i).getReduce();
+    		thinkTime[i] = simManager.getClassList().get(i).getThinkTime();
+    		thinkRate[i] = simManager.getClassList().get(i).getThinkRate();
     	}
-    	int stepCores = sim_manager.getStepCores();
-		int stepUsrs = sim_manager.getStepUsrs();
-		int classes_num = sim_manager.getClassList().size();
-		int[] minCores = new int[classes_num];
-		int[] maxCores = new int[classes_num];
+    	int stepVMs = simManager.getStepVMs();
+		int stepUsrs = simManager.getStepUsers();
+		int classes_num = simManager.getClassList().size();
+		int[] minVMs = new int[classes_num];
+		int[] maxVMs = new int[classes_num];
 		int[] minUsers = new int[classes_num];
 		int[] maxUsers = new int[classes_num];
 		
@@ -137,19 +131,19 @@ public class DiceService {
 		int[] coresLoop = new int[classes_num];
 		
 		for(int i=0;i<classes_num;i++){
-			minCores[i] = sim_manager.getClassList().get(i).getMinNumCores();
-			maxCores[i] = sim_manager.getClassList().get(i).getMaxNumCores();
-			minUsers[i] = sim_manager.getClassList().get(i).getMinNumUsers();
-			maxUsers[i] = sim_manager.getClassList().get(i).getMaxNumUsers();
+			minVMs[i] = simManager.getClassList().get(i).getMinNumVMs();
+			maxVMs[i] = simManager.getClassList().get(i).getMaxNumCores();
+			minUsers[i] = simManager.getClassList().get(i).getMinNumUsers();
+			maxUsers[i] = simManager.getClassList().get(i).getMaxNumUsers();
 			usersLoop[i] = minUsers[i];
-			coresLoop[i] = minCores[i];
+			coresLoop[i] = minVMs[i];
 		}
 		
     	//END OF COMMON PARAMS
 		
 
-			int totalNumOfSimulations = sim_manager.getSize();
-			sim_manager.setState("running");
+			int totalNumOfSimulations = simManager.getSize();
+			simManager.setState("running");
 	    	try {
 				ds.initializeSimulationsV7(totalNumOfSimulations,mapRate,reduceRate,thinkRate);
 				int sim = 0;
@@ -160,11 +154,11 @@ public class DiceService {
 			    		breakLoop:
 			    		while(true){
 			    			for(int i=classes_num-1;i>=0;i--){ //setting up cores[] and users[] for the specific simulation
-			    				if(coresLoop[i]+stepCores<=maxCores[i]){
-			    					coresLoop[i] += stepCores;
+			    				if(coresLoop[i]+stepVMs<=maxVMs[i]){
+			    					coresLoop[i] += stepVMs;
 			    					break breakLoop;
 			    				}else{
-			    					coresLoop[i] = minCores[i];
+			    					coresLoop[i] = minVMs[i];
 			    				}
 			    			}
 			    			for(int i=classes_num-1;i>=0;i--){
@@ -183,19 +177,19 @@ public class DiceService {
 					
 					
 					Simulation s = new Simulation(); 
-			    	setSimulation(s,sim+1, sim_manager.getAccuracy(), sim_manager.isErlang(), users, cores, map,reduce,mapTime,reduceTime,thinkTime,mapRate,reduceRate,thinkRate, sim_manager.getMinNumOfBatch() ,sim_manager.getMaxNumOfBatch());
+			    	setSimulation(s,sim+1, simManager.getAccuracy(), users, cores, map,reduce,mapTime,reduceTime,thinkTime,mapRate,reduceRate,thinkRate);
 			    	
-			    	s.setSimulationsManager(sim_manager);
-			    	sim_manager.getSimulationsList().add(s);
+			    	s.setSimulationsManager(simManager);
+			    	simManager.getSimulationsList().add(s);
 					//simulationsRepository.save(s);
 	
 			    	sim++;
 			   }
-				simulationsManagerRepository.save(sim_manager);
+				simulationsManagerRepository.save(simManager);
 	
 				int sim2 = 0;
 				while(sim2<totalNumOfSimulations){
-					Simulation currentSimulation = sim_manager.getSimulationsList().get(sim2);
+					Simulation currentSimulation = simManager.getSimulationsList().get(sim2);
 					currentSimulation.setState("running");
 					objectiv.add(ds.startSimulationV7(currentSimulation));
 	
@@ -216,29 +210,29 @@ public class DiceService {
 							} catch (ExecutionException e) {
 								logger.error("Error in simulation V7 threads join. "+e.getStackTrace());
 							}
-							sim_manager.setNum_of_completed_simulations(simId);
-							simulationsRepository.save(sim_manager.getSimulationsList().get(sim3));
+							simManager.setNumCompletedSimulations(simId);
+							simulationsRepository.save(simManager.getSimulationsList().get(sim3));
 							//double thr = sim_manager.getSimulationsList().get(sim).getThroughput();
 							sim3++;
 				}
 				long totalRunTimeMillis = (System.currentTimeMillis() - startTime);
 				double totalRunTime=totalRunTimeMillis/1000.0;
 				
-				sim_manager.setTotalRuntime((int)totalRunTime);
-				sim_manager.setState("completed");
-				simulationsManagerRepository.save(sim_manager);
+				simManager.setTotalRuntime((int)totalRunTime);
+				simManager.setState("completed");
+				simulationsManagerRepository.save(simManager);
 				
-				excelFile2.writeListToExcel(sim_manager.getSimulationsList(),sim_manager.getFolderPath(),totalRunTime);
+				excelFile2.writeListToExcel(simManager.getSimulationsList(),simManager.getFolderPath(),totalRunTime);
 				
 				logger.info(sim+" simulations completed in "+totalRunTime);
 				logger.info("FINISHED");
 	    	} catch (IOException e) { //if initialize simulation throws exception
 				logger.error("Impossible writing Excel file. "+e.getStackTrace());
-				sim_manager.setState("failed");
+				simManager.setState("failed");
 			}
 	}
 	
-	private void setSimulation(Simulation s, int count,int accuracy,boolean erlang, int[] loopUsers, int[] loopCores, int[] map, int[] reduce,int[] mapTime,int[] reduceTime,int[] thinkTime,double[] mapRate,double[] reduceRate,double[] thinkRate,int minBatch, int maxBatch){
+	private void setSimulation(Simulation s, int count,int accuracy, int[] loopUsers, int[] loopCores, int[] map, int[] reduce,int[] mapTime,int[] reduceTime,int[] thinkTime,double[] mapRate,double[] reduceRate,double[] thinkRate){
 		s.setCounter(count);
 		s.setMap(map);
 		s.setReduce(reduce);
@@ -246,7 +240,6 @@ public class DiceService {
 		s.setUsers(loopUsers);
 		
 		s.setAccuracy(accuracy);
-		s.setErlang(erlang);
 		
 		s.setMapTime(mapTime);
 		s.setReduceTime(reduceTime);
@@ -256,8 +249,6 @@ public class DiceService {
 		s.setReduceRate(reduceRate);
 		s.setThinkRate(thinkRate);
 		
-		s.setMinBatch(minBatch);
-		s.setMaxBatch(maxBatch);
 	}
 	
 	public void simulationV10(SimulationsManager sim_manager){
@@ -265,9 +256,9 @@ public class DiceService {
 		long startTime = System.currentTimeMillis();
 		DiceServiceImpl ds =(DiceServiceImpl) context.getBean("diceServiceImpl");
 		ds.setSSHConnection(host, user, pk, setKnownHosts, psw);
-		String path = ds.setParams(sim_manager.getModel(),sim_manager.isErlang(), sim_manager.getAccuracy()); 
+		String path = ds.setParams(sim_manager.getModel(), sim_manager.getAccuracy()); 
 		sim_manager.setFolderPath(path); 
-		sim_manager.setNum_of_completed_simulations(0);
+		sim_manager.setNumCompletedSimulations(0);
 
 
 		
@@ -278,15 +269,11 @@ public class DiceService {
     	for(int i=0;i<num;i++){
     		map[i] = sim_manager.getClassList().get(i).getMap();
     		reduce[i] = sim_manager.getClassList().get(i).getReduce();
-    		mapTime[i] = sim_manager.getClassList().get(i).getMapTime();
-    		reduceTime[i] = sim_manager.getClassList().get(i).getReduceTime();
     		thinkTime[i] = sim_manager.getClassList().get(i).getThinkTime();
-    		mapRate[i] = sim_manager.getClassList().get(i).getMapRate();
-    		reduceRate[i] = sim_manager.getClassList().get(i).getReduceRate();
     		thinkRate[i] = sim_manager.getClassList().get(i).getThinkRate();
     	}
-    	int stepCores = sim_manager.getStepCores();
-		int stepUsrs = sim_manager.getStepUsrs();
+    	int stepVMs = sim_manager.getStepVMs();
+		int stepUsrs = sim_manager.getStepUsers();
 		int classes_num = 1;
 		int[] minCores = new int[classes_num];
 		int[] maxCores = new int[classes_num];
@@ -297,7 +284,7 @@ public class DiceService {
 		int[] coresLoop = new int[classes_num];
 		
 		for(int i=0;i<classes_num;i++){
-			minCores[i] = sim_manager.getClassList().get(i).getMinNumCores();
+			minCores[i] = sim_manager.getClassList().get(i).getMinNumVMs();
 			maxCores[i] = sim_manager.getClassList().get(i).getMaxNumCores();
 			minUsers[i] = sim_manager.getClassList().get(i).getMinNumUsers();
 			maxUsers[i] = sim_manager.getClassList().get(i).getMaxNumUsers();
@@ -317,8 +304,8 @@ public class DiceService {
 			    		breakLoop:
 			    		while(true){
 			    			for(int i=classes_num-1;i>=0;i--){ //setting up cores[] and users[] for the specific simulation
-			    				if(coresLoop[i]+stepCores<=maxCores[i]){
-			    					coresLoop[i] += stepCores;
+			    				if(coresLoop[i]+stepVMs<=maxCores[i]){
+			    					coresLoop[i] += stepVMs;
 			    					break breakLoop;
 			    				}else{
 			    					coresLoop[i] = minCores[i];
@@ -340,7 +327,7 @@ public class DiceService {
 					
 					
 					Simulation s = new Simulation(); 
-			    	setSimulation(s,sim+1, sim_manager.getAccuracy(), sim_manager.isErlang(), users, cores, map,reduce,mapTime,reduceTime,thinkTime,mapRate,reduceRate,thinkRate, sim_manager.getMinNumOfBatch() ,sim_manager.getMaxNumOfBatch());
+			    	setSimulation(s,sim+1, sim_manager.getAccuracy(), users, cores, map,reduce,mapTime,reduceTime,thinkTime,mapRate,reduceRate,thinkRate);
 			    	s.setSimulationsManager(sim_manager);
 			    	sim_manager.getSimulationsList().add(s);
 			    	//objectiv.add(ds.startSimulationV10(s));
@@ -370,7 +357,7 @@ public class DiceService {
 							logger.error("Error in simulation V10 threads join. "+e.getStackTrace());
 						}//Join (Synchronize threads) 
 						//double thr = sim_manager.getSimulationsList().get(sim).getThroughput();
-						sim_manager.setNum_of_completed_simulations(simId);
+						sim_manager.setNumCompletedSimulations(simId);
 						simulationsRepository.save(sim_manager.getSimulationsList().get(sim3));
 
 						sim3++;

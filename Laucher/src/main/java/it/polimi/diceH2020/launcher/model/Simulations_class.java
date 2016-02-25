@@ -18,16 +18,8 @@ public class Simulations_class {
 	@Min(1)
 	private  Integer reduce;           //number of Reduce
 	
-	private  double mapRate;       // 1/(Avg duration of a map)
-	private  double reduceRate;    // 1/(Avg duration of a reduce)
 	private  double thinkRate;     // 1/Z
 	
-	@NotNull
-	@Min(1)
-	private  Integer mapTime;       // 1/(Avg duration of a map)
-	@NotNull
-	@Min(1)
-	private  Integer reduceTime;    // 1/(Avg duration of a reduce)
 	@NotNull
 	@Min(1)
 	private  Integer thinkTime;     // 1/Z
@@ -36,13 +28,13 @@ public class Simulations_class {
 	private  Integer minNumUsers;	
 	@NotNull
 	@Min(1)
-	private  Integer minNumCores;	
+	private  Integer minNumVMs;	
 	@NotNull
 	@Min(1)
 	private  Integer maxNumUsers;	
 	@NotNull
 	@Min(1)
-	private  Integer maxNumCores;	 
+	private  Integer maxNumVMs;	 
    	
 	private  Integer class_number; 	
 	
@@ -92,22 +84,6 @@ public class Simulations_class {
 		this.reduce = reduce;
 	}
 
-	public double getMapRate() {
-		return mapRate;
-	}
-
-	public void setMapRate(double mapRate) {
-		this.mapRate = mapRate;
-	}
-
-	public double getReduceRate() {
-		return reduceRate;
-	}
-
-	public void setReduceRate(double reduceRate) {
-		this.reduceRate = reduceRate;
-	}
-
 	public double getThinkRate() {
 		return thinkRate;
 	}
@@ -116,21 +92,6 @@ public class Simulations_class {
 		this.thinkRate = thinkRate;
 	}
 
-	public Integer getMapTime() {
-		return mapTime;
-	}
-
-	public void setMapTime(Integer mapTime) {
-		this.mapTime = mapTime;
-	}
-
-	public Integer getReduceTime() {
-		return reduceTime;
-	}
-
-	public void setReduceTime(Integer reduceTime) {
-		this.reduceTime = reduceTime;
-	}
 
 	public Integer getThinkTime() {
 		return thinkTime;
@@ -148,12 +109,12 @@ public class Simulations_class {
 		this.minNumUsers = minNumUsers;
 	}
 
-	public Integer getMinNumCores() {
-		return minNumCores;
+	public Integer getMinNumVMs() {
+		return minNumVMs;
 	}
 
-	public void setMinNumCores(Integer minNumCores) {
-		this.minNumCores = minNumCores;
+	public void setMinNumVMs(Integer minNumCores) {
+		this.minNumVMs = minNumCores;
 	}
 
 	public Integer getMaxNumUsers() {
@@ -165,11 +126,11 @@ public class Simulations_class {
 	}
 
 	public Integer getMaxNumCores() {
-		return maxNumCores;
+		return maxNumVMs;
 	}
 
 	public void setMaxNumCores(Integer maxNumCores) {
-		this.maxNumCores = maxNumCores;
+		this.maxNumVMs = maxNumCores;
 	}
 
 }
