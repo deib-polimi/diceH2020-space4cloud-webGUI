@@ -68,13 +68,7 @@ public class MainFlowController {
 	
 	@RequestMapping(value="/listV7", method=RequestMethod.GET)
 	public String listV7(Model model) {
-			model.addAttribute("sim_manager", simulationsManagerRepository.findByModel("V7"));
-			return "simManagersList";
-	}
-	
-	@RequestMapping(value="/listV10", method=RequestMethod.GET)
-	public String listV10(Model model) {			
-		model.addAttribute("sim_manager", simulationsManagerRepository.findByModel("V10"));
+			model.addAttribute("sim_manager", simulationsManagerRepository.findAll());
 			return "simManagersList";
 	}
 	
