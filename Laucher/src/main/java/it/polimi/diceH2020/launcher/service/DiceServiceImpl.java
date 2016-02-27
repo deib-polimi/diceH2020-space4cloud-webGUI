@@ -56,17 +56,12 @@ public class DiceServiceImpl {
 																		// symbolic
 																		// simulator
 	private String[] extensions;
-	// private final static String usrs = "_numUsers";
-	// private final static String cores = "_numCores";
 	private final static String remoteDirectory = "/home/user/Desktop/sim_j/";
 	private int accuracy;
 	private static final String model_path = "PN_models/";
 	private String fileNameWithoutExtension;
 	private static String simulations_local_directory;
-	// private final Logger logger =
-	// Logger.getLogger(DiceServiceImpl.class.getName());
 
-	private String model;
 	private String simulator_type;
 	private String modelFilesPathWithoutExtension;
 	private String modelInitialFileName;
@@ -84,42 +79,16 @@ public class DiceServiceImpl {
 		return r;
 	}
 
-	public String setParams(String model, int accuracy) {
-		this.model = model;
+	public String setParams(int accuracy) {
 		this.accuracy = accuracy;
 		this.remoteFolder = "sim-" + new SimpleDateFormat("dd-MM-yyyy_HHmmss").format(new Date()) + "/";
-
-		// Useful if I've an ID
-		String variables = new String(); // depending on the model I've
-											// different variables to set
-
-		switch (model) {
-		case "V7":
-			modelInitialFileName = "FIFO1"; // added for modularity, to avoid
-											// this I should rename all the
-											// models file in the same way
-			variables = "_";// for simulation's folder name
-			break;
-
-		case "V10":
-			modelInitialFileName = "FIFO1"; // added for modularity, to avoid
-											// this I should rename all the
-											// models file in the same way
-			variables = "_";// for simulation's folder name
-			break;
-		default:
-			modelInitialFileName = "FIFO1";
-			model = "V10";
-			variables = "_";
-			break;
-		}
 
 		modelFilesPathWithoutExtension = "/";
 		simulator_type = "sym";
 		this.extensions = symExtensions;
 
 		String timeStamp = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
-		simulations_local_directory = "simulations/" + simulator_type + "-sim" + model + variables + "_" + timeStamp + "/";
+		simulations_local_directory = "simulations/" + simulator_type + "-sim" + "_" + timeStamp + "/";
 		return simulations_local_directory;
 	}
 
@@ -321,7 +290,7 @@ public class DiceServiceImpl {
 
 	private void commonInitialization(int size, double[] mapRate, double[] reduceRate, double[] thinkRate) {
 
-		fileNameWithoutExtension = model + modelInitialFileName; // V10ordFIFO1
+		fileNameWithoutExtension = modelInitialFileName; // V10ordFIFO1
 																	// <-- NB ~
 																	// same file
 																	// name
@@ -329,7 +298,7 @@ public class DiceServiceImpl {
 																	// and
 																	// fileName
 
-		modelFilesPathWithoutExtension = model_path + model + modelFilesPathWithoutExtension;// +modelInitialFileName;
+		modelFilesPathWithoutExtension = model_path +  modelFilesPathWithoutExtension;// +modelInitialFileName;
 																								// //I
 																								// have
 																								// to

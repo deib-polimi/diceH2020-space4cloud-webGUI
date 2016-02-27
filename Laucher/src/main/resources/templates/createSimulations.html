@@ -35,25 +35,25 @@
       <button class="button" onclick="submitForm()" type="submit">Run Simulations</button>
       <h2 style="color: #31bc86; margin-top: 50px;">Simulations
         classes</h2>
-      <h3 style="color: #A6A6A6;">Simulations will be executed</h3>
+      <h3 style="color: #A6A6A6;">Simlations will be executed</h3>
       <div class="resultContainer">
         <table>
           <thead>
             <tr>
-              <th>Think Time[ms]</th>
-              <th>Map</th>
-              <th>Reduce</th>
-              <th>VMs</th>
-              <th>Users</th>
+              <th>Inst. ID</th>
+              <th>Think T.[ms]</th>
+              <th>#VMs</th>
+              <th>#Users</th>
+              <th>Iter.</th>
             </tr>
           </thead>
           <tbody>
             <tr th:each="classList: ${sim_manager.classList}">
+              <td th:text="${classList['instanceName']}">Inst. ID</td>
               <td th:text="${classList['thinkTime']}">Think Time[ms]</td>
-              <td th:text="${classList['map']}">Map</td>
-              <td th:text="${classList['reduce']}">Reduce</td>
-              <td th:text="${classList['minNumVMs']+'-'+classList['maxNumVMs']}">VMs</td>
-              <td th:text="${classList['minNumUsers']+'-'+classList['maxNumUsers']}">Users</td>
+              <td th:text="${classList['numVMs']}">VMs</td>
+              <td th:text="${classList['numUsers']}">Users</td>
+              <td th:text="${classList['iter']}">Iter.</td>
             </tr>
           </tbody>
         </table>

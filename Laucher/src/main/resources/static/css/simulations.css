@@ -8,7 +8,7 @@
   font-weight: normal;
 }
 body {
-  font-family: "Segoe UI", "Microsoft YaHei";
+ font-family: "Segoe UI", "Microsoft YaHei";
 }
 h1{
 	padding: 50px 0;
@@ -21,12 +21,12 @@ button {
     background-color: #32465f;
     margin: 10px auto;
     display: block;
-    box-shadow: 0 0 5px black;
+/*    box-shadow: 0 0 5px black;*/
 }
 button:hover{
 	cursor: pointer;
 	background-color: #4D6583;
-	box-shadow: none;
+/*	box-shadow: none;*/
 }
 table{
 	margin: 0 auto;
@@ -77,10 +77,10 @@ input{
 		min-height: 400px;
 }
 .resultContainer th{
-    background-color: #32465f;;
-    font-weight: bold;
+  background-color: #32465f;
+   /* font-weight: bold*/
     color: #fff;
-    white-space: nowrap;
+  white-space: pre-wrap;
 }
 .resultContainer td,.resultContainer th {
     padding: 0.75em 1.5em;
@@ -99,7 +99,7 @@ input{
     margin-top:1em;
 }
 .resultContainer thead{
-	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);*/
 }
 .resultContainer tbody th {
 	background-color: #2ea879;

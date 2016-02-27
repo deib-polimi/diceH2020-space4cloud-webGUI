@@ -104,7 +104,7 @@ public class DiceService {
 		long startTime = System.currentTimeMillis();
 		DiceServiceImpl ds =(DiceServiceImpl) context.getBean("diceServiceImpl");
 		ds.setSSHConnection(host, user, pk, setKnownHosts,psw);
-		String path =  ds.setParams(simManager.getModel(),simManager.getAccuracy());
+		String path =  ds.setParams(simManager.getAccuracy());
 		simManager.setFolderPath(path); 
 		simManager.setNumCompletedSimulations(0);
 		//COMMON PARAMS
@@ -114,10 +114,7 @@ public class DiceService {
     	int[] map=new int[num], reduce=new int [num], mapTime=new int[num], reduceTime=new int[num], thinkTime=new int[num];
     	double[] mapRate=new double[num], reduceRate=new double[num], thinkRate=new double[num];
     	for(int i=0;i<num;i++){
-    		map[i] = simManager.getClassList().get(i).getMap();
-    		reduce[i] = simManager.getClassList().get(i).getReduce();
     		thinkTime[i] = simManager.getClassList().get(i).getThinkTime();
-    		thinkRate[i] = simManager.getClassList().get(i).getThinkRate();
     	}
     	int stepVMs = simManager.getStepVMs();
 		int stepUsrs = simManager.getStepUsers();
@@ -131,10 +128,6 @@ public class DiceService {
 		int[] coresLoop = new int[classes_num];
 		
 		for(int i=0;i<classes_num;i++){
-			minVMs[i] = simManager.getClassList().get(i).getMinNumVMs();
-			maxVMs[i] = simManager.getClassList().get(i).getMaxNumCores();
-			minUsers[i] = simManager.getClassList().get(i).getMinNumUsers();
-			maxUsers[i] = simManager.getClassList().get(i).getMaxNumUsers();
 			usersLoop[i] = minUsers[i];
 			coresLoop[i] = minVMs[i];
 		}
@@ -250,132 +243,5 @@ public class DiceService {
 		s.setThinkRate(thinkRate);
 		
 	}
-	
-	public void simulationV10(SimulationsManager sim_manager){
-		List<Future<Float>> objectiv= new ArrayList<Future<Float>>(); //used to join the @asynch threads after the fork
-		long startTime = System.currentTimeMillis();
-		DiceServiceImpl ds =(DiceServiceImpl) context.getBean("diceServiceImpl");
-		ds.setSSHConnection(host, user, pk, setKnownHosts, psw);
-		String path = ds.setParams(sim_manager.getModel(), sim_manager.getAccuracy()); 
-		sim_manager.setFolderPath(path); 
-		sim_manager.setNumCompletedSimulations(0);
 
-
-		
-		//COMMON PARAMS
-		int num =  1; //class list size
-    	int[] map=new int[num], reduce=new int [num], mapTime=new int[num], reduceTime=new int[num], thinkTime=new int[num];
-    	double[] mapRate=new double[num], reduceRate=new double[num], thinkRate=new double[num];
-    	for(int i=0;i<num;i++){
-    		map[i] = sim_manager.getClassList().get(i).getMap();
-    		reduce[i] = sim_manager.getClassList().get(i).getReduce();
-    		thinkTime[i] = sim_manager.getClassList().get(i).getThinkTime();
-    		thinkRate[i] = sim_manager.getClassList().get(i).getThinkRate();
-    	}
-    	int stepVMs = sim_manager.getStepVMs();
-		int stepUsrs = sim_manager.getStepUsers();
-		int classes_num = 1;
-		int[] minCores = new int[classes_num];
-		int[] maxCores = new int[classes_num];
-		int[] minUsers = new int[classes_num];
-		int[] maxUsers = new int[classes_num];
-		
-		int[] usersLoop = new int[classes_num];
-		int[] coresLoop = new int[classes_num];
-		
-		for(int i=0;i<classes_num;i++){
-			minCores[i] = sim_manager.getClassList().get(i).getMinNumVMs();
-			maxCores[i] = sim_manager.getClassList().get(i).getMaxNumCores();
-			minUsers[i] = sim_manager.getClassList().get(i).getMinNumUsers();
-			maxUsers[i] = sim_manager.getClassList().get(i).getMaxNumUsers();
-			usersLoop[i] = minUsers[i];
-			coresLoop[i] = minCores[i];
-		}
-    	//END OF COMMON PARAMS
-    		try{
-	    	ds.initializeSimulationsV10(sim_manager.getSize(),mapRate,reduceRate,thinkRate);
-			int sim = 0;
-			int totalNumOfSimulations = sim_manager.getSize();
-			while(sim<totalNumOfSimulations){
-		    	
-					//logger.info("Users: "+usersLoop[0]+" "+usersLoop[1]+" cores "+coresLoop[0]+" "+coresLoop[1]);
-					//logger.info(sim+": "+Arrays.toString(coresLoop)+Arrays.toString(usersLoop));
-			    	if(sim !=0){
-			    		breakLoop:
-			    		while(true){
-			    			for(int i=classes_num-1;i>=0;i--){ //setting up cores[] and users[] for the specific simulation
-			    				if(coresLoop[i]+stepVMs<=maxCores[i]){
-			    					coresLoop[i] += stepVMs;
-			    					break breakLoop;
-			    				}else{
-			    					coresLoop[i] = minCores[i];
-			    				}
-			    			}
-			    			for(int i=classes_num-1;i>=0;i--){
-			    				if(usersLoop[i]+stepUsrs<=maxUsers[i]){
-			    					usersLoop[i] += stepUsrs;
-			    					break breakLoop;
-			    				}
-			    				else{
-			    					usersLoop[i] = minUsers[i];
-			    				}
-			    			}
-			    		}
-			    	}
-			    	int[] users = usersLoop.clone();
-					int[] cores = coresLoop.clone();
-					
-					
-					Simulation s = new Simulation(); 
-			    	setSimulation(s,sim+1, sim_manager.getAccuracy(), users, cores, map,reduce,mapTime,reduceTime,thinkTime,mapRate,reduceRate,thinkRate);
-			    	s.setSimulationsManager(sim_manager);
-			    	sim_manager.getSimulationsList().add(s);
-			    	//objectiv.add(ds.startSimulationV10(s));
-			    	sim++;
-		   }
-			
-			simulationsManagerRepository.save(sim_manager);
-			int sim2 = 0;
-			while(sim2<totalNumOfSimulations){
-				
-				objectiv.add(ds.startSimulationV10(sim_manager.getSimulationsList().get(sim2)));
-		    	sim2++;
-			}
-		    
-			/*Before I've set up the simulations and I've only sent the execution command to the simulator(trough @asynch tasks)
-		     * now I've to join these threads. 
-		     */
-			int sim3 = 0;
-			while(sim3<totalNumOfSimulations){
-						int simId = sim3 +1;
-						logger.info("Waiting for simulation id "+simId+" result");
-						try {
-							objectiv.get(sim3).get();
-						} catch (InterruptedException e) {
-							logger.error("Error in simulation V10 threads join. "+e.getStackTrace());
-						} catch (ExecutionException e) {
-							logger.error("Error in simulation V10 threads join. "+e.getStackTrace());
-						}//Join (Synchronize threads) 
-						//double thr = sim_manager.getSimulationsList().get(sim).getThroughput();
-						sim_manager.setNumCompletedSimulations(simId);
-						simulationsRepository.save(sim_manager.getSimulationsList().get(sim3));
-
-						sim3++;
-			}
-			long totalRunTimeMillis = (System.currentTimeMillis() - startTime);
-			double totalRunTime=totalRunTimeMillis/1000.0;
-			sim_manager.setTotalRuntime((int)totalRunTime);
-			sim_manager.setState("completed");
-			simulationsManagerRepository.save(sim_manager);
-			
-			excelFile.writeListToExcel(sim_manager.getSimulationsList(),sim_manager.getFolderPath(),totalRunTime);
-			logger.info(sim2+" simulations completed in "+totalRunTime);
-			
-    		} catch (Exception e) {
-    			sim_manager.setState("failed");
-				logger.error("Error in simulation V10 excel creation. "+e.getStackTrace());
-    		}
-       logger.info("FINISHED");
-	}
-	
 }

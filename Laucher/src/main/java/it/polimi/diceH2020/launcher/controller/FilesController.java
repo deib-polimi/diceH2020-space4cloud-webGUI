@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
@@ -37,15 +37,22 @@ public class FilesController {
 	}
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file") MultipartFile[] files, Model model) {
+	public String multipleSave(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+		//TODO remove all files
 		String fileName = null;
 		for (int i = 0; i < files.length; i++) {
 			fileName = files[i].getOriginalFilename();
 			File f = saveFile(files[i]);
 			if (f == null) return "error";
-			if (fileName.contains(".json") && !validator.validateSolution(f.toPath())) {
-				model.addAttribute("message", "Invalid Json file!");
-				return "home";
+			if (fileName.contains(".json")) {
+				if (!validator.validateSolution(f.toPath())) {
+					model.addAttribute("message", "Invalid Json file!");
+					return "home";
+				}
+				else{ 
+				//
+				redirectAttrs.addAttribute("inputPath", f.toPath().toString());
+				}
 			}
 		}
 		return "redirect:/sim/simulationSetup";

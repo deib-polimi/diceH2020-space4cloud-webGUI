@@ -257,7 +257,7 @@ h1,h2,h3,h4,h5,h6,td,th{
   margin-right:auto;
   max-width: 500px;
   background: #F7F7F7;
-  padding: 25px 15px 25px 10px;
+  padding: 25px 0px 5px 0px;
   font-family : HelveticaNeue,Helvetica, Arial;
   font-weight: 400;
   font-size : 12px;
