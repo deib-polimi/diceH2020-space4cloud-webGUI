@@ -52,7 +52,11 @@ public class SimulationController {
 	}
 
 	@RequestMapping(value = "/simulationSetup", method = RequestMethod.GET)
-	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model, @ModelAttribute("sim_manager") SimulationsManager simManager, @ModelAttribute("inputPath") String inputSolPath) {
+	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model, 
+			@ModelAttribute("sim_manager") SimulationsManager simManager, 
+			@ModelAttribute("inputPath") String inputSolPath,
+			@ModelAttribute("pathFile1") String mapFile,
+			@ModelAttribute("inputPath2") String rsFile) {
 		// sessionStatus.setComplete();
 		if (inputSolPath == null) return "error";
 		if (simManager == null) {
@@ -61,9 +65,10 @@ public class SimulationController {
 		}
 		//
 		Solution inputSol = validator.objectFromPath(Paths.get(inputSolPath), Solution.class).get();
-		// SimulationsManager simManager = (SimulationsManager) model.asMap().;
+
 		simManager.setInputSolution(inputSol);
-		// model.addAttribute("sim_manager", simManager);
+		simManager.setMapFile(mapFile);
+		simManager.setRsFile(rsFile);
 		return "simulationSetup";
 	}
 
@@ -81,22 +86,20 @@ public class SimulationController {
 		if (allCommon) { // the simulation can start
 			fixParams(simManager);// just in case
 			simManager.buildExperiments();
+			simManager.setNumCompletedSimulations(0);
 			return "createSimulations";
 		} else {
-			int b = 0;
-			simManager.setNumCompletedSimulations(b);
-			return "redirect:/sim/simulations2"; // at list one class /TODO fix this
-													// -->simulations2 :D
+			return "error";
 		}
 	}
 
 
 
 	@RequestMapping(value = "createSimulations", method = RequestMethod.POST)
-	public String runSimulations(@ModelAttribute("sim_manager") SimulationsManager sim_manager, SessionStatus sessionStatus) {
-		ds.simulation(sim_manager);
+	public String runSimulations(@ModelAttribute("sim_manager") SimulationsManager expManager, SessionStatus sessionStatus) {
+		ds.simulation(expManager);
 		sessionStatus.setComplete();
-		return "redirect:/listV7";
+		return "redirect:/totalExperimentList";
 	}
 
 	private void fixParams(SimulationsManager simManager) {

@@ -22,6 +22,7 @@ public class ExperimentRecord {
 	private int iteration;
 	@NotNull
 	private boolean done;
+
 	
 	public ExperimentRecord(Path name, int iter){
 		this.instanceName = name.toString();

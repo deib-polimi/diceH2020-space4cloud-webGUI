@@ -40,7 +40,8 @@
         <table>
           <thead>
             <tr>
-              <th>Inst. ID</th>
+              <th>Inst. name</th>
+              <th>Solver</th>
               <th>Think T.[ms]</th>
               <th>#VMs</th>
               <th>#Users</th>
@@ -50,6 +51,7 @@
           <tbody>
             <tr th:each="classList: ${sim_manager.classList}">
               <td th:text="${classList['instanceName']}">Inst. ID</td>
+              <td th:text="${sim_manager.solver}">Solver</td>
               <td th:text="${classList['thinkTime']}">Think Time[ms]</td>
               <td th:text="${classList['numVMs']}">VMs</td>
               <td th:text="${classList['numUsers']}">Users</td>

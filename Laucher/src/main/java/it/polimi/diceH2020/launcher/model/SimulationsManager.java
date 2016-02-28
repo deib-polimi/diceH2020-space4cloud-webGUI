@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher.model;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,51 +18,62 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.launcher.utility.Compressor;
 
 /**
  * This class contain informations about client's requested set of simulations
  */
 @Entity
 public class SimulationsManager {
-	
+
+	public String getInstanceName() {
+		return instanceName;
+	}
+
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+	}
+
 	@NotNull
 	private Integer accuracy = 5;
-	
-	@Transient
-	private List<InteractiveExperiment> classList = new ArrayList<InteractiveExperiment>();
+
+	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OrderColumn(name = "simManager_index")
+	private List<InteractiveExperiment> lstExperiments = new ArrayList<InteractiveExperiment>();
+
 	private String date;
-	private String folderPath;
+
 	@Id
 	@Column(name = "SIM_MANAGER")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	@Transient
-	private Solution inputSolution;         
-	@Transient
-	private  Integer maxNumUsers;
-	@Transient
-	private  Integer maxNumVMs;
-	@Transient
-	private  Integer minNumUsers;	
-	@Transient
-	private  Integer minNumVMs;	
-	
-	private Integer numCompletedSimulations;
-	
-	@Transient
-	private Integer numIter;
-	
-	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-	@OrderColumn(name = "simManager_index")
-	private List<Simulation> simulationsList = new ArrayList<Simulation>();
-	
-	private Integer size;
-	
-	
-	private String state = "ready";
+	private Solution inputSolution;
 
+	@Column(length = 1000)
+	private String solution;
+
+	@Transient
+	private Integer maxNumUsers;
+	@Transient
+	private Integer maxNumVMs;
+	@Transient
+	private Integer minNumUsers;
+	@Transient
+	private Integer minNumVMs;
+
+	private Integer numCompletedSimulations;
+
+	private Integer numIter;
+
+	private Integer size;
+
+	private String state = "ready";
+	
+	private Solver solver = Solver.JMT;
 
 	@NotNull
 	@Transient
@@ -70,74 +82,75 @@ public class SimulationsManager {
 	@NotNull
 	@Transient
 	private Integer stepVMs = 1;
-	@Transient
-	private String tabID; //for session navigation. See the controller doc for other information
-
 
 	@Transient
-	private  double thinkRate;     // 1/Z	
-
-	@Transient
-	private  Integer thinkTime;
+	private Integer thinkTime;
 	private String time;
 
-	private int totalRuntime;
-	
-	private String instanceName;
-	
-	public SimulationsManager(){
+	private String instanceName = "";
+
+	private String mapFile;
+
+	private String rsFile;
+
+	public SimulationsManager() {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-        java.util.Date date = new java.util.Date();
-        this.date = dateFormat.format(date);
-        this.time = timeFormat.format(date);
+		java.util.Date date = new java.util.Date();
+		this.date = dateFormat.format(date);
+		this.time = timeFormat.format(date);
 	}
-	
+
 	public void buildExperiments() {
-		this.classList.clear();
-		for (int numVMs = minNumVMs; numVMs <= maxNumVMs; numVMs = numVMs + stepVMs) 
-			for (int numUsers = minNumUsers; numUsers <= maxNumUsers; numUsers = numUsers + stepUsers) 
+		this.lstExperiments.clear();
+		for (int numVMs = minNumVMs; numVMs <= maxNumVMs; numVMs = numVMs + stepVMs)
+			for (int numUsers = minNumUsers; numUsers <= maxNumUsers; numUsers = numUsers + stepUsers)
 				for (int it = 1; it <= this.numIter; it++) {
-					InteractiveExperiment simClass = new InteractiveExperiment();
-					simClass.setIter(it);
-					simClass.setNumUsers(numUsers);
-					simClass.setNumVMs(numVMs);
-					simClass.setThinkTime(this.thinkTime);
-					simClass.setInstanceName(this.instanceName);
-					this.classList.add(simClass);
+					InteractiveExperiment experiment = new InteractiveExperiment();
+					experiment.setIter(it);
+					experiment.setNumUsers(numUsers);
+					experiment.setNumVMs(numVMs);
+					experiment.setThinkTime(this.thinkTime);
+					experiment.setInstanceName(this.instanceName);
+					experiment.setSimulationsManager(this);
+					this.lstExperiments.add(experiment);
 				}
 	}
-	
-	
+
 	public Integer getAccuracy() {
 		return accuracy;
 	}
-	
+
 	public List<InteractiveExperiment> getClassList() {
-		return classList;
+		return lstExperiments;
 	}
-	
+
 	public String getDate() {
 		return date;
 	}
-	
-	public String getFolderPath() {
-		return folderPath;
-	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
-	
+
 	public Solution getInputSolution() {
+		if (inputSolution != null) {
+			return inputSolution;
+		} else if (solution != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return this.solution.equals("") || this.solution.equals("Error") ? null : mapper.readValue(Compressor.decompress(this.solution), Solution.class);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
 		return inputSolution;
 	}
 
 	public Integer getMaxNumUsers() {
 		return maxNumUsers;
 	}
-
 
 	public Integer getMaxNumVMs() {
 		return maxNumVMs;
@@ -150,7 +163,7 @@ public class SimulationsManager {
 	public Integer getMinNumVMs() {
 		return minNumVMs;
 	}
-	
+
 	public Integer getNumCompletedSimulations() {
 		return numCompletedSimulations;
 	}
@@ -159,15 +172,10 @@ public class SimulationsManager {
 		return numIter;
 	}
 
-	public List<Simulation> getSimulationsList() {
-		return simulationsList;
-	}
-
 	public int getSize() {
-		this.size = classList.size();
+		this.size = lstExperiments.size();
 		return size;
 	}
-
 
 	public String getState() {
 		return state;
@@ -177,17 +185,8 @@ public class SimulationsManager {
 		return stepUsers;
 	}
 
-
 	public Integer getStepVMs() {
 		return stepVMs;
-	}
-
-	public String getTabID() {
-		return tabID;
-	}
-
-	public double getThinkRate() {
-		return thinkRate;
 	}
 
 	public Integer getThinkTime() {
@@ -198,25 +197,18 @@ public class SimulationsManager {
 		return time;
 	}
 
-	public int getTotalRuntime() {
-		return totalRuntime;
-	}
-
 	public void setAccuracy(Integer accuracy) {
 		this.accuracy = accuracy;
 	}
 
 	public void setClassList(List<InteractiveExperiment> simulationsList) {
-		this.classList = simulationsList;
+		this.lstExperiments = simulationsList;
 	}
 
 	public void setDate(String date) {
 		this.date = date;
 	}
 
-	public void setFolderPath(String folderPath) {
-		this.folderPath = folderPath;
-	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -224,10 +216,16 @@ public class SimulationsManager {
 
 	public void setInputSolution(Solution inputSolution) {
 		this.inputSolution = inputSolution;
-		Double tt= inputSolution.getLstSolutions().get(0).getJob().getThink();
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			this.solution = Compressor.compress(mapper.writeValueAsString(inputSolution));
+		} catch (IOException e) {
+			this.solution = "Error";
+		}
+		Double tt = inputSolution.getLstSolutions().get(0).getJob().getThink();
 		this.thinkTime = tt.intValue();
 		this.instanceName = inputSolution.getId();
-
 	}
 
 	public void setMaxNumUsers(Integer maxNumUsers) {
@@ -237,25 +235,24 @@ public class SimulationsManager {
 	public void setMaxNumVMs(Integer maxNumCores) {
 		this.maxNumVMs = maxNumCores;
 	}
+
 	public void setMinNumUsers(Integer minUsers) {
 		this.minNumUsers = minUsers;
 	}
+
 	public void setMinNumVMs(Integer minCores) {
 		this.minNumVMs = minCores;
 	}
 
-	public void setNumCompletedSimulations(Integer num_of_completed_simulations) {
-		this.numCompletedSimulations = num_of_completed_simulations;
+	public void setNumCompletedSimulations(Integer numCompletedSimulations) {
+		this.numCompletedSimulations = numCompletedSimulations;
 	}
 
 	public void setNumIter(Integer numIter) {
 		this.numIter = numIter;
 	}
-	public void setSimulationsList(List<Simulation> simulationsList) {
-		this.simulationsList = simulationsList;
-	}
 
-	public void setSize(Integer size){
+	public void setSize(Integer size) {
 		this.size = size;
 	}
 
@@ -271,14 +268,6 @@ public class SimulationsManager {
 		this.stepVMs = stepVMs;
 	}
 
-	public void setTabID(String tabID) {
-		this.tabID = tabID;
-	}
-
-	public void setThinkRate(double thinkRate) {
-		this.thinkRate = thinkRate;
-	}
-
 	public void setThinkTime(Integer thinkTime) {
 		this.thinkTime = thinkTime;
 	}
@@ -287,9 +276,29 @@ public class SimulationsManager {
 		this.time = time;
 	}
 
-
-	public void setTotalRuntime(int totalRuntime) {
-		this.totalRuntime = totalRuntime;
+	public String getMapFile() {
+		return mapFile;
 	}
-	
+
+	public void setMapFile(String mapFile) {
+		this.mapFile = mapFile;
+	}
+
+	public void setRsFile(String rsFile) {
+		this.rsFile = rsFile;
+
+	}
+
+	public String getRsFile() {
+		return rsFile;
+	}
+
+	public Solver getSolver() {
+		return solver;
+	}
+
+	public void setSolver(Solver solver) {
+		this.solver = solver;
+	}
+
 }

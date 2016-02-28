@@ -1,17 +1,17 @@
 package it.polimi.diceH2020.launcher.utility;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
-import it.polimi.diceH2020.launcher.model.Simulation;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.List;
+import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 
 /**
  * This class is used for creating V10 model's xls file
@@ -23,7 +23,7 @@ import java.util.List;
 @Component
 public class ExcelWriter {
 
-	    public void writeListToExcel(List<Simulation> simulationList,String string, double totalRuntime) throws IOException{
+	    public void writeListToExcel(List<InteractiveExperiment> simulationList,String string, double totalRuntime) throws IOException{
 	    	String FILE_PATH = string+"results.xls";;
 
 	        // Using XSSF for xlsx format, for xls use HSSF
@@ -36,15 +36,6 @@ public class ExcelWriter {
 	        int cellIndex = 0;
 	        row.createCell(cellIndex++).setCellValue("Total Run Time");
 	        row.createCell(cellIndex++).setCellValue(String.valueOf(totalRuntime));
-	        
-	        row.createCell(cellIndex++).setCellValue("Erlang");
-	        row.createCell(cellIndex++).setCellValue(String.valueOf(simulationList.get(0).getErlang()));
-	        
-	        row.createCell(cellIndex++).setCellValue("Min Batch");
-	        row.createCell(cellIndex++).setCellValue(String.valueOf(simulationList.get(0).getMinBatch() ));
-	        
-	        row.createCell(cellIndex++).setCellValue("Max");
-	        row.createCell(cellIndex++).setCellValue(String.valueOf(simulationList.get(0).getMaxBatch() ));
 	        
 	        row = simulationSheet.createRow(rowIndex++);
 	        
@@ -61,21 +52,14 @@ public class ExcelWriter {
 	        row.createCell(cellIndex++).setCellValue("Response Time");
 	        row.createCell(cellIndex++).setCellValue("Run Time");
 	        
-	        for(Simulation sim : simulationList){	        		        	
+	        for(InteractiveExperiment sim : simulationList){	        		        	
 		        //System.out.println("scrivo nuova riga su excel");
 	            row = simulationSheet.createRow(rowIndex++);
 	            cellIndex = 0;
-	            row.createCell(cellIndex++).setCellValue(sim.getAccuracy());
-	        	row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getMapTime(), 0) );
-		        row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getReduceTime(), 0));
 		        row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getThinkTime(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getMap(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getReduce(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getUsers(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getCores(), 0));
-	            row.createCell(cellIndex++).setCellValue(sim.getThroughputEnd());
-	            row.createCell(cellIndex++).setCellValue(sim.getResponseTimeEnd());
-	            row.createCell(cellIndex++).setCellValue(sim.getRuntime());	            
+	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getNumVMs(), 0));
+	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getNumUsers(), 0));
+	            row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
 	        }
 
 	            FileOutputStream fos = new FileOutputStream(FILE_PATH);

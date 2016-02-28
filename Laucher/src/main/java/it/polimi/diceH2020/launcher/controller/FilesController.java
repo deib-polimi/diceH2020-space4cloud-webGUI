@@ -38,8 +38,9 @@ public class FilesController {
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public String multipleSave(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
-		//TODO remove all files
+		// TODO remove all files
 		String fileName = null;
+		int j = 1;
 		for (int i = 0; i < files.length; i++) {
 			fileName = files[i].getOriginalFilename();
 			File f = saveFile(files[i]);
@@ -48,11 +49,13 @@ public class FilesController {
 				if (!validator.validateSolution(f.toPath())) {
 					model.addAttribute("message", "Invalid Json file!");
 					return "home";
+				} else {
+					//
+					redirectAttrs.addAttribute("inputPath", f.toPath().toString());
 				}
-				else{ 
-				//
-				redirectAttrs.addAttribute("inputPath", f.toPath().toString());
-				}
+			} else {
+				redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
+				j++;
 			}
 		}
 		return "redirect:/sim/simulationSetup";
