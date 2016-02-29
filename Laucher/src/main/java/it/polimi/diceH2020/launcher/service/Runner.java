@@ -1,4 +1,4 @@
-package it.polimi.diceH2020.launcher;
+package it.polimi.diceH2020.launcher.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +24,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import it.polimi.diceH2020.launcher.Experiment;
+import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 

@@ -5,7 +5,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,6 +45,12 @@ public class FilesController {
 		// TODO remove all files
 		String fileName = null;
 		int j = 1;
+		
+		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
+			model.addAttribute("message", "Duplicated files!");
+			return "home";
+		}
+		
 		for (int i = 0; i < files.length; i++) {
 			fileName = files[i].getOriginalFilename();
 			File f = saveFile(files[i]);
@@ -86,6 +96,15 @@ public class FilesController {
 		return null;
 	}
 
+	public static <T> boolean hasDuplicate(Iterable<T> all) {
+	    Set<T> set = new HashSet<T>();
+	    // Set#add returns false if the set does not change, which
+	    // indicates that a duplicate element has been added.
+	    for (T each: all) if (!set.add(each)) return true;
+	    return false;
+	}
+	
+	
 	private File saveFile(MultipartFile file) {
 		String fileName = file.getOriginalFilename();
 		try {

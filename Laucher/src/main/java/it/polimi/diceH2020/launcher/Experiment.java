@@ -2,6 +2,7 @@ package it.polimi.diceH2020.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.FileVisitResult;
@@ -16,7 +17,6 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -30,31 +30,38 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
+import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.Results;
+import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.ResultRepository;
 
 @Service
 public class Experiment {
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private static String EVENT_ENDPOINT;
 
-	private ObjectMapper mapper;
-	@Autowired
-	private Settings settings;
+	private static String INPUTDATA_ENDPOINT;
+	private static String RESULT_FOLDER;
+	private static String SOLUTION_ENDPOINT;
+	private static String STATE_ENDPOINT;
+	private static String SETTINGS_ENDPOINT;
+
+	private static String UPLOAD_ENDPOINT;
+	private int analysisExecuted = 1;
 	@Autowired
 	private ExperimentRepository expRepo;
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private ObjectMapper mapper;
 	@Autowired
 	private ResultRepository resRepo;
-
-	private static String SOLUTION_ENDPOINT;
-	private static String INPUTDATA_ENDPOINT;
-	private static String EVENT_ENDPOINT;
-	private static String STATE_ENDPOINT;
-	private static String UPLOAD_ENDPOINT;
-	private static String RESULT_FOLDER;
-	private int analysisExecuted = 1;
-	private int totalAnalysisToExecute = -1;
+	private RestTemplate restTemplate = new RestTemplate();
+	@Autowired
+	private Settings settings;
 	private boolean stop = false;
+
+	private int totalAnalysisToExecute = -1;
+
+	
 
 	public Experiment() {
 		mapper = new ObjectMapper();
@@ -63,46 +70,95 @@ public class Experiment {
 		mapper.registerModule(module);
 	}
 
-	@PostConstruct
-	private void init() throws IOException {
-		INPUTDATA_ENDPOINT = settings.getfullAddress() + "/inputdata";
-		EVENT_ENDPOINT = settings.getfullAddress() + "/event";
-		STATE_ENDPOINT = settings.getfullAddress() + "/state";
-		UPLOAD_ENDPOINT = settings.getfullAddress() + "/upload";
-		SOLUTION_ENDPOINT = settings.getfullAddress() + "/solution";
-		Path result = Paths.get(settings.getResultDir());
-		if (!Files.exists(result)) Files.createDirectory(result);
-		RESULT_FOLDER = result.toAbsolutePath().toString();
-
+	public boolean isStop() {
+		return stop;
 	}
 
-	private RestTemplate restTemplate = new RestTemplate();
+	public void  init(SimulationsManager simManager){
+		Solution sol = simManager.getInputSolution();
+		String solID = sol.getId();
+		int jobID = sol.getSolutionPerJob(0).getJob().getId();
+		String typeVMID = sol.getSolutionPerJob(0).getTypeVMselected().getId();
+		String nameMapFile = String.format("%sMapJ%d%s.txt", solID, jobID, typeVMID);
+		String nameRSFile = String.format("%sRSJ%d%s.txt", solID, jobID, typeVMID);
+		send(nameMapFile, simManager.getMapFile());
+		send(nameRSFile,simManager.getRsFile());
+		it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings set = new it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings();
+		set.setSimDuration(simManager.getSimDuration());
+		set.setSolver(simManager.getSolver());
+		set.setAccuracy(simManager.getAccuracy()/100.0);
+		String res = restTemplate.postForObject(SETTINGS_ENDPOINT, set, String.class);
+		logger.info(res);
+	}
 
-	void wipeResultDir() throws IOException {
-		Path result = Paths.get(settings.getResultDir());
-		if (Files.exists(result)) {
-			Files.walkFileTree(result, new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					Files.delete(file);
-					return FileVisitResult.CONTINUE;
-				}
+	public void launch(InteractiveExperiment e) {
+		if (isStop()) return;
+		int num = e.getIter();
+		String nameInstance = e.getInstanceName();
+		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
+		boolean idle = checkWSIdle();
 
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					Files.delete(dir);
-					return FileVisitResult.CONTINUE;
-				}
-			});
-			Files.deleteIfExists(result);
-			Files.createDirectory(result);
+		if (!idle || isStop()) {
+			logger.info(baseErrorString + "-> service not idle");
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			return;
 		}
+
+		boolean charged_initsolution = sendSolution(e.getSolution());
+
+		if (!charged_initsolution || isStop()) {
+			logger.info(baseErrorString + "-> uploading the initial solution");
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			return;
+		}
+
+		boolean evaluated_initsolution = evaluateInitSolution();
+		if (!evaluated_initsolution || isStop()) {
+			logger.info(baseErrorString + "-> evaluating the initial solution");
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			return;
+		}
+
+		boolean update_experiment = updateExperiment(e);
+		if (!update_experiment || isStop()) {
+			logger.info(baseErrorString + "-> updating the experiment information");
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			return;
+		}
+		e.setState("completed");
+		// to go to idle
+		restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+	}
+
+	private boolean updateExperiment(InteractiveExperiment e) {
+		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
+		if (sol == null) return false;
+		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
+		return true;
+	}
+
+	private boolean evaluateInitSolution() {
+		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class);
+		if (res.equals("EVALUATING_INIT")) {
+			res = "EVALUATING_INIT";
+			while (res.equals("EVALUATING_INIT")) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+			}
+			if (res.equals("EVALUATED_INITSOLUTION")) return true;
+		}
+		return false;
+
 	}
 
 	// main method of this class
 	public void launch(ExperimentRecord e) {
 		if (isStop()) return;
-		
+
 		int num = e.getIteration();
 		Path inputDataPath = e.getInstanceName();
 		if (!Files.exists(inputDataPath)) return;
@@ -125,6 +181,12 @@ public class Experiment {
 
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> generation of the initial solution");
+			return;
+		}
+
+		boolean evaluated_initsolution = evaluateInitSolution();
+		if (!evaluated_initsolution || isStop()) {
+			logger.info(baseErrorString + "-> evaluating the initial solution");
 			return;
 		}
 
@@ -156,6 +218,163 @@ public class Experiment {
 
 	}
 
+	public void send(String filename, String content ){
+		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+		map.add("name", filename);
+		map.add("filename", filename);
+		try {
+			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8"))  {
+				@Override
+				public String getFilename() {
+					return filename;
+				}
+			};
+			map.add("file", contentsAsResource);
+			String res =  restTemplate.postForObject(UPLOAD_ENDPOINT, map, String.class);
+			logger.info(res);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void send(Path f) {
+		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+		String content;
+		try {
+			content = new String(Files.readAllBytes(f));
+
+			final String filename = f.getFileName().toString();
+			map.add("name", filename);
+			map.add("filename", filename);
+			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8")) {
+				@Override
+				public String getFilename() {
+					return filename;
+				}
+			};
+			map.add("file", contentsAsResource);
+			restTemplate.postForObject(UPLOAD_ENDPOINT, map, String.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setStop(boolean stop) {
+		this.stop = stop;
+	}
+
+	public void setTotalAnalysisToExecute(int totalAnalysisToExecute) {
+		this.totalAnalysisToExecute = totalAnalysisToExecute;
+	}
+
+	public boolean stop() {
+		this.stop = true;
+		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+		if (res.equals("IDLE")) return true;
+		else {
+			logger.info(res);
+			return false;
+		}
+
+	}
+
+	public void waitForWS() {
+		try {
+			restTemplate.getForObject(STATE_ENDPOINT, String.class);
+		} catch (Exception e) {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			logger.info("trying to extablish a connection with S4C ws");
+			waitForWS();
+		}
+
+	}
+
+	private boolean checkWSIdle() {
+		return checkWSIdle(0);
+
+	}
+
+	private boolean checkWSIdle(int iter) {
+		if (iter > 50) { return false; }
+		String res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+		if (res.equals("IDLE")) return true;
+		else {
+			try {
+				Thread.sleep(10000);
+				return checkWSIdle(++iter);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+				return false;
+			}
+		}
+	}
+
+	private boolean executeLocalSearch() {
+		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class);
+		if (res.equals("RUNNING_LS")) {
+			res = "RUNNING_LS";
+			while (res.equals("RUNNING_LS")) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+			}
+		}
+		if (res.equals("FINISH")) return true;
+		else return false;
+	}
+
+	private boolean generateInitialSolution() {
+		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class);
+		if (res.equals("RUNNING_INIT")) {
+			res = "RUNNING_INIT";
+			while (res.equals("RUNNING_INIT")) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+			}
+			if (res.equals("CHARGED_INITSOLUTION")) {
+				return true;
+			} else return false;
+		} else return false;
+	}
+
+	private InstanceData getObjectFromPath(Path inputDataPath) {
+		String serialized;
+		try {
+			serialized = new String(Files.readAllBytes(inputDataPath));
+			InstanceData data = mapper.readValue(serialized, InstanceData.class);
+			return data;
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	@PostConstruct
+	private void init() throws IOException {
+		INPUTDATA_ENDPOINT = settings.getfullAddress() + "/inputdata";
+		EVENT_ENDPOINT = settings.getfullAddress() + "/event";
+		STATE_ENDPOINT = settings.getfullAddress() + "/state";
+		UPLOAD_ENDPOINT = settings.getfullAddress() + "/upload";
+		SOLUTION_ENDPOINT = settings.getfullAddress() + "/solution";
+		SETTINGS_ENDPOINT = settings.getfullAddress()+"/settings";
+		Path result = Paths.get(settings.getResultDir());
+		if (!Files.exists(result)) Files.createDirectory(result);
+		RESULT_FOLDER = result.toAbsolutePath().toString();
+
+	}
+
 	private boolean saveFinalSolution(ExperimentRecord e) {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
@@ -179,23 +398,6 @@ public class Experiment {
 		}
 	}
 
-	private boolean executeLocalSearch() {
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class);
-		if (res.equals("RUNNING_LS")) {
-			res = "RUNNING_LS";
-			while (res.equals("RUNNING_LS")) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
-			}
-		}
-		if (res.equals("FINISH")) return true;
-		else return false;
-	}
-
 	private boolean saveInitSolution() {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-MINLP.json";
@@ -212,24 +414,6 @@ public class Experiment {
 			return false;
 		}
 
-	}
-
-	private boolean generateInitialSolution() {
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class);
-		if (res.equals("RUNNING_INIT")) {
-			res = "RUNNING_INIT";
-			while (res.equals("RUNNING_INIT")) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
-			}
-			if (res.equals("CHARGED_INITSOLUTION")) {
-				return true;
-			} else return false;
-		} else return false;
 	}
 
 	private boolean sendInputData(Path inputDataPath) {
@@ -249,96 +433,31 @@ public class Experiment {
 		}
 	}
 
-	private InstanceData getObjectFromPath(Path inputDataPath) {
-		String serialized;
-		try {
-			serialized = new String(Files.readAllBytes(inputDataPath));
-			InstanceData data = mapper.readValue(serialized, InstanceData.class);
-			return data;
-		} catch (IOException e) {
-			return null;
-		}
+	private boolean sendSolution(Solution solution) {
+		String res = restTemplate.postForObject(SOLUTION_ENDPOINT, solution, String.class);
+		if (res.equals("CHARGED_INITSOLUTION")) return true;
+		else return false;
 	}
 
-	private boolean checkWSIdle() {
-		return checkWSIdle(0);
-
-	}
-
-	private boolean checkWSIdle(int iter) {
-		if (iter > 50) { return false; }
-		String res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
-		if (res.equals("IDLE")) return true;
-		else {
-			try {
-				Thread.sleep(10000);
-				return checkWSIdle(++iter);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-				return false;
-			}
-		}
-	}
-
-	public void send(Path f) {
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-		String content;
-		try {
-			content = new String(Files.readAllBytes(f));
-
-			final String filename = f.getFileName().toString();
-			map.add("name", filename);
-			map.add("filename", filename);
-			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8")) {
+	void wipeResultDir() throws IOException {
+		Path result = Paths.get(settings.getResultDir());
+		if (Files.exists(result)) {
+			Files.walkFileTree(result, new SimpleFileVisitor<Path>() {
 				@Override
-				public String getFilename() {
-					return filename;
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Files.delete(dir);
+					return FileVisitResult.CONTINUE;
 				}
-			};
-			map.add("file", contentsAsResource);
-			restTemplate.postForObject(UPLOAD_ENDPOINT, map, String.class);
-		} catch (IOException e) {
-			e.printStackTrace();
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					Files.delete(file);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			Files.deleteIfExists(result);
+			Files.createDirectory(result);
 		}
-	}
-
-	public void setTotalAnalysisToExecute(int totalAnalysisToExecute) {
-		this.totalAnalysisToExecute = totalAnalysisToExecute;
-	}
-
-	public void waitForWS() {
-		try {
-			restTemplate.getForObject(STATE_ENDPOINT, String.class);
-		} catch (Exception e) {
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			logger.info("trying to extablish a connection with S4C ws");
-			waitForWS();
-		}
-
-	}
-
-	public boolean isStop() {
-		return stop;
-	}
-
-	public void setStop(boolean stop) {
-		this.stop = stop;
-	}
-
-	public boolean stop() {
-		this.stop = true;
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-		if (res.equals("IDLE")) return true;
-		else {
-			logger.info(res);
-			return false;
-		}
-		
 	}
 
 }

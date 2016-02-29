@@ -1,6 +1,8 @@
 package it.polimi.diceH2020.launcher.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -56,8 +58,8 @@ public class SimulationController {
 			@ModelAttribute("sim_manager") SimulationsManager simManager, 
 			@ModelAttribute("inputPath") String inputSolPath,
 			@ModelAttribute("pathFile1") String mapFile,
-			@ModelAttribute("inputPath2") String rsFile) {
-		// sessionStatus.setComplete();
+			@ModelAttribute("pathFile2") String rsFile) {
+
 		if (inputSolPath == null) return "error";
 		if (simManager == null) {
 			simManager = new SimulationsManager();
@@ -67,8 +69,18 @@ public class SimulationController {
 		Solution inputSol = validator.objectFromPath(Paths.get(inputSolPath), Solution.class).get();
 
 		simManager.setInputSolution(inputSol);
-		simManager.setMapFile(mapFile);
-		simManager.setRsFile(rsFile);
+		
+		String mapContent = "";
+		String rsContent = "";
+		try {
+			mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+			rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+		} catch (IOException e) {
+			return "error";
+		}
+		
+		simManager.setMapFile(mapContent);
+		simManager.setRsFile(rsContent);
 		return "simulationSetup";
 	}
 

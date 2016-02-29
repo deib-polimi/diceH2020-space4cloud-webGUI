@@ -21785,3 +21785,1337 @@ java.io.FileNotFoundException: 1results.xls (No such file or directory)
 [INFO] Started LaucherApplication in 3.844 seconds (JVM running for 413.843)
 [INFO] Starting LaucherApplication on Micheles-MacBook-Pro.local with PID 3658 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
 [INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4392 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 13.072 seconds (JVM running for 14.668)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Iter: 1 Error for experiment: myJson-> updating the experiment information
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4420 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.947 seconds (JVM running for 13.891)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4441 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.918 seconds (JVM running for 13.817)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4464 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.478 seconds (JVM running for 13.323)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4492 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 13.344 seconds (JVM running for 14.363)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4516 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 17.179 seconds (JVM running for 17.978)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Iter: 1 Error for experiment: myJson-> updating the experiment information
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4527 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 25.984 seconds (JVM running for 26.862)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 4562 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 17.125 seconds (JVM running for 18.299)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8329 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 19.796 seconds (JVM running for 22.065)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[ERROR] [THYMELEAF][http-nio-8000-exec-5] Fatal error during parsing
+org.xml.sax.SAXParseException: The element type "tr" must be terminated by the matching end-tag "</tr>".
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:203)
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:177)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:441)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:368)
+	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1437)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(XMLDocumentFragmentScannerImpl.java:1749)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2973)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:606)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:510)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:848)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:777)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1213)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:649)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl.parse(SAXParserImpl.java:333)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.doParse(AbstractNonValidatingSAXTemplateParser.java:209)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.parseTemplateUsingPool(AbstractNonValidatingSAXTemplateParser.java:134)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.parseTemplate(AbstractNonValidatingSAXTemplateParser.java:116)
+	at org.thymeleaf.TemplateRepository.getTemplate(TemplateRepository.java:278)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1104)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1060)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1011)
+	at org.thymeleaf.spring4.view.ThymeleafView.renderFragment(ThymeleafView.java:335)
+	at org.thymeleaf.spring4.view.ThymeleafView.render(ThymeleafView.java:190)
+	at org.springframework.web.servlet.DispatcherServlet.render(DispatcherServlet.java:1243)
+	at org.springframework.web.servlet.DispatcherServlet.processDispatchResult(DispatcherServlet.java:1027)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:971)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:859)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:622)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[ERROR] [THYMELEAF][http-nio-8000-exec-5] Exception processing template "simulationSetup": Exception parsing document: template="simulationSetup", line 58 - column 59
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.thymeleaf.exceptions.TemplateInputException: Exception parsing document: template="simulationSetup", line 58 - column 59] with root cause
+org.xml.sax.SAXParseException: The element type "tr" must be terminated by the matching end-tag "</tr>".
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:203)
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:177)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:441)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:368)
+	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1437)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(XMLDocumentFragmentScannerImpl.java:1749)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2973)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:606)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:510)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:848)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:777)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1213)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:649)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl.parse(SAXParserImpl.java:333)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.doParse(AbstractNonValidatingSAXTemplateParser.java:209)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.parseTemplateUsingPool(AbstractNonValidatingSAXTemplateParser.java:134)
+	at org.thymeleaf.templateparser.xmlsax.AbstractNonValidatingSAXTemplateParser.parseTemplate(AbstractNonValidatingSAXTemplateParser.java:116)
+	at org.thymeleaf.TemplateRepository.getTemplate(TemplateRepository.java:278)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1104)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1060)
+	at org.thymeleaf.TemplateEngine.process(TemplateEngine.java:1011)
+	at org.thymeleaf.spring4.view.ThymeleafView.renderFragment(ThymeleafView.java:335)
+	at org.thymeleaf.spring4.view.ThymeleafView.render(ThymeleafView.java:190)
+	at org.springframework.web.servlet.DispatcherServlet.render(DispatcherServlet.java:1243)
+	at org.springframework.web.servlet.DispatcherServlet.processDispatchResult(DispatcherServlet.java:1027)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:971)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:859)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:622)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is java.lang.NullPointerException] with root cause
+java.lang.NullPointerException: null
+	at it.polimi.diceH2020.launcher.model.SimulationsManager.buildExperiments(SimulationsManager.java:122)
+	at it.polimi.diceH2020.launcher.controller.SimulationController.checkSimulationsManagerForm(SimulationController.java:88)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:221)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:817)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:731)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:870)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:648)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8351 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, sim_duration, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 13.071 seconds (JVM running for 13.933)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] settings changed
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8401 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, sim_duration, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.573 seconds (JVM running for 13.758)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[WARN] SQL Error: 22001, SQLState: 22001
+[ERROR] Value too long for column "MAP_FILE VARCHAR(255)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; nested exception is org.hibernate.exception.DataException: could not execute statement] with root cause
+org.h2.jdbc.JdbcSQLException: Value too long for column "MAP_FILE VARCHAR(255)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.table.Column.validateConvertUpdateSequence(Column.java:331)
+	at org.h2.table.Table.validateConvertUpdateSequence(Table.java:779)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:151)
+	at org.h2.command.dml.Insert.update(Insert.java:114)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:98)
+	at org.h2.command.Command.executeUpdate(Command.java:258)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:160)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:146)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:208)
+	at org.hibernate.id.IdentityGenerator$GetGeneratedKeysDelegate.executeAndExtract(IdentityGenerator.java:96)
+	at org.hibernate.id.insert.AbstractReturningDelegate.performInsert(AbstractReturningDelegate.java:58)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3032)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3558)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:98)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:492)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:197)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:181)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:216)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:334)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:289)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:195)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:126)
+	at org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(JpaPersistEventListener.java:84)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:206)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:149)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:75)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:811)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:784)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:789)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1181)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:344)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:294)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:439)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.saveAndFlush(SimpleJpaRepository.java:453)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.executeMethodOn(RepositoryFactorySupport.java:483)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.doInvoke(RepositoryFactorySupport.java:468)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.invoke(RepositoryFactorySupport.java:440)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:61)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:99)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:281)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:96)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:136)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:131)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:92)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:208)
+	at com.sun.proxy.$Proxy95.saveAndFlush(Unknown Source)
+	at it.polimi.diceH2020.launcher.service.DiceService.simulation(DiceService.java:63)
+	at it.polimi.diceH2020.launcher.controller.SimulationController.runSimulations(SimulationController.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:221)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:817)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:731)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:870)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:648)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8418 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.467 seconds (JVM running for 13.525)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[WARN] SQL Error: 22001, SQLState: 22001
+[ERROR] Value too long for column "MAP_FILE VARCHAR(2000)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; nested exception is org.hibernate.exception.DataException: could not execute statement] with root cause
+org.h2.jdbc.JdbcSQLException: Value too long for column "MAP_FILE VARCHAR(2000)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.table.Column.validateConvertUpdateSequence(Column.java:331)
+	at org.h2.table.Table.validateConvertUpdateSequence(Table.java:779)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:151)
+	at org.h2.command.dml.Insert.update(Insert.java:114)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:98)
+	at org.h2.command.Command.executeUpdate(Command.java:258)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:160)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:146)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:208)
+	at org.hibernate.id.IdentityGenerator$GetGeneratedKeysDelegate.executeAndExtract(IdentityGenerator.java:96)
+	at org.hibernate.id.insert.AbstractReturningDelegate.performInsert(AbstractReturningDelegate.java:58)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3032)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3558)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:98)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:492)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:197)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:181)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:216)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:334)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:289)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:195)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:126)
+	at org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(JpaPersistEventListener.java:84)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:206)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:149)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:75)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:811)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:784)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:789)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1181)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:344)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:294)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:439)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.saveAndFlush(SimpleJpaRepository.java:453)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.executeMethodOn(RepositoryFactorySupport.java:483)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.doInvoke(RepositoryFactorySupport.java:468)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.invoke(RepositoryFactorySupport.java:440)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:61)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:99)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:281)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:96)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:136)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:131)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:92)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:208)
+	at com.sun.proxy.$Proxy95.saveAndFlush(Unknown Source)
+	at it.polimi.diceH2020.launcher.service.DiceService.simulation(DiceService.java:63)
+	at it.polimi.diceH2020.launcher.controller.SimulationController.runSimulations(SimulationController.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:221)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:817)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:731)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:870)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:648)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8430 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 15.74 seconds (JVM running for 16.545)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[WARN] SQL Error: 22001, SQLState: 22001
+[ERROR] Value too long for column "MAP_FILE VARCHAR(20000)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; nested exception is org.hibernate.exception.DataException: could not execute statement] with root cause
+org.h2.jdbc.JdbcSQLException: Value too long for column "MAP_FILE VARCHAR(20000)": "STRINGDECODE('\u001f\u008b\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000L\u009dI\u0082\u00e4H\u008e\u0004\u00ef\u00f1\u001a\u0... (101217)"; SQL statement:
+insert into simulations_manager (sim_manager, accuracy, date, instance_name, map_file, num_completed_simulations, num_iter, rs_file, sim_duration, size, solution, solver, state, time) values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-191]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.table.Column.validateConvertUpdateSequence(Column.java:331)
+	at org.h2.table.Table.validateConvertUpdateSequence(Table.java:779)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:151)
+	at org.h2.command.dml.Insert.update(Insert.java:114)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:98)
+	at org.h2.command.Command.executeUpdate(Command.java:258)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:160)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:146)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:208)
+	at org.hibernate.id.IdentityGenerator$GetGeneratedKeysDelegate.executeAndExtract(IdentityGenerator.java:96)
+	at org.hibernate.id.insert.AbstractReturningDelegate.performInsert(AbstractReturningDelegate.java:58)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3032)
+	at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:3558)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:98)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:492)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:197)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:181)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:216)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:334)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:289)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:195)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:126)
+	at org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(JpaPersistEventListener.java:84)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:206)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:149)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:75)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:811)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:784)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:789)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1181)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:344)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:294)
+	at com.sun.proxy.$Proxy93.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:439)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.saveAndFlush(SimpleJpaRepository.java:453)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.executeMethodOn(RepositoryFactorySupport.java:483)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.doInvoke(RepositoryFactorySupport.java:468)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.invoke(RepositoryFactorySupport.java:440)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:61)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:99)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:281)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:96)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:136)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:131)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:92)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:208)
+	at com.sun.proxy.$Proxy95.saveAndFlush(Unknown Source)
+	at it.polimi.diceH2020.launcher.service.DiceService.simulation(DiceService.java:63)
+	at it.polimi.diceH2020.launcher.controller.SimulationController.runSimulations(SimulationController.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:221)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:817)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:731)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:870)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:648)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:745)
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8453 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 14.649 seconds (JVM running for 16.153)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8453 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, sim_duration, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 4.038 seconds (JVM running for 222.254)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[ERROR] Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is java.lang.IllegalArgumentException: This Dispatcher has been shut down.] with root cause
+java.lang.IllegalArgumentException: This Dispatcher has been shut down.
+	at reactor.core.support.Assert.isTrue(Assert.java:61) ~[reactor-core-2.0.7.RELEASE.jar:na]
+	at reactor.core.dispatch.AbstractLifecycleDispatcher.dispatch(AbstractLifecycleDispatcher.java:111) ~[reactor-core-2.0.7.RELEASE.jar:na]
+	at reactor.bus.EventBus.notify(EventBus.java:368) ~[reactor-bus-2.0.7.RELEASE.jar:na]
+	at it.polimi.diceH2020.launcher.service.DiceService.simulation(DiceService.java:64) ~[classes/:na]
+	at it.polimi.diceH2020.launcher.controller.SimulationController.runSimulations(SimulationController.java:112) ~[classes/:na]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_60]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_60]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_60]
+	at java.lang.reflect.Method.invoke(Method.java:497) ~[na:1.8.0_60]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:221) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:817) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:731) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:968) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:870) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:648) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:844) ~[spring-webmvc-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:729) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:292) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52) ~[tomcat-embed-websocket-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.boot.actuate.autoconfigure.EndpointWebMvcAutoConfiguration$ApplicationContextHeaderFilter.doFilterInternal(EndpointWebMvcAutoConfiguration.java:237) ~[spring-boot-actuator-1.3.3.RELEASE.jar:1.3.3.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.boot.actuate.trace.WebRequestTraceFilter.doFilterInternal(WebRequestTraceFilter.java:112) ~[spring-boot-actuator-1.3.3.RELEASE.jar:1.3.3.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:87) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:77) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:121) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.springframework.boot.actuate.autoconfigure.MetricsFilter.doFilterInternal(MetricsFilter.java:103) ~[spring-boot-actuator-1.3.3.RELEASE.jar:1.3.3.RELEASE]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107) ~[spring-web-4.2.5.RELEASE.jar:4.2.5.RELEASE]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:240) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:207) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:212) ~[tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:106) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:502) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:141) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:88) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:522) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1095) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:672) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1500) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.run(NioEndpoint.java:1456) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) [tomcat-embed-core-8.0.32.jar:8.0.32]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8475 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.EXPERIMENT_RECORD
+[INFO] HHH000037: Columns: [instance_name, my_id, iteration, done]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_e]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.INTERACTIVE_EXPERIMENT
+[INFO] HHH000037: Columns: [sim_manager, instance_name, num_users, sim_manager_index, experimental_duration, iter, response_time, id, state, think_time, numvms]
+[INFO] HHH000108: Foreign keys: [fk_guxadmhbhwylawbog5arj5xm6]
+[INFO] HHH000126: Indexes: [fk_guxadmhbhwylawbog5arj5xm6_index_8, primary_key_8]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.RESULTS
+[INFO] HHH000037: Columns: [instance_name, solution, iteration, id]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_6]
+[INFO] HHH000261: Table found: LAUNCHERDB.PUBLIC.SIMULATIONS_MANAGER
+[INFO] HHH000037: Columns: [date, instance_name, accuracy, sim_manager, rs_file, size, solution, sim_duration, num_completed_simulations, num_iter, map_file, state, time, solver]
+[INFO] HHH000108: Foreign keys: []
+[INFO] HHH000126: Indexes: [primary_key_b]
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.895 seconds (JVM running for 13.779)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] Starting LaucherApplication on pc135-171.dei.polimi.it with PID 8510 (/Users/ciavotta/Launcher/Laucher/target/classes started by ciavotta in /Users/ciavotta/Launcher/Laucher)
+[INFO] No active profile set, falling back to default profiles: default
+[INFO] Starting service Tomcat
+[INFO] Starting Servlet Engine: Apache Tomcat/8.0.32
+[INFO] Initializing Spring embedded WebApplicationContext
+[INFO] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO] HHH000412: Hibernate Core {4.3.11.Final}
+[INFO] HHH000206: hibernate.properties not found
+[INFO] HHH000021: Bytecode provider name : javassist
+[INFO] HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+[INFO] HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[INFO] HHH000397: Using ASTQueryTranslatorFactory
+[INFO] HHH000228: Running hbm2ddl schema update
+[INFO] HHH000102: Fetching database metadata
+[INFO] HHH000396: Updating schema
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000262: Table not found: experiment_record
+[INFO] HHH000262: Table not found: interactive_experiment
+[INFO] HHH000262: Table not found: results
+[INFO] HHH000262: Table not found: simulations_manager
+[INFO] HHH000232: Schema update complete
+[INFO] TempWorkingDir created.
+[INFO] Started LaucherApplication in 12.303 seconds (JVM running for 13.229)
+[INFO] Initializing Spring FrameworkServlet 'dispatcherServlet'
+[INFO] You successfully uploaded myJsonMapJ1T2.txt!
+[INFO] You successfully uploaded myJsonRSJ1T2.txt!
+[INFO] settings changed

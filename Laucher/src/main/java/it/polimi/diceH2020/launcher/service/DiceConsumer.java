@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.polimi.diceH2020.launcher.Experiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
@@ -30,6 +31,9 @@ public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
 	@Autowired
 	private SimulationsManagerRepository simManRepo;
 	
+	@Autowired
+	private Experiment experiment;
+	
 	@PostConstruct
 	private void register(){
 		eventBus.on($("evaluate"), this); //registering the consumer
@@ -38,15 +42,9 @@ public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
 	@Override
 	public void accept(Event<SimulationsManager> ev) {
 		SimulationsManager simManager = ev.getData();
+		experiment.init(simManager);
 		simManager.getClassList().stream().forEach(e-> {
-			try {
-				Thread.sleep(6000);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			logger.info(e.toString());
-			e.setState("completed");
+			experiment.launch(e);
 			intExpRepo.saveAndFlush(e);
 		});
 		simManager.setState("completed");

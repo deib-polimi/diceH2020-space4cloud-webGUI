@@ -16,10 +16,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.SolverType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 
@@ -67,13 +69,13 @@ public class SimulationsManager {
 
 	private Integer numCompletedSimulations;
 
-	private Integer numIter;
+	private Integer numIter = 1;
 
 	private Integer size;
 
 	private String state = "ready";
 	
-	private Solver solver = Solver.JMT;
+	private SolverType solver = SolverType.QNSolver;
 
 	@NotNull
 	@Transient
@@ -89,9 +91,25 @@ public class SimulationsManager {
 
 	private String instanceName = "";
 
+	@Column(length = 200000)
 	private String mapFile;
 
+	@Column(length = 200000)
 	private String rsFile;
+	
+	
+	
+	@NotNull
+	@Min(60)
+	private Integer simDuration = 180;
+
+	public Integer getSimDuration() {
+		return simDuration;
+	}
+
+	public void setSimDuration(Integer simDuration) {
+		this.simDuration = simDuration;
+	}
 
 	public SimulationsManager() {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -277,27 +295,43 @@ public class SimulationsManager {
 	}
 
 	public String getMapFile() {
-		return mapFile;
+		try {
+			return Compressor.decompress(mapFile);
+		} catch (IOException e) {
+			return "";
+		}
 	}
 
 	public void setMapFile(String mapFile) {
-		this.mapFile = mapFile;
+		try {
+			this.mapFile = Compressor.compress(mapFile);
+		} catch (IOException e) {
+			this.mapFile = "";
+		}
 	}
 
 	public void setRsFile(String rsFile) {
-		this.rsFile = rsFile;
+		try {
+			this.rsFile = Compressor.compress(rsFile);
+		} catch (IOException e) {
+			this.rsFile = "";
+		}
 
 	}
 
 	public String getRsFile() {
-		return rsFile;
+		try {
+			return Compressor.decompress(rsFile);
+		} catch (IOException e) {
+			return "";
+		}
 	}
 
-	public Solver getSolver() {
+	public SolverType getSolver() {
 		return solver;
 	}
 
-	public void setSolver(Solver solver) {
+	public void setSolver(SolverType solver) {
 		this.solver = solver;
 	}
 

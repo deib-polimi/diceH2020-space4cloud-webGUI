@@ -9,6 +9,8 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
 import lombok.Data;
 
 @Entity
@@ -47,5 +49,15 @@ public class InteractiveExperiment {
 	private String state = "ready"; //states:  ready to be executed, running, completed, failed
 	
 	public InteractiveExperiment(){
+	}
+
+	public Solution getSolution() {
+		
+		Solution sol = simulationsManager.getInputSolution();
+		SolutionPerJob spj = sol.getLstSolutions().get(0);
+		spj.getJob().setThink(thinkTime);
+		spj.setNumberVM(numVMs);
+		spj.setNumberUsers(numUsers);
+		return sol;
 	}
 }
