@@ -40,7 +40,9 @@
 			<table>
 				<tr>
 					<td>100% - accuracy = [%]</td>
-					<td><input type="text" th:field="*{accuracy}" placeholder="5" /></td>
+					<td>
+						<input type="text" th:field="*{accuracy}" th:value="*{accuracy}?: '15'"/>
+					</td>
 					<td th:if="${#fields.hasErrors('accuracy')}" class="form_error"
 						th:errors="*{accuracy}">Class Number Error</td>
 				</tr>
@@ -53,13 +55,13 @@
 				</tr>
 				<tr>
 					<td>Sim. duration [s] (min 60s)</td>
-					<td><input type="text" th:field="*{simDuration}" placeholder="180" /></td>
+					<td><input type="text" th:field="*{simDuration}" th:value="*{simDuration}?: '180'"/></td>
 					<td th:if="${#fields.hasErrors('simDuration')}" class="form_error"
 						th:errors="*{simDuration}">Class Number Error</td>
 				</tr>
 				<tr>
 					<td>Number of repetitions:</td>
-					<td><input type="text" th:field="*{numIter}" placeholder="5" />
+					<td><input type="text" th:field="*{numIter}" th:value="*{numIter}?: '1'" />
 					</td>
 					<td th:if="${#fields.hasErrors('numIter')}"
 						class="form_error" th:errors="*{numIter}">Class Number
@@ -68,40 +70,40 @@
 				<tr>
 					<td>Min number of users:</td>
 					<td><input id="minUsers" name="minUsers" type="text"
-						th:field="*{minNumUsers}" placeholder="1" /></td>
+						th:field="*{minNumUsers}" th:value="*{minNumUsers}?: '1'" /></td>
 					<td th:if="${#fields.hasErrors('minNumUsers')}" class="form_error"
 						th:errors="*{minNumUsers}">Min Number of Users Error</td>
 				</tr>
 				<tr>
 					<td>Max number of users:</td>
 					<td><input id="maxUsers" name="maxUsers" type="text"
-						th:field="*{maxNumUsers}" placeholder="1" /></td>
+						th:field="*{maxNumUsers}" th:value="*{maxNumUsers}?: '1'" /></td>
 					<td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error"
 						th:errors="*{maxNumUsers}">Max Number of Users Error</td>
 				</tr>
 				<tr>
 					<td>Increasing users with step:</td>
-					<td><input type="text" th:field="*{stepUsers}" placeholder="1" /></td>
+					<td><input type="text" th:field="*{stepUsers}" th:value="*{stepUsers}?: '1'" /></td>
 					<td th:if="${#fields.hasErrors('stepUsers')}" class="form_error"
 						th:errors="*{stepUsers}">Class Number Error</td>
 				</tr>
 				<tr>
 					<td>Min number of VMs:</td>
 					<td><input id="minVMs" name="minVMs" type="text"
-						th:field="*{minNumVMs}" placeholder="1" /></td>
+						th:field="*{minNumVMs}" th:value="*{minNumVMs}?: '1'" /></td>
 					<td th:if="${#fields.hasErrors('minNumVMs')}" class="form_error"
 						th:errors="*{minNumVMs}">Min Number of VMs Error</td>
 				</tr>
 				<tr>
 					<td>Max number of VMs:</td>
 					<td><input id="maxVMs" name="maxVMs" type="text"
-						th:field="*{maxNumVMs}" placeholder="1" /></td>
+						th:field="*{maxNumVMs}" th:value="*{maxNumVMs}?: '1'" /></td>
 					<td th:if="${#fields.hasErrors('maxNumVMs')}" class="form_error"
 						th:errors="*{maxNumVMs}">Max Number of VMs Error</td>
 				</tr>
 				<tr>
 					<td>Increasing #VMs with step:</td>
-					<td><input type="text" th:field="*{stepVMs}" placeholder="1" />
+					<td><input type="text" th:field="*{stepVMs}" th:value="*{stepVMs}?: '1'" />
 					</td>
 					<td th:if="${#fields.hasErrors('stepVMs')}" class="form_error"
 						th:errors="*{stepVMs}">Class Number Error</td>
@@ -110,7 +112,7 @@
 
 					<td>Think Time[ms]:</td>
 					<td><input id="thinkTime" name="thinkTime" type="text"
-						th:field="*{thinkTime}" placeholder="1000" /></td>
+						th:field="*{thinkTime}" th:value="*{thinkTime}?: '10000'" /></td>
 					<td th:if="${#fields.hasErrors('thinkTime')}" class="form_error"
 						th:errors="*{thinkTime}">Reduce Time Error</td>
 				</tr>

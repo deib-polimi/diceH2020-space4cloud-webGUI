@@ -71,30 +71,6 @@ public class FilesController {
 		return "redirect:/sim/simulationSetup";
 	}
 
-	private List<String> saveJsonFile(MultipartFile[] files) {
-		String fileName;
-		for (int i = 0; i < files.length; i++) {
-			try {
-				fileName = files[i].getOriginalFilename();
-				if (fileName.contains(".json")) {
-					File f = saveFile(files[i]);
-					if (!validator.validateSolution(f.toPath())) return null;
-					else {
-						Solution sol = validator.objectFromPath(f.toPath(), Solution.class).get();
-						List<String> lst = new ArrayList<>(3);
-						lst.add(sol.getId());
-						SolutionPerJob spj = sol.getLstSolutions().get(0);
-						lst.add(Integer.toString(spj.getJob().getId()));
-						lst.add(spj.getTypeVMselected().getId());
-						return lst;
-					}
-				}
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		return null;
-	}
 
 	public static <T> boolean hasDuplicate(Iterable<T> all) {
 	    Set<T> set = new HashSet<T>();

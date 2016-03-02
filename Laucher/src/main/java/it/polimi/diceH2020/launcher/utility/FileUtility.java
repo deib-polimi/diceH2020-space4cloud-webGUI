@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
+import it.polimi.diceH2020.launcher.utility.policy.KeepFiles;
 
 
 @Component
@@ -42,6 +43,9 @@ public class FileUtility {
 
 	public @Nonnull File provideTemporaryFile(@CheckForNull String prefix, String suffix) throws IOException {
 		File file = File.createTempFile(prefix, suffix, LOCAL_DYNAMIC_FOLDER);
+		if (policy == null) {
+			policy = new KeepFiles();
+		}
 		policy.markForDeletion(file);
 		return file;
 	}

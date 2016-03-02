@@ -1,4 +1,4 @@
-package it.polimi.diceH2020.launcher.service;
+package it.polimi.diceH2020.launcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,18 +14,12 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import it.polimi.diceH2020.launcher.Experiment;
-import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 

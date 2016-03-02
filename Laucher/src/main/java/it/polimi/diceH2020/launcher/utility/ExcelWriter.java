@@ -9,9 +9,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
+import it.polimi.diceH2020.launcher.model.SimulationsManager;
+
 
 /**
  * This class is used for creating V10 model's xls file
@@ -22,10 +25,14 @@ import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
  */
 @Component
 public class ExcelWriter {
+	
+	@Autowired
+	FileUtility fileUtility;
 
-	    public void writeListToExcel(List<InteractiveExperiment> simulationList,String string, double totalRuntime) throws IOException{
-	    	String FILE_PATH = string+"results.xls";;
-
+	    public void writeListToExcel(SimulationsManager simManager) throws IOException{
+	    	
+	    	List<InteractiveExperiment> simulationList = simManager.getClassList();
+	 
 	        // Using XSSF for xlsx format, for xls use HSSF
 	        Workbook workbook = new XSSFWorkbook();
 
@@ -35,34 +42,34 @@ public class ExcelWriter {
 	        Row row = simulationSheet.createRow(rowIndex++);
 	        int cellIndex = 0;
 	        row.createCell(cellIndex++).setCellValue("Total Run Time");
-	        row.createCell(cellIndex++).setCellValue(String.valueOf(totalRuntime));
+	        row.createCell(cellIndex++).setCellValue(String.valueOf(simManager.getSimDuration()));
 	        
 	        row = simulationSheet.createRow(rowIndex++);
 	        
 	        cellIndex = 0;
 	        row.createCell(cellIndex++).setCellValue("Accuracy");
-	        row.createCell(cellIndex++).setCellValue("Map Time[ms]");
-	        row.createCell(cellIndex++).setCellValue("Reduce Time[ms]");
 	        row.createCell(cellIndex++).setCellValue("Think Time[ms]");	        
 	        row.createCell(cellIndex++).setCellValue("Map");
 	        row.createCell(cellIndex++).setCellValue("Reduce");
 	        row.createCell(cellIndex++).setCellValue("Users");
-	        row.createCell(cellIndex++).setCellValue("Cores");
-	        row.createCell(cellIndex++).setCellValue("Throughput");
+	        row.createCell(cellIndex++).setCellValue("VMs");
 	        row.createCell(cellIndex++).setCellValue("Response Time");
 	        row.createCell(cellIndex++).setCellValue("Run Time");
 	        
-	        for(InteractiveExperiment sim : simulationList){	        		        	
-		        //System.out.println("scrivo nuova riga su excel");
+	        for(InteractiveExperiment sim : simulationList){	    
 	            row = simulationSheet.createRow(rowIndex++);
 	            cellIndex = 0;
-		        row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getThinkTime(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getNumVMs(), 0));
-	            row.createCell(cellIndex++).setCellValue(Array.getInt(sim.getNumUsers(), 0));
-	            row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
+	            row.createCell(cellIndex++).setCellValue(simManager.getAccuracy());
+		        row.createCell(cellIndex++).setCellValue(sim.getThinkTime());
+		        row.createCell(cellIndex++).setCellValue(simManager.getInputSolution().getSolutionPerJob(0).getProfile().getNM());
+		        row.createCell(cellIndex++).setCellValue(simManager.getInputSolution().getSolutionPerJob(0).getProfile().getNR());
+		        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
+		        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
+		        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
+		        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
 	        }
-
-	            FileOutputStream fos = new FileOutputStream(FILE_PATH);
+	        
+	        	FileOutputStream fos = new FileOutputStream(fileUtility.provideTemporaryFile("result", "xls"));	        	
 	            workbook.write(fos);
 	            fos.close();
 	            workbook.close();

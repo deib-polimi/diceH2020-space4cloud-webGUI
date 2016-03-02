@@ -12,13 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 import it.polimi.diceH2020.launcher.FileService;
-import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 
@@ -75,8 +72,8 @@ public class MainFlowController {
 	@ResponseBody FileSystemResource downloadFile(@RequestParam(value="id") Long id,HttpServletResponse response) {
 	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
 	    response.setContentType("application/ms-excel");
-	    response.setHeader( "Content-Disposition", "attachment;filename=" + manager.getId().toString()+"results.xls" );
-	    return new FileSystemResource(new File(manager.getId().toString()+"results.xls"));
+	    response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
+	    return new FileSystemResource(new File(manager.getResultFilePath()));
 	}
 	
 }

@@ -34,7 +34,7 @@ public class Compressor {
         String outStr = "";
         String line;
         while ((line=bf.readLine())!=null) {
-          outStr += line;
+          outStr += line+'\n';
         }
         System.out.println("Output String lenght : " + outStr.length());
         return outStr;

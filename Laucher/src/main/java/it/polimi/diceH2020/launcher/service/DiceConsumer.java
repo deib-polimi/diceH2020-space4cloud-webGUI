@@ -2,6 +2,9 @@ package it.polimi.diceH2020.launcher.service;
 
 import static reactor.bus.selector.Selectors.$;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,15 @@ public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
 			experiment.launch(e);
 			intExpRepo.saveAndFlush(e);
 		});
+		try {
+			simManager.writeResultOnExcel();
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		simManager.setState("completed");
 		simManRepo.saveAndFlush(simManager);
 		

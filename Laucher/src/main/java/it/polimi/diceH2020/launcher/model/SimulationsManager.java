@@ -1,5 +1,8 @@
 package it.polimi.diceH2020.launcher.model;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,17 +22,25 @@ import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.SolverType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.utility.Compressor;
+import it.polimi.diceH2020.launcher.utility.FileUtility;
 
 /**
  * This class contain informations about client's requested set of simulations
  */
 @Entity
 public class SimulationsManager {
+	
 
 	public String getInstanceName() {
 		return instanceName;
@@ -59,15 +70,15 @@ public class SimulationsManager {
 	private String solution;
 
 	@Transient
-	private Integer maxNumUsers;
+	private Integer maxNumUsers = 1;
 	@Transient
-	private Integer maxNumVMs;
+	private Integer maxNumVMs = 1;
 	@Transient
-	private Integer minNumUsers;
+	private Integer minNumUsers = 1;
 	@Transient
-	private Integer minNumVMs;
+	private Integer minNumVMs = 1;
 
-	private Integer numCompletedSimulations;
+	private Integer numCompletedSimulations = 0;
 
 	private Integer numIter = 1;
 
@@ -98,10 +109,12 @@ public class SimulationsManager {
 	private String rsFile;
 	
 	
+	private String resultFilePath = "";
+	
 	
 	@NotNull
 	@Min(60)
-	private Integer simDuration = 180;
+	private Integer simDuration = 30;
 
 	public Integer getSimDuration() {
 		return simDuration;
@@ -334,5 +347,64 @@ public class SimulationsManager {
 	public void setSolver(SolverType solver) {
 		this.solver = solver;
 	}
+	
+	public void writeResultOnExcel() throws FileNotFoundException, IOException{
+		List<InteractiveExperiment> simulationList = this.lstExperiments;
+		 
+        // Using XSSF for xlsx format, for xls use HSSF
+        Workbook workbook = new XSSFWorkbook();
+
+        Sheet simulationSheet = workbook.createSheet("Simulations");
+        
+        int rowIndex = 0;
+        Row row = simulationSheet.createRow(rowIndex++);
+        int cellIndex = 0;
+        row.createCell(cellIndex++).setCellValue("Total Run Time");
+        row.createCell(cellIndex++).setCellValue(String.valueOf(simDuration));
+        
+        row = simulationSheet.createRow(rowIndex++);
+        
+        cellIndex = 0;
+        row.createCell(cellIndex++).setCellValue("Accuracy");
+        row.createCell(cellIndex++).setCellValue("Think Time[ms]");	        
+        row.createCell(cellIndex++).setCellValue("Map");
+        row.createCell(cellIndex++).setCellValue("Reduce");
+        row.createCell(cellIndex++).setCellValue("Users");
+        row.createCell(cellIndex++).setCellValue("VMs");
+        row.createCell(cellIndex++).setCellValue("Iteration");
+        row.createCell(cellIndex++).setCellValue("Response Time");
+        row.createCell(cellIndex++).setCellValue("Run Time");
+        
+        for(InteractiveExperiment sim : simulationList){	    
+            row = simulationSheet.createRow(rowIndex++);
+            cellIndex = 0;
+            row.createCell(cellIndex++).setCellValue(accuracy);
+	        row.createCell(cellIndex++).setCellValue(thinkTime);
+	        row.createCell(cellIndex++).setCellValue(inputSolution.getSolutionPerJob(0).getProfile().getNM());
+	        row.createCell(cellIndex++).setCellValue(inputSolution.getSolutionPerJob(0).getProfile().getNR());
+	        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
+	        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
+	        row.createCell(cellIndex++).setCellValue(sim.getIter());
+	        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
+	        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
+        }
+        	FileUtility fileUtility = new FileUtility();
+        	
+        	File tmpFile = fileUtility.provideTemporaryFile("result", ".xlsxon ti");
+        	FileOutputStream fos = new FileOutputStream(tmpFile);	        	
+            workbook.write(fos);
+            fos.close();
+            workbook.close();
+            setResultFilePath(tmpFile.getAbsolutePath());
+	}
+
+	public String getResultFilePath() {
+		return resultFilePath;
+	}
+
+	public void setResultFilePath(String resultFilePath) {
+		this.resultFilePath = resultFilePath;
+	}
+	
 
 }
