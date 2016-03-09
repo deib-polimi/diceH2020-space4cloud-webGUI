@@ -1,11 +1,8 @@
 package it.polimi.diceH2020.launcher;
 
 import org.apache.log4j.Logger;
-import org.crsh.text.Color;
 import org.h2.server.web.WebServlet;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
@@ -25,9 +22,9 @@ import it.polimi.diceH2020.launcher.utility.FileUtility;
 @EntityScan("it.polimi.diceH2020.launcher.model")
 @EnableJpaRepositories("it.polimi.diceH2020.launcher.repository")
 @EnableAsync
-public class LaucherApplication{
+public class LauncherApplication {
 
-	private static Logger logger = Logger.getLogger(LaucherApplication.class.getName());
+	private static Logger logger = Logger.getLogger(LauncherApplication.class.getName());
 
 	@Autowired
 	private FileUtility fileUtility;
@@ -51,7 +48,7 @@ public class LaucherApplication{
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(LaucherApplication.class, args);		
+		SpringApplication.run(LauncherApplication.class, args);
 
 		
 	}

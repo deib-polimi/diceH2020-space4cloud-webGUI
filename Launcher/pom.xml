@@ -8,7 +8,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Laucher</name>
+	<name>Launcher</name>
 	<description>Launcher for SPACE4CloudWS</description>
 
 	<parent>
