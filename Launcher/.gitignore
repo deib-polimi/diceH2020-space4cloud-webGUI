@@ -1,2 +1,13 @@
 /.apt_generated/
 /target/
+/.classpath
+/.factorypath
+/.project
+/.springBeans
+/.settings/
+/.idea/
+/launcher.iml
+/logLauncher.txt
+/instances/
+/results/
+/solInstances/
