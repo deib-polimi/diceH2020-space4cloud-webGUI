@@ -12,5 +12,6 @@ import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 public interface ExperimentRepository extends JpaRepository<ExperimentRecord, Long>{
 
 	List<ExperimentRecord> findByDone(boolean done);
+	
 
 }

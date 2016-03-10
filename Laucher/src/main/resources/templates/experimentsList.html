@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" http-equiv="refresh" content="5"></meta>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+<title>Experiments</title>
+</head>
+<body>
+	<div id="topBar">
+   		<div id="ios-arrow-container">
+    		<div id="ios-arrow-left" title="Home">
+    			<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    		</div>
+    	</div>
+    	<h3>Experiments</h3>
+    	<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+    <br />
+    <div class = "basic-grey">
+	<div class="resultContainer">
+		<table>
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Instance Name</th>
+					<th>Done</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="cursor:pointer;" th:each="experiment : ${experiments}" >
+					<td th:text="${experiment.myId}">ID</td>
+					<td th:text="${experiment.instanceName}">Date</td>
+					<td th:text="${experiment.done}">Time</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+
+
+
+
+
+</body>
+</html>
