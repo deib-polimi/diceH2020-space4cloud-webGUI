@@ -59,7 +59,7 @@ public class Runner {
 		printDirFiles();
 		
 		if (lstExp.size() > 0) {
-			logger.info("Some experiment pending in the database");
+			logger.info("Some experiments pending in the database");
 			experiment.setTotalAnalysisToExecute(lstExp.size());
 			logger.info("The launcher is in running mode");
 			lstExp.forEach(e -> experiment.launch(e));

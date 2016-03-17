@@ -423,7 +423,7 @@ public class Experiment {
 			String res = restTemplate.postForObject(INPUTDATA_ENDPOINT, data, String.class);
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
-				logger.info("Error for experiment: " + inputDataPath.getName(inputDataPath.getNameCount() - 1) + " server respondend in an unexpected way: " + res);
+				logger.info("Error for experiment: " + inputDataPath.getName(inputDataPath.getNameCount() - 1) + " server responded in an unexpected way: " + res);
 				return false;
 			}
 
