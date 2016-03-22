@@ -16,11 +16,12 @@ public class Settings {
 	private String resultDir;
 	private String address;
 	private String port;
+	private String[] ports;
 	
 	
 	
-	public String getfullAddress(){
-		return "http://"+address+":"+port;
+	public String getFullAddress(){
+		return "http://"+address+":";
 	}
 
 }

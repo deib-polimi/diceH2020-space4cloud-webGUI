@@ -16,8 +16,9 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -38,7 +39,8 @@ import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.ResultRepository;
 
-@Service
+@Scope("prototype")
+@Component
 public class Experiment {
 	private static String EVENT_ENDPOINT;
 
@@ -65,12 +67,14 @@ public class Experiment {
 	private Settings settings;
 	private boolean stop = false;
 	private int totalAnalysisToExecute = -1;
+	private String port;
 
-	public Experiment() {
+	public Experiment(String port) {
 		mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
 		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
 		mapper.registerModule(module);
+		this.port = port;
 	}
 
 	public boolean isStop() {
@@ -433,12 +437,12 @@ public class Experiment {
 
 	@PostConstruct
 	private void init() throws IOException {
-		INPUTDATA_ENDPOINT = settings.getfullAddress() + "/inputdata";
-		EVENT_ENDPOINT = settings.getfullAddress() + "/event";
-		STATE_ENDPOINT = settings.getfullAddress() + "/state";
-		UPLOAD_ENDPOINT = settings.getfullAddress() + "/upload";
-		SOLUTION_ENDPOINT = settings.getfullAddress() + "/solution";
-		SETTINGS_ENDPOINT = settings.getfullAddress()+"/settings";
+		INPUTDATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
+		EVENT_ENDPOINT = settings.getFullAddress() + port + "/event";
+		STATE_ENDPOINT = settings.getFullAddress() + port + "/state";
+		UPLOAD_ENDPOINT = settings.getFullAddress() + port + "/upload";
+		SOLUTION_ENDPOINT = settings.getFullAddress() + port + "/solution";
+		SETTINGS_ENDPOINT = settings.getFullAddress() + port +"/settings";
 		Path result = Paths.get(settings.getResultDir());
 		if (!Files.exists(result)) Files.createDirectory(result);
 		RESULT_FOLDER = result.toAbsolutePath().toString();
