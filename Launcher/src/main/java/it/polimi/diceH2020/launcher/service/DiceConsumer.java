@@ -66,8 +66,9 @@ public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
 			SimulationsWIManager simManager =(SimulationsWIManager) ev.getData();
 			experiment.init(simManager);
 			simManager.getExperimentsList().stream().forEach(e-> {
-				experiment.launchWI(e);
-				simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()+1);
+				if(experiment.launchWI(e)){
+					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()+1);
+				}
 				intExpRepo.saveAndFlush(e);
 			});
 			simManager.writeFinalResults();

@@ -42,14 +42,14 @@ import it.polimi.diceH2020.launcher.repository.ResultRepository;
 @Scope("prototype")
 @Component
 public class Experiment {
-	private static String EVENT_ENDPOINT;
+	private String EVENT_ENDPOINT;
 
-	private static String INPUTDATA_ENDPOINT;
-	private static String RESULT_FOLDER;
-	private static String SOLUTION_ENDPOINT;
-	private static String STATE_ENDPOINT;
-	private static String SETTINGS_ENDPOINT;
-	private static String UPLOAD_ENDPOINT;
+	private String INPUTDATA_ENDPOINT;
+	private String RESULT_FOLDER;
+	private String SOLUTION_ENDPOINT;
+	private String STATE_ENDPOINT;
+	private String SETTINGS_ENDPOINT;
+	private String UPLOAD_ENDPOINT;
 	private int analysisExecuted = 1;
 	@Autowired
 	private InteractiveExperimentRepository intExpRepository;
@@ -104,17 +104,21 @@ public class Experiment {
 		send(nameRSFile,simManager.getRsFile());
 	}
 
-	public void launchWI(InteractiveExperiment e) {
-		if (isStop()) return;
+	public boolean launchWI(InteractiveExperiment e) {
+		if (isStop()){
+			e.setState("error");
+			return false;
+		}
 		int num = e.getIter();
 		String nameInstance = e.getInstanceName();
 		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
 		boolean idle = checkWSIdle();
-
+		System.out.println("Exp"+e.getId()+" launched on port: "+port);
 		if (!idle || isStop()) {
 			logger.info(baseErrorString + "-> service not idle");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			return;
+			e.setState("error");
+			return false;
 		}
 
 		boolean charged_initsolution = sendSolution(e.getInputSolution());
@@ -122,25 +126,29 @@ public class Experiment {
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> uploading the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			return;
+			e.setState("error");
+			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> evaluating the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			return;
+			e.setState("error");
+			return false;
 		}
 
 		boolean update_experiment = updateExperiment(e);
 		if (!update_experiment || isStop()) {
 			logger.info(baseErrorString + "-> updating the experiment information");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			return;
+			e.setState("error");
+			return false;
 		}
 		e.setState("completed");
 		// to go to idle
 		restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+		return true;
 	}
 
 	private boolean updateExperiment(InteractiveExperiment e) {

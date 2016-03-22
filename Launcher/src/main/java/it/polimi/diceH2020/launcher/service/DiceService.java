@@ -41,6 +41,7 @@ public class DiceService {
 	public void simulation(SimulationsManager simManager){
 		simManagerRepo.saveAndFlush(simManager);
 		String channel = "channel"+getBestChannel();
+		System.out.println("Notify on "+channel);
 		eventBus.notify(channel, Event.wrap(simManager));
 	}
 	

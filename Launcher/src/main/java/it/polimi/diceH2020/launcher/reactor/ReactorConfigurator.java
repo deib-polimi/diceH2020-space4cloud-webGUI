@@ -17,7 +17,7 @@ public class ReactorConfigurator {
     
     @Bean
     EventBus createEventBus(Environment env) {
-	    return EventBus.create(env);
+	    return EventBus.create(env,Environment.WORK_QUEUE);
     }
 
 
