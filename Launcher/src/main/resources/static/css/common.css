@@ -5,7 +5,7 @@
   list-style: none;
   box-sizing: border-box;
   /* outline: none;*/
-  font-weight: normal;
+  font-weight: 100;
 }
 h1,h2,h3,h4,h5,h6,td,th{
   text-align:center;
@@ -220,17 +220,62 @@ h1,h2,h3,h4,h5,h6,td,th{
   left:0;
   z-index: 10;
 }
-.linkFather link:hover ~ .linkText{
-  text-decoration: underline;
+/*link father still used? */
+.blankSpace{
+	width:100%;
+	height:100px;
+	background-color: white;
+}
+.launchesContainer, .resContainer{
+	width:80%;
+	margin: 0 auto;
+	min-width: 400px;
+}
+.launchType, .resType{
+	width:50%;
+	float:left;
+	height:230px;
+
+}
+.launchType:hover, .resType:hover{
+  opacity:0.9;
+}
+.launchType:nth-child(even){
+	background-color: #4371B1;
+	/*border-top-left-radius: 50px;
+	border-bottom-right-radius: 50px;*/
+	
+}
+.launchType:nth-child(odd){
+	background-color: #5A98ED;
+	/*border-top-right-radius: 50px;
+	border-bottom-left-radius: 50px;*/
+}
+.resType:nth-child(even){
+	background-color: #A1C1ED;
+	/*border-top-left-radius: 50px;*/
+}
+.resType:nth-child(odd){
+	background-color: #4A5A6E;
+	/*border-top-right-radius: 50px;*/
+}
+.launchType h2, .resType h2{
+	line-height: 230px;
+	color:white;
+}
+
+
+.linkFather link:hover ~ .linkText{ 
+  color: #eceaee;
 }
 .linkFather:hover linkText{
-  text-decoration: underline;
+  color: #eceaee;
 }
 .linkText:hover{
-  text-decoration: underline;
+  color: #eceaee;
 }
 .linkFather .link:visited ~ .linkText{
-  color: #167A79;
+  color: #eceaee;
 }
 .linkFather{
   position: relative;
@@ -240,6 +285,7 @@ h1,h2,h3,h4,h5,h6,td,th{
 }
 .linkFather .link{
   color: initial ;
+  text-decoration: none;
 }
 .clearfix:after {
   content: "";

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 
 @Service
@@ -28,10 +29,15 @@ public class Validator {
 		}
 	}
 	
-	public boolean validateSolution(Path pathToFile){
+	public boolean validateWISolution(Path pathToFile){
 		Optional<Solution> sol = objectFromPath(pathToFile, Solution.class);
 		return (sol.isPresent() && sol.get().validate() && sol.get().getLstSolutions().size() == 1);
+	}
+	
+	public boolean validateOptInput(Path pathToFile){
 		
+		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
+		return (inputData.isPresent());
 	}
 	
 }

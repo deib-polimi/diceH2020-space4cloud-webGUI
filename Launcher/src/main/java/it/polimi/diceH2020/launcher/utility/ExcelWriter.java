@@ -2,7 +2,6 @@ package it.polimi.diceH2020.launcher.utility;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Row;
@@ -13,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
-import it.polimi.diceH2020.launcher.model.SimulationsManager;
+import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 
 
 /**
@@ -29,9 +28,9 @@ public class ExcelWriter {
 	@Autowired
 	FileUtility fileUtility;
 
-	    public void writeListToExcel(SimulationsManager simManager) throws IOException{
+	    public void writeListToExcel(SimulationsWIManager simManager) throws IOException{
 	    	
-	    	List<InteractiveExperiment> simulationList = simManager.getClassList();
+	    	List<InteractiveExperiment> simulationList = simManager.getExperimentsList();
 	 
 	        // Using XSSF for xlsx format, for xls use HSSF
 	        Workbook workbook = new XSSFWorkbook();
@@ -61,8 +60,8 @@ public class ExcelWriter {
 	            cellIndex = 0;
 	            row.createCell(cellIndex++).setCellValue(simManager.getAccuracy());
 		        row.createCell(cellIndex++).setCellValue(sim.getThinkTime());
-		        row.createCell(cellIndex++).setCellValue(simManager.getInputSolution().getSolutionPerJob(0).getProfile().getNM());
-		        row.createCell(cellIndex++).setCellValue(simManager.getInputSolution().getSolutionPerJob(0).getProfile().getNR());
+		        row.createCell(cellIndex++).setCellValue(simManager.getInputJson().getSolutionPerJob(0).getProfile().getNM());
+		        row.createCell(cellIndex++).setCellValue(simManager.getInputJson().getSolutionPerJob(0).getProfile().getNR());
 		        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
 		        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
 		        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());

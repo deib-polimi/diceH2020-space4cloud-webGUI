@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" ></meta>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+</head>
+<body>
+	<div id="topBar">
+   		<div id="ios-arrow-container">
+    		<div id="ios-arrow-left" title="Home">
+    			<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    		</div>
+    	</div>
+    	<h3>Simulator launcher</h3>
+    	<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+    <br />
+    <div class = "basic-grey">
+    <h3>Experiments launched</h3>
+	<div class="resultContainer">
+		<table>
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Size</th>
+					<th>Date</th>
+					<th>Time</th>
+					<th>Accuracy</th>
+					<th>State</th>
+					<th>Input</th>
+					<th>Output</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="cursor:pointer;" th:each="manager : ${sim_manager}" th:onclick="'javascript:rowClicked(\'' + ${manager.id} + '\');'">
+					<td th:text="${manager.id}">ID</td>
+					<td th:text="${manager.numCompletedSimulations + '/' + manager.size}">Size</td>
+					<td th:text="${manager.date}">Date</td>
+					<td th:text="${manager.time}">Time</td>
+					<td th:text="${manager.accuracy}">Accuracy</td>
+					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td>
+						<div class="clearfix" style="margin: 0 auto;">
+							<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
+								<a class="link" style="z-index:10;" th:href="@{|/downloadJson?id=${manager.id}|}"></a>
+								<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
+							</div>
+							<div th:if="*{manager.mapFileEmpty}==false" class="linkFather" style="float:left;">
+								<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=1)}"></a>
+								<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
+							</div>
+							<div th:if="*{manager.rsFileEmpty}==false" class="linkFather" style="float:left;">
+								<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=2)}"></a>
+								<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
+							</div>
+						</div>
+					</td>
+					<td>
+						<div th:if="*{manager.state}==completed" class="linkFather">
+							<a class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
+							<img height="25" th:src="${'/images/libreOffice.png'}" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+	<script>
+    function rowClicked(value) {
+        location.href = "resultsWI?id=" + value;
+    }
+</script>
+</body>
+</html>

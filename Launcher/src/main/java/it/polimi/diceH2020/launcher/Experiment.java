@@ -32,8 +32,10 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.Results;
-import it.polimi.diceH2020.launcher.model.SimulationsManager;
+import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
+import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
+import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.ResultRepository;
 
 @Service
@@ -45,11 +47,15 @@ public class Experiment {
 	private static String SOLUTION_ENDPOINT;
 	private static String STATE_ENDPOINT;
 	private static String SETTINGS_ENDPOINT;
-
 	private static String UPLOAD_ENDPOINT;
 	private int analysisExecuted = 1;
 	@Autowired
+	private InteractiveExperimentRepository intExpRepository;
+
+	//TOREMOVE
+	@Autowired
 	private ExperimentRepository expRepo;
+
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private ObjectMapper mapper;
 	@Autowired
@@ -58,15 +64,12 @@ public class Experiment {
 	@Autowired
 	private Settings settings;
 	private boolean stop = false;
-
 	private int totalAnalysisToExecute = -1;
-
-	
 
 	public Experiment() {
 		mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
-		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer());
+		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
 		mapper.registerModule(module);
 	}
 
@@ -74,8 +77,8 @@ public class Experiment {
 		return stop;
 	}
 
-	public void  init(SimulationsManager simManager){
-		Solution sol = simManager.getInputSolution();
+	public void  init(SimulationsWIManager simManager){
+		Solution sol = simManager.getInputJson();
 		String solID = sol.getId();
 		int jobID = sol.getSolutionPerJob(0).getJob().getId();
 		String typeVMID = sol.getSolutionPerJob(0).getTypeVMselected().getId();
@@ -90,8 +93,14 @@ public class Experiment {
 		String res = restTemplate.postForObject(SETTINGS_ENDPOINT, set, String.class);
 		logger.info(res);
 	}
+	public void  init(SimulationsOptManager simManager){
+		String nameMapFile = simManager.getMapFileName();
+		String nameRSFile = simManager.getRsFileName();
+		send(nameMapFile, simManager.getMapFile());
+		send(nameRSFile,simManager.getRsFile());
+	}
 
-	public void launch(InteractiveExperiment e) {
+	public void launchWI(InteractiveExperiment e) {
 		if (isStop()) return;
 		int num = e.getIter();
 		String nameInstance = e.getInstanceName();
@@ -104,7 +113,7 @@ public class Experiment {
 			return;
 		}
 
-		boolean charged_initsolution = sendSolution(e.getSolution());
+		boolean charged_initsolution = sendSolution(e.getInputSolution());
 
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> uploading the initial solution");
@@ -140,7 +149,7 @@ public class Experiment {
 	private boolean evaluateInitSolution() {
 		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class);
 		if (res.equals("EVALUATING_INIT")) {
-			res = "EVALUATING_INIT";
+			res = "EVALUATING_INIT"; //useful?
 			while (res.equals("EVALUATING_INIT")) {
 				try {
 					Thread.sleep(2000);
@@ -152,10 +161,71 @@ public class Experiment {
 			if (res.equals("EVALUATED_INITSOLUTION")) return true;
 		}
 		return false;
+	}
+
+	public void launchOpt(InteractiveExperiment e) {
+		if (isStop()) return;
+
+		int num = e.getIter();
+		//Path inputDataPath = e.getInstanceName();
+		//if (!Files.exists(inputDataPath)) return;
+
+		String nameInstance = e.getInstanceName();
+		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
+
+		boolean idle = checkWSIdle();
+
+		if (!idle || isStop()) {
+			logger.info(baseErrorString + "-> service not idle");
+			return;
+		}
+
+		boolean charged_inputdata = sendInputData(e.getInputData());
+
+		if (!charged_inputdata || isStop()) return;
+
+		boolean charged_initsolution = generateInitialSolution();
+
+		if (!charged_initsolution || isStop()) {
+			logger.info(baseErrorString + "-> generation of the initial solution");
+			return;
+		}
+
+		boolean evaluated_initsolution = evaluateInitSolution();
+		if (!evaluated_initsolution || isStop()) {
+			logger.info(baseErrorString + "-> evaluating the initial solution");
+			return;
+		}
+
+		boolean initsolution_saved = saveInitSolution();
+		if (!initsolution_saved) {
+			logger.info(baseErrorString + "-> getting or saving initial solution");
+			return;
+		}
+
+		boolean finish = executeLocalSearch();
+
+		if (!finish || isStop()) {
+			logger.info(baseErrorString + "-> local search");
+			return;
+		}
+
+		boolean finalSolution_saved = saveFinalSolution(e);
+		if (!finalSolution_saved) {
+			logger.info(baseErrorString + "-> getting or saving final solution");
+			return;
+		}
+		// to go to idle
+		restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class);
+
+		String percentage = BigDecimal.valueOf((double) analysisExecuted * 100 / (double) totalAnalysisToExecute).setScale(2, RoundingMode.HALF_EVEN).toString();
+		String msg = String.format("%s%% experiments completed", percentage);
+		logger.info(msg);
+		analysisExecuted++;
 
 	}
 
-	// main method of this class
+	//TOREMOVE
 	public void launch(ExperimentRecord e) {
 		if (isStop()) return;
 
@@ -172,8 +242,8 @@ public class Experiment {
 			logger.info(baseErrorString + "-> service not idle");
 			return;
 		}
-
-		boolean charged_inputdata = sendInputData(inputDataPath);
+		InstanceData data = getObjectFromPath(inputDataPath);
+		boolean charged_inputdata = sendInputData(data);
 
 		if (!charged_inputdata || isStop()) return;
 
@@ -237,7 +307,7 @@ public class Experiment {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void send(Path f) {
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
 		String content;
@@ -375,6 +445,31 @@ public class Experiment {
 
 	}
 
+	private boolean saveFinalSolution(InteractiveExperiment e) {
+		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
+		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
+		String solSerialized;
+		try {
+			solSerialized = mapper.writeValueAsString(sol);
+			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
+			e.setDone(true);
+			e.setNumSolutions(e.getNumSolutions()+1);
+			intExpRepository.saveAndFlush(e);
+			Results res = new Results();
+			res.setId(e.getId());
+			res.setInstanceName(e.getInstanceName());
+			res.setIteration(e.getIter());
+			res.setSol(sol);
+			resRepo.saveAndFlush(res);
+			String msg = String.format("-%s iter: %d ->%s", e.getInstanceName(), e.getIter(), sol.toStringReduced());
+			logger.info(msg);
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
+	//TOREMOVE
 	private boolean saveFinalSolution(ExperimentRecord e) {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
@@ -416,19 +511,19 @@ public class Experiment {
 
 	}
 
-	private boolean sendInputData(Path inputDataPath) {
-		InstanceData data = getObjectFromPath(inputDataPath);
+	//param
+	private boolean sendInputData(InstanceData data) {
+		//InstanceData data = getObjectFromPath(inputDataPath);
 
 		if (data != null) {
 			String res = restTemplate.postForObject(INPUTDATA_ENDPOINT, data, String.class);
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
-				logger.info("Error for experiment: " + inputDataPath.getName(inputDataPath.getNameCount() - 1) + " server responded in an unexpected way: " + res);
+				logger.info("Error for experiment: " + data.getId() + " server respondend in an unexpected way: " + res);
 				return false;
 			}
-
 		} else {
-			logger.info("Error for experiment: " + inputDataPath.getName(inputDataPath.getNameCount() - 1) + " problem in inputdata serialization");
+			logger.info("Error in one experiment,  problem in inputdata serialization");
 			return false;
 		}
 	}

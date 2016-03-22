@@ -4,12 +4,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 
@@ -40,27 +37,29 @@ public class FilesController {
 		return "done";
 	}
 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+	@RequestMapping(value = "/uploadWI", method = RequestMethod.POST)
+	public String multipleSaveWI(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
+		String fileNamePrefix = generateUniqueString();
 		int j = 1;
 		
+		/*
 		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
 			model.addAttribute("message", "Duplicated files!");
-			return "home";
+			return "fileUpload";
 		}
+		*/
 		
 		for (int i = 0; i < files.length; i++) {
-			fileName = files[i].getOriginalFilename();
-			File f = saveFile(files[i]);
+			fileName = fileNamePrefix + files[i].getOriginalFilename().replaceAll("/", "");
+			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
-				if (!validator.validateSolution(f.toPath())) {
+				if (!validator.validateWISolution(f.toPath())) {
 					model.addAttribute("message", "Invalid Json file!");
-					return "home";
+					return "fileUploadWI";
 				} else {
-					//
 					redirectAttrs.addAttribute("inputPath", f.toPath().toString());
 				}
 			} else {
@@ -68,9 +67,41 @@ public class FilesController {
 				j++;
 			}
 		}
-		return "redirect:/sim/simulationSetup";
+		return "redirect:/launch/wi/simulationSetup";
 	}
-
+	
+	@RequestMapping(value = "/uploadOpt", method = RequestMethod.POST)
+	public String multipleSaveOpt(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+		// TODO remove all files
+		String fileName = null;
+		String fileNamePrefix = generateUniqueString();
+		int j = 1;
+		
+		/*
+		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
+			model.addAttribute("message", "Duplicated files!");
+			return "fileUpload";
+		}
+		*/
+		
+		for (int i = 0; i < files.length; i++) {
+			fileName = fileNamePrefix + files[i].getOriginalFilename().replaceAll("/", "");
+			File f = saveFile(files[i], fileName);
+			if (f == null) return "error";
+			if (fileName.contains(".json")) {
+				if (!validator.validateOptInput(f.toPath())) {
+					model.addAttribute("message", "Invalid Json file!");
+					return "fileUploadOpt";
+				} else {
+					redirectAttrs.addAttribute("inputPath", f.toPath().toString());
+				}
+			} else {
+				redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
+				j++;
+			}
+		}
+		return "redirect:/launch/opt/simulationSetup";
+	}
 
 	public static <T> boolean hasDuplicate(Iterable<T> all) {
 	    Set<T> set = new HashSet<T>();
@@ -80,9 +111,16 @@ public class FilesController {
 	    return false;
 	}
 	
+	private String generateUniqueString() {
+		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+		Date dNow = new Date( );
+	    SimpleDateFormat ft = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
+	    Random random = new Random();
+	    String id = ft.format(dNow)+random.nextInt(99999);
+	    return id;
+	}
 	
-	private File saveFile(MultipartFile file) {
-		String fileName = file.getOriginalFilename();
+	private File saveFile(MultipartFile file, String fileName) {
 		try {
 			byte[] bytes = file.getBytes();
 			File f = fileUtility.provideFile(fileName);
@@ -95,7 +133,5 @@ public class FilesController {
 			e.printStackTrace();
 			return null;
 		}
-
 	}
-
 }

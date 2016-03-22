@@ -1,70 +1,48 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <title>Simulations</title>
-<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
-	href="../css/common.css" />
-<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
-	href="../css/simulations.css" />
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
 </head>
 <body>
 	<div id="topBar">
-		<div id="ios-arrow-container">
-			<div id="ios-arrow-left" title="Home">
-				<a href="/"
-					style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;">
-				</a>
-			</div>
-		</div>
-		<h3>Simulator launcher home page</h3>
-		<div
-			style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;">
-		</div>
-	</div>
-	<h1>Select instance files</h1>
+    		<div id="ios-arrow-container">
+    			<div id="ios-arrow-left" title="Home">
+    				<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    			</div>
+    		</div>
+    		<h3>Simulator launcher</h3>
+    		<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
   
-  <div th:if ="${message} != null" class="basic-grey" > 
-   <p class ="text" th:text = "${message}"></p>
-  </div>
-  
-	<form id="form" method="POST" enctype="multipart/form-data"
-		th:action="@{/files/upload}" class="basic-grey">
+    <div class="blankSpace"></div>
+    <div class="launchesContainer clearfix">
+    	<div class="launchType linkFather">
+    		<a th:href="@{|/launchOpt|}" class="link" >
+    			<h2 class="linkText">Optimization Analysis</h2>
+    		</a>
+    	</div>
+    	<div class="launchType linkFather">
+    	    <a th:href="@{|/launchWI|}" class="link" >
+    	    	<h2 class="linkText">What-If Analysis</h2>
+    	    </a>
+    	</div>
+    </div>
     
-		<label> <span>Select template solution file :</span> 
-    <input id="name" type="file" name="file" class="input" accept=".json"
-			required="required" />
-		</label><br /> 
-    <label> <span>Select map info file :</span> <input
-			id="name" type="file" name="file" class="input" accept=".txt"
-			required="required" />
-		</label><br /> 
-    <label> <span>Select reduce info file :</span> <input
-			id="name" type="file" name="file" class="input" accept=".txt"
-			required="required" />
-		</label> <label> <span>&nbsp;</span> <br /> <input type="submit"
-			class="button" value="Submit" />
-		</label>
-	</form>
-
-
-	<!--	<h1>List of Instances</h1>
-	<div class="linkFather"
-		style="width: 200px; height: 20px; margin: 10px auto;">
-		<a href="/list/instances" class="link">Instances</a>
-	</div>
-	<h1>Launch Simulation</h1>
-	<div class="linkFather"
-		style="width: 200px; height: 20px; margin: 10px auto;">
-		<a href="/sim/simulations" class="link">Set up and run the
-			simulations</a>
-	</div>-->
-	<h1>Simulation Results</h1>
-  <div class="basic-grey">
-	<div class="linkFather">
-		<a href="/list" class="link">ALL Simulations</a>
-	</div>
-  </div>
-
+    <div class="resContainer clearfix">
+    	<div class="resType linkFather">
+    		<a th:href="@{|/resOpt|}" class="link" >
+    			<h2 class="linkText">Optimization Results</h2>
+    		</a>
+    	</div>
+    	<div class="resType linkFather">
+    	    <a th:href="@{|/resWI|}" class="link" >
+    	    	<h2 class="linkText">What-If Results</h2>
+    	    </a>
+    	</div>
+    </div>
+     
 </body>
 </html>

@@ -14,7 +14,7 @@ import it.polimi.diceH2020.launcher.Runner;
 public class Stop extends BaseCommand {
 
 	@Command
-  @Usage("Start the experiment")
+  @Usage("Stop the experiment")
   public String main(InvocationContext context) throws IOException{
 	  BeanFactory beans = (BeanFactory) context.getAttributes().get("spring.beanfactory");
 	  Runner run = 	beans.getBean(Runner.class);

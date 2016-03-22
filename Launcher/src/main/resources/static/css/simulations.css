@@ -5,14 +5,17 @@
   list-style: none;
   box-sizing: border-box;
  /* outline: none;*/
-  font-weight: normal;
+  font-weight: 100;
 }
 body {
- font-family: "Segoe UI", "Microsoft YaHei";
+ /*font-family: "Segoe UI", "Microsoft YaHei";*/
+ font-family: raleway, sans-serif;
+ font-weight: 100;
 }
 h1{
 	padding: 50px 0;
 	color: #32465f;
+	font-weight: 100;
 }
 button {
     padding: 10px;

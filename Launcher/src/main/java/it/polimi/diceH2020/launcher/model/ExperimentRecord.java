@@ -17,7 +17,7 @@ public class ExperimentRecord {
 	@GeneratedValue
 	private long myId;
 	@NotNull
-	private String  instanceName;
+	private String instanceName;
 	@NotNull
 	private int iteration;
 	@NotNull

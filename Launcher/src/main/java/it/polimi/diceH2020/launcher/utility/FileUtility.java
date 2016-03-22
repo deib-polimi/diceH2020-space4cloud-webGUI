@@ -28,7 +28,6 @@ public class FileUtility {
 
 	@Autowired
 	private DeletionPolicy policy;
-
 	
 	public boolean delete(File file) {
 		return policy.delete(file);

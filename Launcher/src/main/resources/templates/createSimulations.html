@@ -21,7 +21,7 @@
            style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;"></a>
       </div>
     </div>
-    <h3>SIMULATIONS</h3>
+    <h3>Simulator launcher</h3>
     <div
          style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;"></div>
   </div>
@@ -49,13 +49,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="classList: ${sim_manager.classList}">
-              <td th:text="${classList['instanceName']}">Inst. ID</td>
+            <tr th:each="experimentsList: ${sim_manager.experimentsList}">
+              <td th:text="${experimentsList['instanceName']}">Inst. ID</td>
               <td th:text="${sim_manager.solver}">Solver</td>
-              <td th:text="${classList['thinkTime']}">Think Time[ms]</td>
-              <td th:text="${classList['numVMs']}">VMs</td>
-              <td th:text="${classList['numUsers']}">Users</td>
-              <td th:text="${classList['iter']}">Iter.</td>
+              <td th:text="${experimentsList['thinkTime']}">Think Time[ms]</td>
+              <td th:text="${experimentsList['numVMs']}">VMs</td>
+              <td th:text="${experimentsList['numUsers']}">Users</td>
+              <td th:text="${experimentsList['iter']}">Iter.</td>
             </tr>
           </tbody>
         </table>

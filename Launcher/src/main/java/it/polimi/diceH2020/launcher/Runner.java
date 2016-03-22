@@ -25,7 +25,6 @@ import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 
 @Component
 public class Runner {
-
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	@Autowired
 	private ExperimentRepository expRecordRepo;
@@ -38,7 +37,6 @@ public class Runner {
 	@Autowired
 	private Experiment experiment;
 	
-	
 	@Async
 	public void run(){
 		try {
@@ -49,9 +47,7 @@ public class Runner {
 		}
 	}
 	
-	
 	public void exec() throws IOException, MessagingException {
-
 		experiment.waitForWS();
 		sendSideFiles();
 
@@ -69,8 +65,6 @@ public class Runner {
 			saveExperimentInDB().stream().forEachOrdered(e -> experiment.launch(e));
 		}
 		logger.info("The launcher is in waiting mode");
-		
-
 	}
 
 	public String stop() {
@@ -83,16 +77,15 @@ public class Runner {
 			
 	}
 	
-	
 	private List<ExperimentRecord> retriveListUndoneExperiments() {
 		return expRecordRepo.findByDone(false);
 	}
-
+	
 	private void sendSideFiles() throws IOException {
 		Stream<Path> streamTxt = accessInstanceFolder("txt", settings.getTxtDir());
 		streamTxt.forEach(f -> experiment.send(f));
 	}
-
+	
 	private void setNumFiles(String extension, String instanceDir) {
 		try {
 			accessInstanceFolder(extension, instanceDir).forEach(f -> ++numFiles);
@@ -102,6 +95,7 @@ public class Runner {
 		}
 
 	}
+	
 	private void printDirFiles(){
 		try {
 			accessInstanceFolder("json", settings.getInstanceDir()).forEach(p -> System.out.println(p.toString()));;
@@ -131,7 +125,7 @@ public class Runner {
 	private ExperimentRecord saveExperimentRecord(Path name, int i) {
 		return expRecordRepo.save(new ExperimentRecord(name, i));
 	}
-
+	
 	private Stream<Path> accessInstanceFolder(String extension, String strDir) throws IOException {
 		Path dir = FileSystems.getDefault().getPath(strDir);
 		if (Files.notExists(dir)) {
