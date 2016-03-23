@@ -29,7 +29,7 @@ public class InteractiveExperiment {
 	@JoinColumn(name = "SIM_MANAGER")//, updatable = false, insertable=false, nullable = false)
 	private SimulationsManager simulationsManager;
 	
-	//private String simType;
+	private String simType;
 	
 	//@NotNull
 	@Min(1)

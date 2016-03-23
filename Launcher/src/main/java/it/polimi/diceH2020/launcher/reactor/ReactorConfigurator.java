@@ -19,6 +19,4 @@ public class ReactorConfigurator {
     EventBus createEventBus(Environment env) {
 	    return EventBus.create(env,Environment.WORK_QUEUE);
     }
-
-
 }

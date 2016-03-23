@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.Experiment;
-import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
-import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
+import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import lombok.Data;
@@ -24,7 +22,7 @@ import reactor.fn.Consumer;
 @Component
 @Scope("prototype")
 @Data
-public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
+public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 
 	//private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceConsumer.class.getName());
 
@@ -61,31 +59,40 @@ public class DiceConsumer implements Consumer<Event<SimulationsManager>>{
 	}
 	
 	@Override
-	public void accept(Event<SimulationsManager> ev) {
-		if(ev.getData() instanceof SimulationsWIManager){
-			SimulationsWIManager simManager =(SimulationsWIManager) ev.getData();
-			experiment.init(simManager);
-			simManager.getExperimentsList().stream().forEach(e-> {
-				if(experiment.launchWI(e)){
-					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()+1);
-				}
-				intExpRepo.saveAndFlush(e);
-			});
-			simManager.writeFinalResults();
-			simManager.setState("completed");
-			simManRepo.saveAndFlush(simManager);
+	public void accept(Event<InteractiveExperiment> ev) {
+		InteractiveExperiment intExp = (InteractiveExperiment) ev.getData();
+		System.out.println("Accepted a "+intExp.getSimType()+" on "+port);
+		if(intExp.getSimType() == "WI"){
+			//SimulationsWIManager simManager =(SimulationsWIManager) ev.getData();
+			if(experiment.launchWI(intExp)){
+				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
+				intExp.setState("completed");
+			}else{
+				intExp.setState("error");
+			}
+			intExpRepo.save(intExp);
+			System.out.println(intExp.getSimulationsManager().getSize()+" "+intExp.getSimulationsManager().getNumCompletedSimulations());
+			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
+				intExp.getSimulationsManager().writeFinalResults();
+				intExp.getSimulationsManager().setState("completed");
+				simManRepo.save(intExp.getSimulationsManager());
+			}
+			ds.updateBestChannel(this.id);  
 		}
-		if(ev.getData() instanceof SimulationsOptManager){
-			SimulationsOptManager simManager =(SimulationsOptManager) ev.getData();
-			experiment.init(simManager);
-			simManager.getExperimentsList().stream().forEach(e-> {
-				experiment.launchOpt(e);
-				intExpRepo.saveAndFlush(e);
-			});
-			//simManager.writeFinalResults();
-			simManager.setState("completed");
-			simManRepo.saveAndFlush(simManager);
+		else if(intExp.getSimType() == "Opt"){
+			if(experiment.launchOpt(intExp)){
+				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
+				intExp.setState("completed");
+			}else{
+				intExp.setState("error");
+			}
+			intExpRepo.save(intExp);
+			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
+				//intExp.getSimulationsManager().writeFinalResults();
+				intExp.getSimulationsManager().setState("completed");
+				simManRepo.save(intExp.getSimulationsManager());
+			}
+			ds.updateBestChannel(this.id);  
 		}
-	 ds.updateBestChannel(this.id);   	
 	}
 }

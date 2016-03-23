@@ -86,6 +86,7 @@ public class SimulationsWIManager extends SimulationsManager{
 					experiment.setThinkTime(this.thinkTime);
 					experiment.setInstanceName(getInstanceName());
 					experiment.setSimulationsManager(this);
+					experiment.setSimType("WI");
 					getExperimentsList().add(experiment);
 				}
 	}

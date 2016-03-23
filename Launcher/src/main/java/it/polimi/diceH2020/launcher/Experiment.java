@@ -33,7 +33,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.Results;
-import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
+import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
@@ -43,7 +43,6 @@ import it.polimi.diceH2020.launcher.repository.ResultRepository;
 @Component
 public class Experiment {
 	private String EVENT_ENDPOINT;
-
 	private String INPUTDATA_ENDPOINT;
 	private String RESULT_FOLDER;
 	private String SOLUTION_ENDPOINT;
@@ -81,7 +80,8 @@ public class Experiment {
 		return stop;
 	}
 
-	public void  init(SimulationsWIManager simManager){
+	public void  initWI(InteractiveExperiment intExp){
+		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getInputJson();
 		String solID = sol.getId();
 		int jobID = sol.getSolutionPerJob(0).getJob().getId();
@@ -97,7 +97,8 @@ public class Experiment {
 		String res = restTemplate.postForObject(SETTINGS_ENDPOINT, set, String.class);
 		logger.info(res);
 	}
-	public void  init(SimulationsOptManager simManager){
+	public void  initOpt(InteractiveExperiment intExp){
+		SimulationsManager simManager = intExp.getSimulationsManager();
 		String nameMapFile = simManager.getMapFileName();
 		String nameRSFile = simManager.getRsFileName();
 		send(nameMapFile, simManager.getMapFile());
@@ -105,8 +106,8 @@ public class Experiment {
 	}
 
 	public boolean launchWI(InteractiveExperiment e) {
+		initWI(e);
 		if (isStop()){
-			e.setState("error");
 			return false;
 		}
 		int num = e.getIter();
@@ -117,16 +118,13 @@ public class Experiment {
 		if (!idle || isStop()) {
 			logger.info(baseErrorString + "-> service not idle");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			e.setState("error");
 			return false;
 		}
-
 		boolean charged_initsolution = sendSolution(e.getInputSolution());
 
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> uploading the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			e.setState("error");
 			return false;
 		}
 
@@ -134,7 +132,6 @@ public class Experiment {
 		if (!evaluated_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> evaluating the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			e.setState("error");
 			return false;
 		}
 
@@ -142,10 +139,8 @@ public class Experiment {
 		if (!update_experiment || isStop()) {
 			logger.info(baseErrorString + "-> updating the experiment information");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			e.setState("error");
 			return false;
 		}
-		e.setState("completed");
 		// to go to idle
 		restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
 		return true;
@@ -155,6 +150,7 @@ public class Experiment {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
 		if (sol == null) return false;
 		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
+		e.setExperimentalDuration(sol.getOptimizationTime());
 		return true;
 	}
 
@@ -175,8 +171,9 @@ public class Experiment {
 		return false;
 	}
 
-	public void launchOpt(InteractiveExperiment e) {
-		if (isStop()) return;
+	public boolean launchOpt(InteractiveExperiment e) {
+		initOpt(e);
+		if (isStop()) return false;
 
 		int num = e.getIter();
 		//Path inputDataPath = e.getInstanceName();
@@ -189,43 +186,43 @@ public class Experiment {
 
 		if (!idle || isStop()) {
 			logger.info(baseErrorString + "-> service not idle");
-			return;
+			return false;
 		}
 
 		boolean charged_inputdata = sendInputData(e.getInputData());
 
-		if (!charged_inputdata || isStop()) return;
+		if (!charged_inputdata || isStop()) return false;
 
 		boolean charged_initsolution = generateInitialSolution();
 
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> generation of the initial solution");
-			return;
+			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> evaluating the initial solution");
-			return;
+			return false;
 		}
 
 		boolean initsolution_saved = saveInitSolution();
 		if (!initsolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving initial solution");
-			return;
+			return false;
 		}
 
 		boolean finish = executeLocalSearch();
 
 		if (!finish || isStop()) {
 			logger.info(baseErrorString + "-> local search");
-			return;
+			return false;
 		}
 
 		boolean finalSolution_saved = saveFinalSolution(e);
 		if (!finalSolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving final solution");
-			return;
+			return false;
 		}
 		// to go to idle
 		restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class);
@@ -234,7 +231,7 @@ public class Experiment {
 		String msg = String.format("%s%% experiments completed", percentage);
 		logger.info(msg);
 		analysisExecuted++;
-
+		return true;
 	}
 
 	//TOREMOVE
@@ -466,13 +463,13 @@ public class Experiment {
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
 			e.setNumSolutions(e.getNumSolutions()+1);
-			intExpRepository.saveAndFlush(e);
+			intExpRepository.save(e);
 			Results res = new Results();
 			res.setId(e.getId());
 			res.setInstanceName(e.getInstanceName());
 			res.setIteration(e.getIter());
 			res.setSol(sol);
-			resRepo.saveAndFlush(res);
+			resRepo.save(res);
 			String msg = String.format("-%s iter: %d ->%s", e.getInstanceName(), e.getIter(), sol.toStringReduced());
 			logger.info(msg);
 			return true;
@@ -490,13 +487,13 @@ public class Experiment {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
-			expRepo.saveAndFlush(e);
+			expRepo.save(e);
 			Results res = new Results();
 			res.setId(e.getMyId());
 			res.setInstanceName(e.getShortName());
 			res.setIteration(e.getIteration());
 			res.setSol(sol);
-			resRepo.saveAndFlush(res);
+			resRepo.save(res);
 			String msg = String.format("-%s iter: %d ->%s", e.getShortName(), e.getIteration(), sol.toStringReduced());
 			logger.info(msg);
 			return true;

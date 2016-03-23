@@ -39,6 +39,7 @@ public class SimulationsOptManager extends SimulationsManager{
 			experiment.setSimulationsManager(this);
 			experiment.setGamma(this.gamma);
 			experiment.setProvider(this.provider);
+			experiment.setSimType("Opt");
 			super.getExperimentsList().add(experiment);
 		}
 	}
