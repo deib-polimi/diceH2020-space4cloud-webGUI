@@ -6,27 +6,29 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.LoggerFactory;
 //import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import it.polimi.diceH2020.launcher.Settings;
+import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
+import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
-//import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
 
 @Service
 public class DiceService {
- 	//private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
+ 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
 	
 	private List<ArrayList<Integer>> channelsUsageList; 
-	private List<DiceConsumer> consumersList; 
+	//private List<DiceConsumer> consumersList; 
 	
  	@Autowired
  	private EventBus eventBus;
@@ -40,36 +42,52 @@ public class DiceService {
 	@Autowired
 	private Settings settings;
 
+	@Autowired
+	private InteractiveExperimentRepository intExpRepo;
+	
 	/*
 	public void simulation(SimulationsManager simManager){
-		simManagerRepo.save(simManager);
+		simManagerRepo.saveAndFlush(simManager);
 		String channel = "channel"+getBestChannel();
 		System.out.println("Notify on "+channel);
 		eventBus.notify(channel, Event.wrap(simManager));
 	}*/
 	
 	public void simulation(SimulationsManager simManager){
-		simManagerRepo.save(simManager);
-			if(simManager instanceof SimulationsWIManager){
-				simManager.getExperimentsList().stream().forEach(e-> {
-					String channel = "channel"+getBestChannel();
-					System.out.println("Notify on "+channel);
-					eventBus.notify(channel, Event.wrap(e));
-				});
-			}
-			if(simManager instanceof SimulationsOptManager){
-				simManager.getExperimentsList().stream().forEach(e-> {
-					String channel = "channel"+getBestChannel();
-					System.out.println("Notify on "+channel);
-					eventBus.notify(channel, Event.wrap(e));
-				});
-			}
+		updateManager(simManager);
+		if(simManager instanceof SimulationsWIManager){
+			simManager.getExperimentsList().stream().forEach(e-> {
+				String channel = "channel"+getBestChannel();
+				//System.out.println("Notify on "+channel);
+				logger.info("[LOCKS] Exp"+e.getId()+"has been sended to queue on thread/"+channel);
+				eventBus.notify(channel, Event.wrap(e));
+			});
+		}
+		if(simManager instanceof SimulationsOptManager){
+			simManager.getExperimentsList().stream().forEach(e-> {
+				String channel = "channel"+getBestChannel();
+				logger.info("[LOCKS] Exp"+e.getId()+"has been enqueued on thread/"+channel);
+				eventBus.notify(channel, Event.wrap(e));
+			});
+		}
 	}
 	
+//	public void updateSimManager(SimulationsManager simManager){
+//		simManagerRepo.saveAndFlush(simManager);
+//	}
 	
-	public void updateSimManager(SimulationsManager simManager){
-		simManagerRepo.save(simManager);
+	public synchronized void updateExp(InteractiveExperiment intExp){
+		long startTime = System.currentTimeMillis();
+		intExpRepo.saveAndFlush(intExp);
+		long endTime = System.currentTimeMillis();
+		long duration = (endTime - startTime);
+		logger.info("[LOCKS] Exp"+intExp.getId()+" FINISHED. update[state: "+intExp.getState()+"] in "+duration+" ");
 	}
+	public synchronized void updateManager(SimulationsManager simulationsManager){
+		simManagerRepo.saveAndFlush(simulationsManager);
+		logger.info("[LOCKS] SimManager"+simulationsManager.getId()+" FINISHED.");
+	}
+	
 	
 	@PostConstruct
 	private void setUpChannels(){
@@ -78,13 +96,13 @@ public class DiceService {
 	
 	public void createChannels(){
 		channelsUsageList = new ArrayList<ArrayList<Integer>>();
-		consumersList = new ArrayList<DiceConsumer>();
+		//consumersList = new ArrayList<DiceConsumer>();
 		
 		channelsUsageList.add(new ArrayList<Integer>());
 		for(int i=settings.getPorts().length-1; i >= 0; i--){
-			DiceConsumer consumer = (DiceConsumer) context.getBean("diceConsumer",i,settings.getPorts()[i]);
+			context.getBean("diceConsumer",i,settings.getPorts()[i]);
 			//consumer.register(i);
-			consumersList.add(0,consumer);
+			//consumersList.add(0,consumer);
 			channelsUsageList.get(0).add(0,i);
 		}
 		
@@ -148,16 +166,20 @@ public class DiceService {
 	
 	
 	private void printStatus(){
+		String queueStatus ="[Q-STATUS]";
 		for(int i=0; i<channelsUsageList.size();i++){
+			queueStatus +=i+": "; 
 			for(int j=0;j<channelsUsageList.get(i).size();j++){
-				System.out.print(channelsUsageList.get(i).get(j));
+				queueStatus += channelsUsageList.get(i).get(j);
 				if(j!=channelsUsageList.get(i).size()-1){
-					System.out.print(", ");
+					queueStatus +=","; 
 				}
 			}
-			System.out.print("\n");
+			queueStatus +=(" || ");
 		}
+		System.out.println(queueStatus);
 	}
+	
 	
 	
 }

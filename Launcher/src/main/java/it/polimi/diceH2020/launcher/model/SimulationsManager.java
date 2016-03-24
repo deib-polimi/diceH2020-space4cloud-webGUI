@@ -232,6 +232,4 @@ public class SimulationsManager {
 	public void setInstanceName(String instanceName) {
 		this.instanceName = instanceName;
 	}
-	
-	
 }

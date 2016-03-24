@@ -36,7 +36,6 @@ import it.polimi.diceH2020.launcher.model.Results;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
-import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.ResultRepository;
 
 @Scope("prototype")
@@ -50,8 +49,6 @@ public class Experiment {
 	private String SETTINGS_ENDPOINT;
 	private String UPLOAD_ENDPOINT;
 	private int analysisExecuted = 1;
-	@Autowired
-	private InteractiveExperimentRepository intExpRepository;
 
 	//TOREMOVE
 	@Autowired
@@ -80,7 +77,7 @@ public class Experiment {
 		return stop;
 	}
 
-	public void  initWI(InteractiveExperiment intExp){
+	public boolean  initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getInputJson();
 		String solID = sol.getId();
@@ -88,61 +85,75 @@ public class Experiment {
 		String typeVMID = sol.getSolutionPerJob(0).getTypeVMselected().getId();
 		String nameMapFile = String.format("%sMapJ%d%s.txt", solID, jobID, typeVMID);
 		String nameRSFile = String.format("%sRSJ%d%s.txt", solID, jobID, typeVMID);
-		send(nameMapFile, simManager.getMapFile());
-		send(nameRSFile,simManager.getRsFile());
+		try{
+			send(nameMapFile, simManager.getMapFile());
+			send(nameRSFile,simManager.getRsFile());
+		}catch (Exception e){
+			logger.info(e);
+			return false;
+		}
 		it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings set = new it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings();
 		set.setSimDuration(simManager.getSimDuration());
 		set.setSolver(simManager.getSolver());
 		set.setAccuracy(simManager.getAccuracy()/100.0);
 		String res = restTemplate.postForObject(SETTINGS_ENDPOINT, set, String.class);
 		logger.info(res);
+		return true;
 	}
-	public void  initOpt(InteractiveExperiment intExp){
+	public boolean initOpt(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
 		String nameMapFile = simManager.getMapFileName();
 		String nameRSFile = simManager.getRsFileName();
-		send(nameMapFile, simManager.getMapFile());
-		send(nameRSFile,simManager.getRsFile());
+		try{
+			send(nameMapFile, simManager.getMapFile());
+			send(nameRSFile,simManager.getRsFile());
+		}catch(Exception e){
+			logger.info(e);
+			return false;
+		}
+		return true;
 	}
 
 	public boolean launchWI(InteractiveExperiment e) {
-		initWI(e);
-		if (isStop()){
+		if (!initWI(e)||isStop()){
 			return false;
 		}
 		int num = e.getIter();
 		String nameInstance = e.getInstanceName();
 		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
 		boolean idle = checkWSIdle();
-		System.out.println("Exp"+e.getId()+" launched on port: "+port);
 		if (!idle || isStop()) {
-			logger.info(baseErrorString + "-> service not idle");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> service not idle");
 			return false;
 		}
+		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+port);
+		
 		boolean charged_initsolution = sendSolution(e.getInputSolution());
 
 		if (!charged_initsolution || isStop()) {
 			logger.info(baseErrorString + "-> uploading the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> uploading the initial solution");
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution || isStop()) {
-			logger.info(baseErrorString + "-> evaluating the initial solution");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> evaluating the initial solution");
 			return false;
 		}
 
 		boolean update_experiment = updateExperiment(e);
 		if (!update_experiment || isStop()) {
-			logger.info(baseErrorString + "-> updating the experiment information");
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> updating the experiment information");
 			return false;
 		}
 		// to go to idle
 		restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
 		return true;
 	}
 
@@ -297,7 +308,7 @@ public class Experiment {
 
 	}
 
-	public void send(String filename, String content ){
+	public void send(String filename, String content ) throws Exception{
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
 		map.add("name", filename);
 		map.add("filename", filename);
@@ -463,7 +474,7 @@ public class Experiment {
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
 			e.setNumSolutions(e.getNumSolutions()+1);
-			intExpRepository.save(e);
+			//intExpRepository.saveAndFlush(e);
 			Results res = new Results();
 			res.setId(e.getId());
 			res.setInstanceName(e.getInstanceName());
@@ -487,13 +498,13 @@ public class Experiment {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
-			expRepo.save(e);
+			expRepo.saveAndFlush(e);
 			Results res = new Results();
 			res.setId(e.getMyId());
 			res.setInstanceName(e.getShortName());
 			res.setIteration(e.getIteration());
 			res.setSol(sol);
-			resRepo.save(res);
+			resRepo.saveAndFlush(res);
 			String msg = String.format("-%s iter: %d ->%s", e.getShortName(), e.getIteration(), sol.toStringReduced());
 			logger.info(msg);
 			return true;
@@ -513,7 +524,6 @@ public class Experiment {
 		} catch (JsonProcessingException e) {
 			return false;
 		}
-		// System.out.println(serialized);
 		catch (IOException e) {
 			return false;
 		}

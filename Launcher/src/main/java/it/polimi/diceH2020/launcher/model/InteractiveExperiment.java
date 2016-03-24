@@ -83,5 +83,4 @@ public class InteractiveExperiment {
 		}
 		throw new ClassCastException();
 	}
-	
 }

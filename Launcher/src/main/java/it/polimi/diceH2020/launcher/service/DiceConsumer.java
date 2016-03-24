@@ -4,6 +4,7 @@ import static reactor.bus.selector.Selectors.$;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.Experiment;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
-import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
-import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import lombok.Data;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
@@ -24,15 +23,9 @@ import reactor.fn.Consumer;
 @Data
 public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 
-	//private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceConsumer.class.getName());
-
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	@Autowired
 	private EventBus eventBus;
-	@Autowired
-	private InteractiveExperimentRepository intExpRepo;
-	
-	@Autowired
-	private SimulationsManagerRepository simManRepo;
 	
 	private Experiment experiment;
 	
@@ -53,29 +46,29 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	
 	@PostConstruct
 	private void register(){
-	    System.out.println("channel"+id+"-->"+port);
+	    logger.info("[LOCKS] channel"+id+"-->"+port);
 	    experiment = (Experiment) context.getBean("experiment",port);
 		eventBus.on($("channel"+id), this); //registering the consumer
 	}
 	
 	@Override
 	public void accept(Event<InteractiveExperiment> ev) {
-		InteractiveExperiment intExp = (InteractiveExperiment) ev.getData();
-		System.out.println("Accepted a "+intExp.getSimType()+" on "+port);
+		InteractiveExperiment intExp = ev.getData();
+		logger.info("[LOCKS] Exp"+intExp.getId()+" on thread"+id+"port: "+port+" has been inserted in the queue");
 		if(intExp.getSimType() == "WI"){
-			//SimulationsWIManager simManager =(SimulationsWIManager) ev.getData();
 			if(experiment.launchWI(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
 				intExp.setState("completed");
 			}else{
 				intExp.setState("error");
 			}
-			intExpRepo.save(intExp);
-			System.out.println(intExp.getSimulationsManager().getSize()+" "+intExp.getSimulationsManager().getNumCompletedSimulations());
+			
+			ds.updateExp(intExp);
+			//System.out.println(intExp.getSimulationsManager().getSize()+" "+intExp.getSimulationsManager().getNumCompletedSimulations());
 			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
 				intExp.getSimulationsManager().writeFinalResults();
 				intExp.getSimulationsManager().setState("completed");
-				simManRepo.save(intExp.getSimulationsManager());
+				ds.updateManager(intExp.getSimulationsManager());
 			}
 			ds.updateBestChannel(this.id);  
 		}
@@ -86,11 +79,11 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			}else{
 				intExp.setState("error");
 			}
-			intExpRepo.save(intExp);
+			ds.updateExp(intExp);
 			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
 				//intExp.getSimulationsManager().writeFinalResults();
 				intExp.getSimulationsManager().setState("completed");
-				simManRepo.save(intExp.getSimulationsManager());
+				ds.updateManager(intExp.getSimulationsManager());
 			}
 			ds.updateBestChannel(this.id);  
 		}

@@ -22,7 +22,6 @@ public class SimulationsOptManager extends SimulationsManager{
 	@Transient
 	private InstanceData inputData;
 
-	
 	public SimulationsOptManager(){
 		super();
 		Settings set = new Settings();
