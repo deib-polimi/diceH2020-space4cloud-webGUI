@@ -63,7 +63,7 @@ public class Experiment {
 		return stop;
 	}
 
-	public boolean initWI(InteractiveExperiment intExp){
+	public synchronized boolean initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getInputJson();
 		String solID = sol.getId();
@@ -86,16 +86,17 @@ public class Experiment {
 		logger.info(res);
 		return true;
 	}
-	public boolean initOpt(InteractiveExperiment intExp){
+	public synchronized boolean initOpt(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
 		for(int i=0; i<simManager.getInputFiles().size();i++){
-			String nameMapFile = simManager.getInputFile(i,0);
-			String nameRSFile = simManager.getInputFile(i,1);
+			String nameMapFile = simManager.getInputFiles().get(i)[0];
+			String nameRSFile = simManager.getInputFiles().get(i)[1];
 			try{
 				send(nameMapFile, simManager.getInputFile(i,2));
 				send(nameRSFile, simManager.getInputFile(i,3));
+				System.out.println("sending:"+nameMapFile+", "+nameMapFile);
 			}catch(Exception e){
-				logger.info(e);
+				logger.debug("Error while sending replayer's files");
 				return false;
 			}
 		}

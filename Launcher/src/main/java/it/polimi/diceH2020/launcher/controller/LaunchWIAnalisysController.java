@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -73,9 +72,7 @@ public class LaunchWIAnalisysController {
 			return "error";
 		}
 		
-		ArrayList<String[]> tmpList = new ArrayList<String[]>();
-		tmpList.add(new String[]{mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent});
-		simManager.setInputFiles(tmpList);
+		simManager.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent); 
 		System.out.println("Sim manager inputs:"+simManager.getInputFiles().get(0)[0]+","+simManager.getInputFiles().get(0)[1]);
 		return "simulationSetup";
 	}

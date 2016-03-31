@@ -34,7 +34,6 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
-import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 
@@ -130,6 +129,7 @@ public class MainFlowController {
 	    //response.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
 	    //response.setHeader( "Content-Disposition", "inline;filename = results.xlsx" );
 	    response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
+	    
 	    return new FileSystemResource(new File(manager.getResultFilePath()));
 	}
 	@RequestMapping(value="/downloadPartial", method=RequestMethod.GET)
@@ -137,45 +137,57 @@ public class MainFlowController {
 	    SimulationsWIManager manager = (SimulationsWIManager)simulationsManagerRepository.findOne(id);
 	    Workbook wb = excelWriter.createWorkbook(manager);
 	    try {
-			wb.write(response.getOutputStream());
+			
 			 //response.setContentType("application/ms-excel;charset=utf-8");
 		    response.setContentType("application/vnd.ms-excel;charset=utf-8");
 		    //response.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
 		    response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
+		    wb.write(response.getOutputStream());
+		    response.flushBuffer();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@RequestMapping(value="/downloadJson", method=RequestMethod.GET)
-	@ResponseBody String downloadWIJson(@RequestParam(value="id") Long id,HttpServletResponse response) throws JsonProcessingException, IOException {
+	@ResponseBody void downloadWIJson(@RequestParam(value="id") Long id,HttpServletResponse response) throws JsonProcessingException, IOException {
 	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
-	    response.setContentType("application/json");
+	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInstanceName() + ".json" );
-	    return Compressor.decompress(manager.getInput());
+	    response.getWriter().write(manager.getInput());
+    	response.getWriter().flush();
+    	response.getWriter().close();
+    	response.flushBuffer();
 	}
 	
 	@RequestMapping(value="/downloadFinalJson", method=RequestMethod.GET)
-	@ResponseBody String downloadFinalSolOptJson(@RequestParam(value="id") Long id,HttpServletResponse response) throws JsonProcessingException, IOException {
+	@ResponseBody void downloadFinalSolOptJson(@RequestParam(value="id") Long id,HttpServletResponse response) throws JsonProcessingException, IOException {
 		InteractiveExperiment exp = intExperimentRepository.findOne(id);
-	    response.setContentType("application/json");
+	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + exp.getInstanceName()+ "SOL.json" );
-	    return Compressor.decompress(exp.getFinalSolution());
+	    response.getWriter().write(exp.getFinalSolution());
+    	response.getWriter().flush();
+    	response.getWriter().close();
+    	response.flushBuffer();
 	}
 	
 	@RequestMapping(value="/downloadTxt", method=RequestMethod.GET)
-	@ResponseBody String downloadTxt(@RequestParam(value="id") Long id, @RequestParam(value="txt") int num,HttpServletResponse response) throws JsonProcessingException, IOException {
+	@ResponseBody void downloadTxt(@RequestParam(value="id") Long id, @RequestParam(value="txt") int num,HttpServletResponse response) throws JsonProcessingException, IOException {
 	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
 	    response.setContentType("text/plain;charset=utf-8");
 	   
 	    if(num==2){
 	    	System.out.println("Downloading: "+manager.getInputFile(0, 1));
 	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[1]);
-	    	return manager.getInputFile(0, 3);
+	    	response.getWriter().write(manager.getInputFile(0, 3));
+	    	response.getWriter().flush();
+	    	response.getWriter().close();
 	    }else{
 	    	System.out.println("Downloading: "+manager.getInputFile(0, 0));
 	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[0]);
-	    	return manager.getInputFile(0, 2);
+	    	response.getWriter().write(manager.getInputFile(0, 2));
+	    	response.getWriter().flush();
+	    	response.getWriter().close();
 	    }
 	}
 	
