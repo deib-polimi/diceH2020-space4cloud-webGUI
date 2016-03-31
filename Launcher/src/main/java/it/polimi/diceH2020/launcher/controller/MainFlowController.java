@@ -165,17 +165,16 @@ public class MainFlowController {
 	
 	@RequestMapping(value="/downloadTxt", method=RequestMethod.GET)
 	@ResponseBody String downloadTxt(@RequestParam(value="id") Long id, @RequestParam(value="txt") int num,HttpServletResponse response) throws JsonProcessingException, IOException {
-	    //SimulationsManager manager = simulationsManagerRepository.findOne(id);
+	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
 	    response.setContentType("text/plain;charset=utf-8");
 	   
 	    if(num==2){
-	    	//response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getRsFileName() + ".txt" );
-	    	//return manager.getRsFile();
+	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFile(0, 1) + ".txt" );
+	    	return manager.getInputFile(0, 3);
 	    }else{
-	    	//response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getMapFileName() + ".txt" );
-	    	//return manager.getMapFile();
+	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFile(0, 0) + ".txt" );
+	    	return manager.getInputFile(0, 2);
 	    }
-	    return "";
 	}
 	
 	@RequestMapping(value="/downloadZipOptSim", method=RequestMethod.GET)

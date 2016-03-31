@@ -92,23 +92,6 @@ public class SimulationsManager {
 		this.numCompletedSimulations = numCompletedSimulations;
 	}
 
-	/*
-	 * public String getMapFile() { try { return Compressor.decompress(mapFile);
-	 * } catch (IOException e) { return ""; } }
-	 * 
-	 * public void setMapFile(String mapFile) { try { this.mapFile =
-	 * Compressor.compress(mapFile); } catch (IOException e) { this.mapFile =
-	 * ""; } }
-	 * 
-	 * public void setRsFile(String rsFile) { try { this.rsFile =
-	 * Compressor.compress(rsFile); } catch (IOException e) { this.rsFile = "";
-	 * }
-	 * 
-	 * }
-	 * 
-	 * public String getRsFile() { try { return Compressor.decompress(rsFile); }
-	 * catch (IOException e) { return ""; } }
-	 */
 	public String getInputFile(Integer pos1, Integer pos2) {
 		try {
 			return Compressor.decompress(inputFiles.get(pos1)[pos2]);
