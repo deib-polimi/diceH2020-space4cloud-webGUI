@@ -7,7 +7,6 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 

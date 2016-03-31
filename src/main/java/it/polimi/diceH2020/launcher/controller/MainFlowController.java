@@ -34,6 +34,7 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
+import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 
@@ -154,10 +155,9 @@ public class MainFlowController {
 	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
 	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInstanceName() + ".json" );
-	    response.getWriter().write(manager.getInput());
+	    response.getWriter().write(Compressor.decompress(manager.getInput()));
     	response.getWriter().flush();
     	response.getWriter().close();
-    	response.flushBuffer();
 	}
 	
 	@RequestMapping(value="/downloadFinalJson", method=RequestMethod.GET)
@@ -165,10 +165,9 @@ public class MainFlowController {
 		InteractiveExperiment exp = intExperimentRepository.findOne(id);
 	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + exp.getInstanceName()+ "SOL.json" );
-	    response.getWriter().write(exp.getFinalSolution());
+	    response.getWriter().write(Compressor.decompress(exp.getFinalSolution()));
     	response.getWriter().flush();
     	response.getWriter().close();
-    	response.flushBuffer();
 	}
 	
 	@RequestMapping(value="/downloadTxt", method=RequestMethod.GET)

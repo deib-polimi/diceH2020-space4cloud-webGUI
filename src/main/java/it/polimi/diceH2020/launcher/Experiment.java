@@ -399,6 +399,7 @@ public class Experiment {
 		String solSerialized;
 		e.setSol(sol);
 		try {
+			//CANBEREMOVED
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
@@ -412,7 +413,6 @@ public class Experiment {
 			return false;
 		}
 	}
-
 
 	private boolean saveInitSolution() {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);

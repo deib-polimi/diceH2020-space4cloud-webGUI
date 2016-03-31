@@ -154,6 +154,7 @@ public class FileUtility {
         } else {
           byte[] buf = new byte[1024];
           int len;
+          @SuppressWarnings("resource")
           FileInputStream in = new FileInputStream(srcFile);
           zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
           while ((len = in.read(buf)) > 0) {
