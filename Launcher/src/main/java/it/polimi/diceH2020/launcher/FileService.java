@@ -55,7 +55,6 @@ public class FileService {
 		return StreamUtils.zipWithIndex(getBaseSolutionsPath()).collect(Collectors.toList());
 	
 	}
-	
 
 	private <T> T getObjectFromPath(Path Path, Class<T> cls) {
 		String serialized;

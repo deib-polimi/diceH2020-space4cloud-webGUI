@@ -28,6 +28,7 @@
             <th>Gamma</th>
             <th>Provider</th>
             <th>Iter</th>
+            <th>Solution</th>
             <th>RunTime[ms]</th>
           </tr>
         </thead>
@@ -39,6 +40,12 @@
             <td th:text="${sim.gamma}">ThinkTime</td>
             <td th:text="${sim.provider}">VMs</td>
             <td th:text="${sim.iter}">iter</td>
+            <td>
+				<div th:if="*{sim.state}=='completed'" class="linkFather">
+					<a class="link" style="z-index:10;" th:href="@{|/downloadFinalJson?id=${sim.id}|}"></a>
+					<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
+				</div>
+			</td>
             <td th:text="${sim.experimentalDuration}">experimentalDuration</td>
           </tr>
         </tbody>

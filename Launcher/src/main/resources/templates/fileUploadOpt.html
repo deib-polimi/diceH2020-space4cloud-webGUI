@@ -46,7 +46,15 @@
 			class="button" value="Submit" />
 		</label>
 	</form>
-
-
+	<h1>Select folder with instance files</h1>
+	<form id="formFolder" method="POST" enctype="multipart/form-data" th:action="@{/files/uploadOptFolderFiles}" class="basic-grey">
+		<label> <span>Select a folder:</span> 
+			<input id="folder" type="file" name="file[]" class="input"  webkitdirectory="" directory="" multiple="" mozdirectory="" required="required"/>
+		</label>
+		<label> <span>&nbsp;</span> <br/> 
+			<input type="submit" class="button" value="Submit" />
+		</label>
+	</form>
+	
 </body>
 </html>

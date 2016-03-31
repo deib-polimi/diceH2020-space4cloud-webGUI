@@ -5,10 +5,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -74,18 +78,18 @@ public class FilesController {
 	public String multipleSaveOpt(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
-		String fileNamePrefix = generateUniqueString();
 		int j = 1;
 		
-		/*
 		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
 			model.addAttribute("message", "Duplicated files!");
 			return "fileUpload";
 		}
-		*/
 		
 		for (int i = 0; i < files.length; i++) {
-			fileName = fileNamePrefix + files[i].getOriginalFilename().replaceAll("/", "");
+			fileName = files[i].getOriginalFilename().replaceAll("/", "");
+			
+			System.out.println(fileName);
+			
 			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
@@ -100,6 +104,62 @@ public class FilesController {
 				j++;
 			}
 		}
+		return "redirect:/launch/opt/simulationSetup";
+	}
+	
+	
+	//assuming that the order in folder is: .JSON1 json1map1.txt json1map2.txt json1rs.txt  json1rs1.txt JSON2 json2map1.txt ...
+	@RequestMapping(value = "/uploadOptFolderFiles", method = RequestMethod.POST)
+	public String multipleSaveOptFromFolder(@RequestParam("file[]") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+		// TODO remove all files
+		String fileName = null;
+		//int j = 1;
+		int k = 0;
+		
+		if(files == null || files.length == 0){
+			model.addAttribute("message", "Wrong files!");
+			return "fileUploadOpt";
+		}
+		
+		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
+			model.addAttribute("message", "Duplicated files!");
+			return "fileUploadOpt";
+		}
+		
+		ArrayList<ArrayList<String>> tmpValues = new ArrayList<ArrayList<String>>();
+		boolean firstEl = true;
+		for (int i = 0; i < files.length; i++) {
+			String[] splits = files[i].getOriginalFilename().split("/");
+			fileName = splits[splits.length-1];
+			System.out.println(fileName);
+			
+			
+			if (fileName.contains(".json")) {
+				File f = saveFile(files[i], fileName);
+				if (f == null) return "error";
+				if (!validator.validateOptInput(f.toPath())) {
+					model.addAttribute("message", "Invalid Json file!");
+					return "fileUploadOpt";
+				} else {
+					//redirectAttrs.addAttribute("inputPath"+(2-j+i), f.toPath().toString());
+					if(!firstEl){
+						k++;
+					}else{
+						firstEl = false;
+					}
+					ArrayList<String> tmp = new ArrayList<String>();
+					tmp.add(f.toPath().toString());
+					tmpValues.add(k,tmp);
+				}
+			} else if(fileName.contains(".txt")){
+				File f = saveFile(files[i], fileName);
+				if (f == null) return "error";
+				//redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
+				tmpValues.get(k).add(f.toPath().toString());
+				//j++;
+			}
+		}
+		redirectAttrs.addFlashAttribute("pathList", tmpValues);
 		return "redirect:/launch/opt/simulationSetup";
 	}
 

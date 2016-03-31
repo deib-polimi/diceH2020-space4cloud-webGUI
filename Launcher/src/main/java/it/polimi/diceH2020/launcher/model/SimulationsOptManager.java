@@ -7,6 +7,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 
@@ -51,10 +52,6 @@ public class SimulationsOptManager extends SimulationsManager{
 		this.numIter = numIter;
 	}
 
-	public InstanceData getInputData() {
-		return inputData;
-	}
-
 	public void setInputData(InstanceData inputData) {
 		this.inputData = inputData;
 
@@ -64,6 +61,23 @@ public class SimulationsOptManager extends SimulationsManager{
 		} catch (IOException e) {
 			setInput("Error");
 		}
+		setInstanceName(inputData.getId());
+	}
+	
+	
+	public InstanceData getInputData() {
+		if (inputData != null) {
+			return inputData;
+		} else if (getInput() != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return inputData;
 	}
 
 	public String getProvider() {

@@ -102,7 +102,7 @@ input{
     margin-top:1em;
 }
 .resultContainer thead{
-	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);*/
+	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
 }
 .resultContainer tbody th {
 	background-color: #2ea879;
@@ -113,6 +113,9 @@ input{
 }
 .resultContainer tbody tr:hover {
     background-color: rgba(129,208,177,.3);
+}
+.resultContainer .linkFather a:hover + img{
+	opacity:0.5;
 }
 .hidden{
 	visibility: hidden!important;

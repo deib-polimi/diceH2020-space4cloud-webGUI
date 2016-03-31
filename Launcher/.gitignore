@@ -11,3 +11,5 @@
 /instances/
 /results/
 /solInstances/
+/TempWorkingDir/
+/launcherDB.mv.db

@@ -3,8 +3,6 @@ package it.polimi.diceH2020.launcher;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,13 +28,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
-import it.polimi.diceH2020.launcher.model.ExperimentRecord;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
-import it.polimi.diceH2020.launcher.model.Results;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
-import it.polimi.diceH2020.launcher.repository.ExperimentRepository;
-import it.polimi.diceH2020.launcher.repository.ResultRepository;
 
 @Scope("prototype")
 @Component
@@ -48,21 +42,13 @@ public class Experiment {
 	private String STATE_ENDPOINT;
 	private String SETTINGS_ENDPOINT;
 	private String UPLOAD_ENDPOINT;
-	private int analysisExecuted = 1;
-
-	//TOREMOVE
-	@Autowired
-	private ExperimentRepository expRepo;
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private ObjectMapper mapper;
-	@Autowired
-	private ResultRepository resRepo;
 	private RestTemplate restTemplate = new RestTemplate();
 	@Autowired
 	private Settings settings;
 	private boolean stop = false;
-	private int totalAnalysisToExecute = -1;
 	private String port;
 
 	public Experiment(String port) {
@@ -77,7 +63,7 @@ public class Experiment {
 		return stop;
 	}
 
-	public boolean  initWI(InteractiveExperiment intExp){
+	public boolean initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getInputJson();
 		String solID = sol.getId();
@@ -86,8 +72,8 @@ public class Experiment {
 		String nameMapFile = String.format("%sMapJ%d%s.txt", solID, jobID, typeVMID);
 		String nameRSFile = String.format("%sRSJ%d%s.txt", solID, jobID, typeVMID);
 		try{
-			send(nameMapFile, simManager.getMapFile());
-			send(nameRSFile,simManager.getRsFile());
+			send(nameMapFile, simManager.getInputFile(0,2));
+			send(nameRSFile, simManager.getInputFile(0,3));
 		}catch (Exception e){
 			logger.info(e);
 			return false;
@@ -102,20 +88,24 @@ public class Experiment {
 	}
 	public boolean initOpt(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
-		String nameMapFile = simManager.getMapFileName();
-		String nameRSFile = simManager.getRsFileName();
-		try{
-			send(nameMapFile, simManager.getMapFile());
-			send(nameRSFile,simManager.getRsFile());
-		}catch(Exception e){
-			logger.info(e);
-			return false;
+		for(int i=0; i<simManager.getInputFiles().size();i++){
+			String nameMapFile = simManager.getInputFile(i,0);
+			String nameRSFile = simManager.getInputFile(i,1);
+			try{
+				send(nameMapFile, simManager.getInputFile(i,2));
+				send(nameRSFile, simManager.getInputFile(i,3));
+			}catch(Exception e){
+				logger.info(e);
+				return false;
+			}
 		}
 		return true;
 	}
 
-	public boolean launchWI(InteractiveExperiment e) {
+	public synchronized boolean launchWI(InteractiveExperiment e) {
 		if (!initWI(e)||isStop()){
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
 			return false;
 		}
 		int num = e.getIter();
@@ -182,8 +172,12 @@ public class Experiment {
 		return false;
 	}
 
-	public boolean launchOpt(InteractiveExperiment e) {
-		initOpt(e);
+	public synchronized boolean launchOpt(InteractiveExperiment e) {
+		if (!initOpt(e)||isStop()){
+			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			return false;
+		}
 		if (isStop()) return false;
 
 		int num = e.getIter();
@@ -238,75 +232,12 @@ public class Experiment {
 		// to go to idle
 		restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class);
 
-		String percentage = BigDecimal.valueOf((double) analysisExecuted * 100 / (double) totalAnalysisToExecute).setScale(2, RoundingMode.HALF_EVEN).toString();
-		String msg = String.format("%s%% experiments completed", percentage);
-		logger.info(msg);
-		analysisExecuted++;
+		//String percentage = BigDecimal.valueOf((double) analysisExecuted * 100 / (double) totalAnalysisToExecute).setScale(2, RoundingMode.HALF_EVEN).toString();
+		
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
 		return true;
 	}
 
-	//TOREMOVE
-	public void launch(ExperimentRecord e) {
-		if (isStop()) return;
-
-		int num = e.getIteration();
-		Path inputDataPath = e.getInstanceName();
-		if (!Files.exists(inputDataPath)) return;
-
-		String nameInstance = e.getShortName();
-		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
-
-		boolean idle = checkWSIdle();
-
-		if (!idle || isStop()) {
-			logger.info(baseErrorString + "-> service not idle");
-			return;
-		}
-		InstanceData data = getObjectFromPath(inputDataPath);
-		boolean charged_inputdata = sendInputData(data);
-
-		if (!charged_inputdata || isStop()) return;
-
-		boolean charged_initsolution = generateInitialSolution();
-
-		if (!charged_initsolution || isStop()) {
-			logger.info(baseErrorString + "-> generation of the initial solution");
-			return;
-		}
-
-		boolean evaluated_initsolution = evaluateInitSolution();
-		if (!evaluated_initsolution || isStop()) {
-			logger.info(baseErrorString + "-> evaluating the initial solution");
-			return;
-		}
-
-		boolean initsolution_saved = saveInitSolution();
-		if (!initsolution_saved) {
-			logger.info(baseErrorString + "-> getting or saving initial solution");
-			return;
-		}
-
-		boolean finish = executeLocalSearch();
-
-		if (!finish || isStop()) {
-			logger.info(baseErrorString + "-> local search");
-			return;
-		}
-
-		boolean finalSolution_saved = saveFinalSolution(e);
-		if (!finalSolution_saved) {
-			logger.info(baseErrorString + "-> getting or saving final solution");
-			return;
-		}
-		// to go to idle
-		restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class);
-
-		String percentage = BigDecimal.valueOf((double) analysisExecuted * 100 / (double) totalAnalysisToExecute).setScale(2, RoundingMode.HALF_EVEN).toString();
-		String msg = String.format("%s%% experiments completed", percentage);
-		logger.info(msg);
-		analysisExecuted++;
-
-	}
 
 	public void send(String filename, String content ) throws Exception{
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
@@ -352,10 +283,6 @@ public class Experiment {
 
 	public void setStop(boolean stop) {
 		this.stop = stop;
-	}
-
-	public void setTotalAnalysisToExecute(int totalAnalysisToExecute) {
-		this.totalAnalysisToExecute = totalAnalysisToExecute;
 	}
 
 	public boolean stop() {
@@ -440,16 +367,16 @@ public class Experiment {
 		} else return false;
 	}
 
-	private InstanceData getObjectFromPath(Path inputDataPath) {
-		String serialized;
-		try {
-			serialized = new String(Files.readAllBytes(inputDataPath));
-			InstanceData data = mapper.readValue(serialized, InstanceData.class);
-			return data;
-		} catch (IOException e) {
-			return null;
-		}
-	}
+//	private InstanceData getObjectFromPath(Path inputDataPath) {
+//		String serialized;
+//		try {
+//			serialized = new String(Files.readAllBytes(inputDataPath));
+//			InstanceData data = mapper.readValue(serialized, InstanceData.class);
+//			return data;
+//		} catch (IOException e) {
+//			return null;
+//		}
+//	}
 
 	@PostConstruct
 	private void init() throws IOException {
@@ -469,18 +396,14 @@ public class Experiment {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
 		String solSerialized;
+		e.setSol(sol);
 		try {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			e.setDone(true);
 			e.setNumSolutions(e.getNumSolutions()+1);
 			//intExpRepository.saveAndFlush(e);
-			Results res = new Results();
-			res.setId(e.getId());
-			res.setInstanceName(e.getInstanceName());
-			res.setIteration(e.getIter());
-			res.setSol(sol);
-			resRepo.save(res);
+			
 			String msg = String.format("-%s iter: %d ->%s", e.getInstanceName(), e.getIter(), sol.toStringReduced());
 			logger.info(msg);
 			return true;
@@ -489,29 +412,6 @@ public class Experiment {
 		}
 	}
 
-	//TOREMOVE
-	private boolean saveFinalSolution(ExperimentRecord e) {
-		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
-		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
-		String solSerialized;
-		try {
-			solSerialized = mapper.writeValueAsString(sol);
-			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
-			e.setDone(true);
-			expRepo.saveAndFlush(e);
-			Results res = new Results();
-			res.setId(e.getMyId());
-			res.setInstanceName(e.getShortName());
-			res.setIteration(e.getIteration());
-			res.setSol(sol);
-			resRepo.saveAndFlush(res);
-			String msg = String.format("-%s iter: %d ->%s", e.getShortName(), e.getIteration(), sol.toStringReduced());
-			logger.info(msg);
-			return true;
-		} catch (Exception ex) {
-			return false;
-		}
-	}
 
 	private boolean saveInitSolution() {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
@@ -527,13 +427,9 @@ public class Experiment {
 		catch (IOException e) {
 			return false;
 		}
-
 	}
 
-	//param
 	private boolean sendInputData(InstanceData data) {
-		//InstanceData data = getObjectFromPath(inputDataPath);
-
 		if (data != null) {
 			String res = restTemplate.postForObject(INPUTDATA_ENDPOINT, data, String.class);
 			if (res.equals("CHARGED_INPUTDATA")) return true;

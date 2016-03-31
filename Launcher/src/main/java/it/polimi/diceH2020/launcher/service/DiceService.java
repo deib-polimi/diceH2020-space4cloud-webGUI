@@ -59,14 +59,14 @@ public class DiceService {
 			simManager.getExperimentsList().stream().forEach(e-> {
 				String channel = "channel"+getBestChannel();
 				//System.out.println("Notify on "+channel);
-				logger.info("[LOCKS] Exp"+e.getId()+"has been sended to queue on thread/"+channel);
+				logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
 				eventBus.notify(channel, Event.wrap(e));
 			});
 		}
 		if(simManager instanceof SimulationsOptManager){
 			simManager.getExperimentsList().stream().forEach(e-> {
 				String channel = "channel"+getBestChannel();
-				logger.info("[LOCKS] Exp"+e.getId()+"has been enqueued on thread/"+channel);
+				logger.info("[LOCKS] Exp"+e.getId()+" has been enqueued on thread/"+channel);
 				eventBus.notify(channel, Event.wrap(e));
 			});
 		}
@@ -179,7 +179,4 @@ public class DiceService {
 		}
 		System.out.println(queueStatus);
 	}
-	
-	
-	
 }

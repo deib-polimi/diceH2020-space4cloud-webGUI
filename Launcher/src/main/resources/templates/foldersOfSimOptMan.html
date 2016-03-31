@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8"></meta>
+<meta charset="UTF-8" http-equiv="refresh" content="5"></meta>
 <title>Simulations</title>
 <link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
 <link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
@@ -18,32 +18,33 @@
     </div>
     <br />
     <div class = "basic-grey">
-    <h3>Experiments launched</h3>
+    <h3>Folders of Experiments launched</h3>
 	<div class="resultContainer">
 		<table>
 			<thead>
 				<tr>
-					<th>Id</th>
-					<th>Size</th>
 					<th>Date</th>
 					<th>Time</th>
-					<th>State</th>
 					<th>Input</th>
+					<th>Output</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr style="cursor:pointer;" th:each="manager : ${sim_manager}" th:onclick="'javascript:rowClicked(\'' + ${manager.id} + '\');'">
-					<td th:text="${manager.id}">ID</td>
-					<td th:text="${manager.numCompletedSimulations + '/' + manager.size}">Size</td>
+				<tr style="cursor:pointer;" th:each="manager : ${folders}" th:onclick="'javascript:rowClicked(\'' + ${manager.folder} + '\');'">
 					<td th:text="${manager.date}">Date</td>
 					<td th:text="${manager.time}">Time</td>
-					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
 					<td>
 						<div class="clearfix" style="margin: 0 auto;">
 							<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
-								<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptSim?id=${manager.id}|}"></a>
+								<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptInputFolder?folder=${manager.folder}|}"></a>
 								<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 							</div>
+						</div>
+					</td>
+					<td>
+						<div th:if="*{manager.state}==completed" class="linkFather">
+							<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptOutputJsons?folder=${manager.folder}|}"></a>
+							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>
 				</tr>
@@ -53,7 +54,7 @@
 	</div>
 	<script>
     function rowClicked(value) {
-        location.href = "resultsOpt?id=" + value;
+        location.href = "simOptByFolder?folder=" + value;
     }
 </script>
 </body>

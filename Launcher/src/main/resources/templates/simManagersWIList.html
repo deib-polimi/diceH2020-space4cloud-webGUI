@@ -29,8 +29,9 @@
 					<th>Time</th>
 					<th>Accuracy</th>
 					<th>State</th>
-					<th>Input</th>
+					<th colspan="3">Input</th>
 					<th>Output</th>
+					<th colspan="2">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -42,25 +43,38 @@
 					<td th:text="${manager.accuracy}">Accuracy</td>
 					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
 					<td>
-						<div class="clearfix" style="margin: 0 auto;">
-							<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
-								<a class="link" style="z-index:10;" th:href="@{|/downloadJson?id=${manager.id}|}"></a>
-								<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
-							</div>
-							<div th:if="*{manager.mapFileEmpty}==false" class="linkFather" style="float:left;">
-								<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=1)}"></a>
-								<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
-							</div>
-							<div th:if="*{manager.rsFileEmpty}==false" class="linkFather" style="float:left;">
-								<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=2)}"></a>
-								<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
-							</div>
+						<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
+							<a class="link" style="z-index:10;" th:href="@{|/downloadJson?id=${manager.id}|}"></a>
+							<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+					<td style="padding-left:0;padding-right:0;">
+						<div class="linkFather" style="float:left;">
+							<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=1)}"></a>
+							<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
+						</div>
+						</td>
+					<td>
+						<div class="linkFather" style="float:left;">
+							<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=2)}"></a>
+							<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>
 					<td>
-						<div th:if="*{manager.state}==completed" class="linkFather">
-							<a class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
+						<div class="linkFather">
+							<a th:if="*{manager.state}==completed" class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
+							<a th:if="*{manager.state}!=completed" class="link" style="z-index:10;" th:href="@{|/downloadPartial?id=${manager.id}|}"></a>
 							<img height="25" th:src="${'/images/libreOffice.png'}" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+					<td style="padding-right:0.25em;">
+						<div class="linkFather">
+							<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+					<td style="padding-left:0.25em;">
+						<div class="linkFather">
+							<img height="25" th:src="${'/images/relaunch.png'}" title="relaunch" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>
 				</tr>

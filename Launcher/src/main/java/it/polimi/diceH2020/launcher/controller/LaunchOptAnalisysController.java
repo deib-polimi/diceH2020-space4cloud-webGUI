@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.context.request.WebRequest;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -49,50 +55,81 @@ public class LaunchOptAnalisysController {
 	}
 
 	@RequestMapping(value = "/simulationSetup", method = RequestMethod.GET)
-	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model, 
+	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model,  WebRequest request,
 			@ModelAttribute("sim_manager") SimulationsOptManager simManager, 
-			@ModelAttribute("inputPath") String inputSolPath,
-			@ModelAttribute("pathFile1") String mapFile,
-			@ModelAttribute("pathFile2") String rsFile) {
+			@ModelAttribute("pathList") ArrayList<ArrayList<String>> pathList) {
+		
+		String folder = generateUniqueString();
+		
+		if(pathList.size() == 0)return "error";
+		for(int i=0; i<pathList.size();i++){
+			
+			if (pathList.get(i).get(0) == null || !pathList.get(i).get(0).contains(".json")) return "error";
+			
+			ArrayList<String> tmpList = pathList.get(i); 
+			String inputSolPath = tmpList.get(0);
+			if (simManager == null) {
+				simManager = new SimulationsOptManager();
+				model.addAttribute("sim_manager", simManager);
+			}
+			InstanceData inputData = validator.objectFromPath(Paths.get(inputSolPath), InstanceData.class).get();
+			simManager.setInputData(inputData);
+			simManager.setInputFileName(Paths.get(inputSolPath).getFileName().toString());
+			simManager.setProvider(inputData.getProvider());
+			simManager.setGamma(inputData.getGamma());
+			simManager.setFolder(folder);
+			
+			tmpList.remove(0);
+			int j = 0;
+			while(tmpList.size()!=0){
+				String mapFile,rsFile,mapFileName,rsFileName,mapFileContent,rsFileContent;
+				mapFile=rsFile=mapFileName=rsFileName=mapFileContent=rsFileContent = new String();
+				if(tmpList.get(j).contains("Map")){
+					mapFile = tmpList.get(j);
+					mapFileName = Paths.get(mapFile).getFileName().toString();
+					try {
+						mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+					} catch (IOException e) {
+						return "error";
+					}
+					int indexRS = tmpList.indexOf(mapFile.replace("Map", "RS"));
+					if(indexRS!=-1){
+						rsFile = tmpList.get(indexRS);
+						rsFileName = Paths.get(rsFile).getFileName().toString();
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
 
-		if (inputSolPath == null) return "error";
-		if (simManager == null) {
+						tmpList.remove(indexRS);
+						tmpList.remove(j);
+					}//else{rsFileContent = "" rsFileName=""
+				}else 
+					if(tmpList.get(j).contains("RS")){
+						//and mapFileContent = "" name=""
+						rsFile = tmpList.get(j);
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
+						tmpList.remove(j);
+					}else{
+						return "error";
+					}
+				
+				simManager.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+			}
+			simManager.buildExperiments();
+			simManager.setNumCompletedSimulations(0);
+			simManager.setSize();
+			
+			ds.simulation(simManager);
+			sessionStatus.setComplete();
+			request.removeAttribute("sim_manager", WebRequest.SCOPE_SESSION);
 			simManager = new SimulationsOptManager();
-			model.addAttribute("sim_manager", simManager);
 		}
-		InstanceData inputData = validator.objectFromPath(Paths.get(inputSolPath), InstanceData.class).get();
-		simManager.setInputData(inputData);
-		
-		simManager.setInstanceName(inputData.getId());
-		simManager.setProvider(inputData.getProvider());
-		simManager.setGamma(inputData.getGamma());
-		
-		
-		String mapContent = "";
-		String rsContent = "";
-		try {
-			mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-			rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-		} catch (IOException e) {
-			return "error";
-		}
-		
-		simManager.setMapFile(mapContent);
-		if(!simManager.getMapFile().isEmpty()){
-			simManager.setMapFileEmpty(false);
-		}
-		simManager.setRsFile(rsContent);
-		if(!simManager.getRsFile().isEmpty()){
-			simManager.setRsFileEmpty(false);
-		}
-		simManager.setMapFileName(Paths.get(mapFile).getFileName().toString());
-		simManager.setRsFileName(Paths.get(rsFile).getFileName().toString());
-		simManager.buildExperiments();
-		simManager.setNumCompletedSimulations(0);
-		simManager.setSize();
-		
-		ds.simulation(simManager);
-		sessionStatus.setComplete();
 		return "redirect:/resOpt";
 	}
 
@@ -109,4 +146,14 @@ public class LaunchOptAnalisysController {
 		BigDecimal rounded = bd.setScale(precision, roundingMode);
 		return rounded.doubleValue();
 	}
+	
+	private String generateUniqueString() {
+		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+		Date dNow = new Date( );
+	    SimpleDateFormat ft = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
+	    Random random = new Random();
+	    String id = ft.format(dNow)+random.nextInt(99999);
+	    return id;
+	}
+	
 }

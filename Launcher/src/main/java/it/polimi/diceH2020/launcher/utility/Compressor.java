@@ -9,8 +9,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class Compressor {
-	
-    public static String compress(String str) throws IOException {
+
+	public static String compress(String str) throws IOException {
         if (str == null || str.length() == 0) {
             return str;
         }

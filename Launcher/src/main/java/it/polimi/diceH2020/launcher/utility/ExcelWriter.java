@@ -29,9 +29,17 @@ public class ExcelWriter {
 	FileUtility fileUtility;
 
 	    public void writeListToExcel(SimulationsWIManager simManager) throws IOException{
-	    	
+	    	   Workbook workbook = createWorkbook(simManager);
+	        	FileOutputStream fos = new FileOutputStream(fileUtility.provideTemporaryFile("result", "xls"));	        	
+	            workbook.write(fos);
+	            fos.close();
+	            workbook.close();
+	            //System.out.println(FILE_PATH + " is successfully written");
+	    }
+	    
+	    public Workbook createWorkbook(SimulationsWIManager simManager){
 	    	List<InteractiveExperiment> simulationList = simManager.getExperimentsList();
-	 
+	   	 
 	        // Using XSSF for xlsx format, for xls use HSSF
 	        Workbook workbook = new XSSFWorkbook();
 
@@ -67,11 +75,6 @@ public class ExcelWriter {
 		        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
 		        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
 	        }
-	        
-	        	FileOutputStream fos = new FileOutputStream(fileUtility.provideTemporaryFile("result", "xls"));	        	
-	            workbook.write(fos);
-	            fos.close();
-	            workbook.close();
-	            //System.out.println(FILE_PATH + " is successfully written");
+	        return workbook;
 	    }
 	}	

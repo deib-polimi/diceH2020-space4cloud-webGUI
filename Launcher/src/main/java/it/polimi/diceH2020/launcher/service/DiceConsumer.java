@@ -81,7 +81,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			}
 			ds.updateExp(intExp);
 			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
-				//intExp.getSimulationsManager().writeFinalResults();
+				intExp.getSimulationsManager().writeFinalResults();
 				intExp.getSimulationsManager().setState("completed");
 				ds.updateManager(intExp.getSimulationsManager());
 			}
