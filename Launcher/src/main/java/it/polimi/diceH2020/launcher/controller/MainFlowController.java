@@ -169,10 +169,12 @@ public class MainFlowController {
 	    response.setContentType("text/plain;charset=utf-8");
 	   
 	    if(num==2){
-	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFile(0, 1) + ".txt" );
+	    	System.out.println("Downloading: "+manager.getInputFile(0, 1));
+	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[1]);
 	    	return manager.getInputFile(0, 3);
 	    }else{
-	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFile(0, 0) + ".txt" );
+	    	System.out.println("Downloading: "+manager.getInputFile(0, 0));
+	    	response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[0]);
 	    	return manager.getInputFile(0, 2);
 	    }
 	}

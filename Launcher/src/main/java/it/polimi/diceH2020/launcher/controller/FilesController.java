@@ -4,13 +4,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,18 +41,10 @@ public class FilesController {
 	public String multipleSaveWI(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
-		String fileNamePrefix = generateUniqueString();
 		int j = 1;
 		
-		/*
-		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
-			model.addAttribute("message", "Duplicated files!");
-			return "fileUpload";
-		}
-		*/
-		
 		for (int i = 0; i < files.length; i++) {
-			fileName = fileNamePrefix + files[i].getOriginalFilename().replaceAll("/", "");
+			fileName = files[i].getOriginalFilename().replaceAll("/", "");
 			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
@@ -170,16 +158,7 @@ public class FilesController {
 	    for (T each: all) if (!set.add(each)) return true;
 	    return false;
 	}
-	
-	private String generateUniqueString() {
-		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-		Date dNow = new Date( );
-	    SimpleDateFormat ft = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
-	    Random random = new Random();
-	    String id = ft.format(dNow)+random.nextInt(99999);
-	    return id;
-	}
-	
+
 	private File saveFile(MultipartFile file, String fileName) {
 		try {
 			byte[] bytes = file.getBytes();

@@ -237,4 +237,9 @@ public class SimulationsManager {
 	public void setInputFileName(String inputFileName) {
 		this.inputFileName = inputFileName;
 	}
+
+	public void setInputFiles(ArrayList<String[]> inputFiles) {
+		this.inputFiles = inputFiles;
+	}
+	
 }

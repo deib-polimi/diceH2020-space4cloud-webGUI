@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
+import java.util.ArrayList;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -63,28 +63,20 @@ public class LaunchWIAnalisysController {
 		}
 		Solution inputJson = validator.objectFromPath(Paths.get(inputSolPath), Solution.class).get();
 		simManager.setInputJson(inputJson);
-		simManager.setInputFileName(Paths.get(inputSolPath).getFileName().toString());
+		simManager.setInputFileName(inputSolPath);
 		String mapContent = "";
 		String rsContent = "";
 		try {
 			mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
 			rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-			//simManager.setMapFileName("map");
-			//simManager.setMapFileName("rs");
 		} catch (IOException e) {
 			return "error";
 		}
-	
-		simManager.addInputFiles("","",mapContent,rsContent);
 		
-//		simManager.setMapFile(mapContent);
-//		if(!simManager.getMapFile().isEmpty()){
-//			simManager.setMapFileEmpty(false);
-//		}
-//		simManager.setRsFile(rsContent);
-//		if(!simManager.getRsFile().isEmpty()){
-//			simManager.setRsFileEmpty(false);
-//		}
+		ArrayList<String[]> tmpList = new ArrayList<String[]>();
+		tmpList.add(new String[]{mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent});
+		simManager.setInputFiles(tmpList);
+		System.out.println("Sim manager inputs:"+simManager.getInputFiles().get(0)[0]+","+simManager.getInputFiles().get(0)[1]);
 		return "simulationSetup";
 	}
 
