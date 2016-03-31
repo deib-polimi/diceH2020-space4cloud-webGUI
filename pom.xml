@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.polimi.diceH2020</groupId>
-	<artifactId>launcher</artifactId>
+	<artifactId>SPACE4Cloud-webGUI</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Launcher</name>
+	<name>SPACE4Cloud Web GUI</name>
 	<description>Launcher for SPACE4CloudWS</description>
 
 	<parent>
