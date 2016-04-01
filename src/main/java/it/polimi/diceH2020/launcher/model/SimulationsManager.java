@@ -63,6 +63,19 @@ public class SimulationsManager {
 		this.date = dateFormat.format(date);
 		this.time = timeFormat.format(date);
 	}
+	
+	public synchronized void refreshState(){
+		int completed = 1;
+		int expSize = experimentsList.size();
+		for(int i=0; i<expSize;i++){
+			if(experimentsList.get(i).getState().equals("completed")){
+				completed++;
+			}
+		}
+		if(expSize == completed){
+			state = "completed";
+		}
+	}
 
 	public String getDate() {
 		return date;

@@ -51,6 +51,7 @@
             <td th:text="${sim.experimentalDuration}">experimentalDuration</td>
             <td style="padding-right:0.25em;">
 				<div class="linkFather">
+					<a class="link" style="z-index:10;" th:href="@{|/delete?id=${sim.id}|}"></a>
 					<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
 				</div>
 			</td>

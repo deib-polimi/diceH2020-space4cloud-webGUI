@@ -44,13 +44,11 @@ public class InteractiveExperiment {
 	
 	//@NotNull
 	@Min(1)
-	private  Integer thinkTime;     	
+	private  Integer thinkTime = 0;     	
 	//@NotNull
-	@Min(1)
-	private  Integer numUsers;	
+	private  Integer numUsers=0;	
 	//@NotNull
-	@Min(1)
-	private Integer numVMs;
+	private Integer numVMs=0;
 	
 	private double responseTime = 0d;
 	
@@ -65,7 +63,6 @@ public class InteractiveExperiment {
 	private String finalSolution="";
 	
 	//@NotNull
-	@Min(1)
 	private Integer iter = 1;
 	
 	private long experimentalDuration = 0;
