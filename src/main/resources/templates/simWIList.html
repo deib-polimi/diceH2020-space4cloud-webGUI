@@ -31,6 +31,7 @@
             <th>Iter</th>
             <th>Response Time [ms]</th>
             <th>RunTime[ms]</th>
+            <th colspan="2">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -44,6 +45,17 @@
             <td th:text="${sim.iter}">iter</td>
             <td th:text="${sim.responseTime}">ResponseTime</td>
             <td th:text="${sim.experimentalDuration}">experimentalDuration</td>
+            <td style="padding-right:0.25em;">
+				<div class="linkFather">
+					<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
+				</div>
+			</td>
+			<td style="padding-left:0.25em;">
+				<div class="linkFather">
+					<a class="link" style="z-index:10;" th:href="@{|/relaunch?id=${sim.id}|}"></a>
+					<img height="25" th:src="${'/images/relaunch.png'}" title="relaunch" style="margin: 0 auto;display:block;" />
+				</div>
+			</td>
           </tr>
         </tbody>
       </table>

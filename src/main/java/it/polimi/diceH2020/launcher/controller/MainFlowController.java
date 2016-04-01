@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -34,6 +35,7 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
+import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
@@ -44,6 +46,9 @@ import it.polimi.diceH2020.launcher.utility.FileUtility;
 public class MainFlowController {
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private DiceService ds;
 	
 	private static Logger logger = Logger.getLogger(FileUtility.class.getName());
 
@@ -110,6 +115,7 @@ public class MainFlowController {
 			model.addAttribute("sim_manager", simulationsManagerRepository.findByType("WI"));
 			return "simManagersWIList";
 	}
+	
 	@RequestMapping(value="/resOpt", method=RequestMethod.GET)
 	public String listOpt(Model model) {
 			model.addAttribute("sim_manager", simulationsManagerRepository.findByType("Opt"));
@@ -282,5 +288,23 @@ public class MainFlowController {
 	    }
 	}
 	
-	
+	@RequestMapping(value = "/relaunch", method = RequestMethod.GET)
+	public String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
+		String referer = request.getHeader("Referer");
+		InteractiveExperiment exp = intExperimentRepository.findById(id);
+		exp.setExperimentalDuration(0);
+		exp.setResponseTime(0d);
+		exp.setFinalSolution(new String()); //inverse of e.setSol(sol); 
+		if(exp.getState().equals("completed")){
+			exp.setDone(false);
+			exp.setState("ready");
+			exp.setNumSolutions(exp.getNumSolutions()-1); 
+			exp.getSimulationsManager().setNumCompletedSimulations(exp.getSimulationsManager().getNumCompletedSimulations()-1);
+			if(exp.getSimulationsManager().getState().equals("completed")){
+				exp.getSimulationsManager().setState("ready"); //TODO ready?running?partiallyCompleted?
+			}
+		}
+		ds.singleSimulation(exp);
+		return "redirect:"+ referer;
+	}
 }

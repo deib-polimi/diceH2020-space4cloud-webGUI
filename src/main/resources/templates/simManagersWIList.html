@@ -42,19 +42,19 @@
 					<td th:text="${manager.time}">Time</td>
 					<td th:text="${manager.accuracy}">Accuracy</td>
 					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
-					<td>
+					<td style="padding-right:0;">
 						<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
 							<a class="link" style="z-index:10;" th:href="@{|/downloadJson?id=${manager.id}|}"></a>
 							<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>
-					<td style="padding-left:0;padding-right:0;">
+					<td style="padding-left:0.5em;padding-right:0.5em;">
 						<div class="linkFather" style="float:left;">
 							<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=1)}"></a>
 							<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 						</td>
-					<td>
+					<td style="padding-left:0;">
 						<div class="linkFather" style="float:left;">
 							<a class="link" style="z-index:10;" th:href="@{/downloadTxt(id=${manager.id},txt=2)}"></a>
 							<img height="25" th:src="${'/images/txt.png'}" style="margin: 0 auto;display:block;" />

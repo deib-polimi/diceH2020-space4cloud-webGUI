@@ -153,7 +153,16 @@ public class Experiment {
 		if (sol == null) return false;
 		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
 		e.setExperimentalDuration(sol.getOptimizationTime());
+		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-finalWI.json";
+		//CANBEREMOVED
+		try {
+			String solSerialized = mapper.writeValueAsString(sol);
+			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
+		}catch(Exception ex){
+			logger.debug("cannot create WI local solution file");
+		}
 		return true;
+
 	}
 
 	private boolean evaluateInitSolution() {

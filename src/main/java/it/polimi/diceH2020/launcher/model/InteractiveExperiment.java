@@ -72,7 +72,7 @@ public class InteractiveExperiment {
 
 	private String state = "ready"; //states:  ready to be executed, running, completed, failed
 	//@NotNull
-	private boolean done;
+	private boolean done; //TODO is it used?
 	
 	public InteractiveExperiment(){
 	}

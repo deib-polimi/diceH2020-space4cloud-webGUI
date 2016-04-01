@@ -34,7 +34,7 @@ public class SimulationsManager {
 
 	private String folder = "";
 
-	@Column(length = 20000000)
+	@Column(length = 20000000) //...
 	private ArrayList<String[]> inputFiles = new ArrayList<String[]>();
 
 	private String type = "";

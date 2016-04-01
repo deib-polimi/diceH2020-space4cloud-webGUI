@@ -55,7 +55,7 @@ public class DiceService {
 	
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
-		if(simManager instanceof SimulationsWIManager){
+		if(simManager instanceof SimulationsWIManager){//TODO remove?
 			simManager.getExperimentsList().stream().forEach(e-> {
 				String channel = "channel"+getBestChannel();
 				//System.out.println("Notify on "+channel);
@@ -63,7 +63,7 @@ public class DiceService {
 				eventBus.notify(channel, Event.wrap(e));
 			});
 		}
-		if(simManager instanceof SimulationsOptManager){
+		if(simManager instanceof SimulationsOptManager){ //TODO remove?
 			simManager.getExperimentsList().stream().forEach(e-> {
 				String channel = "channel"+getBestChannel();
 				logger.info("[LOCKS] Exp"+e.getId()+" has been enqueued on thread/"+channel);
@@ -72,20 +72,25 @@ public class DiceService {
 		}
 	}
 	
-//	public void updateSimManager(SimulationsManager simManager){
-//		simManagerRepo.saveAndFlush(simManager);
-//	}
+	public void singleSimulation(InteractiveExperiment exp){
+		SimulationsManager simManager = exp.getSimulationsManager();
+		updateExp(exp);
+		updateManager(simManager);
+		String channel = "channel"+getBestChannel();
+		logger.info("[LOCKS] Exp"+exp.getId()+"(Releaunched) has been sent to queue on thread/"+channel);
+		eventBus.notify(channel, Event.wrap(exp));
+	}
 	
 	public synchronized void updateExp(InteractiveExperiment intExp){
 		long startTime = System.currentTimeMillis();
 		intExpRepo.saveAndFlush(intExp);
 		long endTime = System.currentTimeMillis();
 		long duration = (endTime - startTime);
-		logger.info("[LOCKS] Exp"+intExp.getId()+" FINISHED. update[state: "+intExp.getState()+"] in "+duration+" ");
+		logger.info("[LOCKS] Exp"+intExp.getId()+"updated[state: "+intExp.getState()+"] in "+duration+" ");
 	}
 	public synchronized void updateManager(SimulationsManager simulationsManager){
 		simManagerRepo.saveAndFlush(simulationsManager);
-		logger.info("[LOCKS] SimManager"+simulationsManager.getId()+" FINISHED.");
+		logger.info("[LOCKS] SimManager"+simulationsManager.getId()+" has been updated.");
 	}
 	
 	
