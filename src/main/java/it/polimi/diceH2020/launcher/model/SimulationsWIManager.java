@@ -59,7 +59,7 @@ public class SimulationsWIManager extends SimulationsManager{
 	
 	@NotNull
 	@Min(60)
-	private Integer simDuration = 30;
+	private Integer simDuration = 60;
 
 	public Integer getSimDuration() {
 		return simDuration;

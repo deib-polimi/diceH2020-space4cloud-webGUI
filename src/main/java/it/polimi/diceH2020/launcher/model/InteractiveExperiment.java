@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +35,7 @@ public class InteractiveExperiment {
 	@NotNull
 	private String instanceName = "";
 	
-	@ManyToOne(cascade = {CascadeType.ALL})
+	@ManyToOne
 	@JoinColumn(name = "SIM_MANAGER")//, updatable = false, insertable=false, nullable = false)
 	private SimulationsManager simulationsManager;
 	
@@ -44,7 +43,7 @@ public class InteractiveExperiment {
 	
 	//@NotNull
 	@Min(1)
-	private  Integer thinkTime = 0;     	
+	private  Integer thinkTime = 1;     	
 	//@NotNull
 	private  Integer numUsers=0;	
 	//@NotNull

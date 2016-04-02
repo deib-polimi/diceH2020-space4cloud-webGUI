@@ -1,8 +1,8 @@
 package it.polimi.diceH2020.launcher.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +24,8 @@ import it.polimi.diceH2020.launcher.service.DiceService;
 public class MainFlowController {
 	@Autowired
 	private FileService fileService;
+	
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
 	
 	@Autowired
 	private DiceService ds;
@@ -102,37 +104,69 @@ public class MainFlowController {
 	}
 	
 	@RequestMapping(value = "/relaunch", method = RequestMethod.GET)
-	public String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
-		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		exp.setExperimentalDuration(0);
-		exp.setResponseTime(0d);
-		exp.setFinalSolution(new String()); //inverse of e.setSol(sol); 
-		if(exp.getState().equals("completed")){
-			exp.setDone(false);
-			exp.setState("ready");
-			exp.setNumSolutions(exp.getNumSolutions()-1); 
-			exp.getSimulationsManager().setNumCompletedSimulations(exp.getSimulationsManager().getNumCompletedSimulations()-1);
-			if(exp.getSimulationsManager().getState().equals("completed")){
-				exp.getSimulationsManager().setState("ready"); //TODO ready?running?partiallyCompleted?
+	public synchronized String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
+		String idFrom, folder;
+		idFrom= folder = new String();
+		try{
+			InteractiveExperiment exp = intExperimentRepository.findById(id);
+			exp.setExperimentalDuration(0);
+			exp.setResponseTime(0d);
+			exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
+			String type = new String();
+			SimulationsManager simManager = exp.getSimulationsManager();
+			idFrom = simManager.getId().toString();
+			folder = simManager.getFolder(); 
+			if(exp.getState().equals("completed")){
+				exp.setDone(false);
+				exp.setState("ready");
+				exp.setNumSolutions(exp.getNumSolutions()-1); 
+				type = simManager.getType();
+				simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
+				if(simManager.getState().equals("completed")){
+					simManager.setState("ready"); //TODO ready?running?partiallyCompleted?
+				}
 			}
+			ds.singleSimulation(exp);
+			if(type.equals("WI")){
+				return "redirect:/resultsWI?id="+idFrom;
+			}else{
+				return "redirect:/simOptByFolder?folder="+folder;
+			}
+		}catch(Exception e){
+			logger.info("Error trying to relaunch an experiment.");
+			return "redirect:" + request.getHeader("Referer");
 		}
-		ds.singleSimulation(exp);
-		return "redirect:" + request.getHeader("Referer");
 	}
 	
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	public String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request, HttpServletResponse response) {
-		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		SimulationsManager sManager = exp.getSimulationsManager();
-		sManager.setSize();
-		if(sManager.getSize()==1){
-			simulationsManagerRepository.delete(exp.getSimulationsManager());
-		}else{
-			intExperimentRepository.delete(exp); 
-			exp.getSimulationsManager().refreshState();
-			ds.updateExp(exp);
-			ds.updateManager(sManager);
+	public synchronized String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
+		String idFrom, folder;
+		idFrom= folder = new String();
+		try{
+			InteractiveExperiment exp = intExperimentRepository.findById(id);
+			SimulationsManager sManager = simulationsManagerRepository.findById(exp.getSimulationsManager().getId());
+			idFrom = sManager.getId().toString();
+			folder = sManager.getFolder(); 
+			String type = sManager.getType();
+			sManager.setSize();
+			if(sManager.getSize()==1){
+				System.out.println("deleted manager"+sManager.getId());
+				simulationsManagerRepository.delete(sManager);
+			}else{
+				sManager.getExperimentsList().remove(exp);
+				sManager.refreshState();
+				sManager.setSize();
+				ds.updateManager(sManager);//intExperimentRepository.delete(exp); done by orphandelete=true 
+			}
+			
+			if(type.equals("WI")){
+				return "redirect:/resultsWI?id="+idFrom;
+			}else{
+				return "redirect:/simOptByFolder?folder="+folder;
+			}
+		}catch(Exception e){
+			logger.info("Error trying to delete an experiment.");
+			return "redirect:" + request.getHeader("Referer");
 		}
-		return "redirect:" + request.getHeader("Referer");
 	}
 }

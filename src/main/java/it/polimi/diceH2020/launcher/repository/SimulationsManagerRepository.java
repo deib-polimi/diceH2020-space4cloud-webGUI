@@ -18,5 +18,7 @@ public interface SimulationsManagerRepository extends JpaRepository<SimulationsM
 		public List<SimulationsManager> findByIdIn(List<Long> SIM_MANAGERList);
 		
 		public List<SimulationsManager> findByFolder(String folder);
+		
+		public SimulationsManager findById(Long id);
 }
 

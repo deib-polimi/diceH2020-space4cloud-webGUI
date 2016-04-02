@@ -48,7 +48,7 @@ public class SimulationsManager {
 
 	private String inputFileName = new String();
 
-	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn(name = "simManager_index")
 	private List<InteractiveExperiment> experimentsList = new ArrayList<InteractiveExperiment>();
 
@@ -65,7 +65,7 @@ public class SimulationsManager {
 	}
 	
 	public synchronized void refreshState(){
-		int completed = 1;
+		int completed = 0;
 		int expSize = experimentsList.size();
 		for(int i=0; i<expSize;i++){
 			if(experimentsList.get(i).getState().equals("completed")){
@@ -175,22 +175,6 @@ public class SimulationsManager {
 		this.resultFilePath = resultFilePath;
 	}
 
-	// public String getMapFileName() {
-	// return mapFileName;
-	// }
-	//
-	// public void setMapFileName(String mapFileName) {
-	// this.mapFileName = mapFileName;
-	// }
-	//
-	// public String getRsFileName() {
-	// return rsFileName;
-	// }
-	//
-	// public void setRsFileName(String rsFileName) {
-	// this.rsFileName = rsFileName;
-	// }
-
 	public Long getId() {
 		return id;
 	}
@@ -202,22 +186,6 @@ public class SimulationsManager {
 	public void setType(String type) {
 		this.type = type;
 	}
-
-	// public boolean getMapFileEmpty(){
-	// return mapFileEmpty;
-	//
-	// }
-	// public boolean getRsFileEmpty(){
-	// return rsFileEmpty;
-	// }
-	//
-	// public void setMapFileEmpty(boolean mapFileEmpty) {
-	// this.mapFileEmpty = mapFileEmpty;
-	// }
-	//
-	// public void setRsFileEmpty(boolean rsFileEmpty) {
-	// this.rsFileEmpty = rsFileEmpty;
-	// }
 
 	public String getInput() {
 		return input;
