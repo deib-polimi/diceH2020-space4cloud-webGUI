@@ -83,7 +83,7 @@ public class DownloadsController {
 	    SimulationsManager manager = simulationsManagerRepository.findOne(id);
 	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInstanceName() + ".json" );
-	    response.getWriter().write(Compressor.decompress(manager.getInput()));
+	    response.getWriter().write(Compressor.originalDecompress(manager.getInput()));
     	response.getWriter().flush();
     	response.getWriter().close();
 	}
@@ -93,7 +93,7 @@ public class DownloadsController {
 		InteractiveExperiment exp = intExperimentRepository.findOne(id);
 	    response.setContentType("application/json;charset=utf-8");
 	    response.setHeader( "Content-Disposition", "attachment;filename = " + exp.getInstanceName()+ "SOL.json" );
-	    response.getWriter().write(Compressor.decompress(exp.getFinalSolution()));
+	    response.getWriter().write(Compressor.originalDecompress(exp.getFinalSolution()));
     	response.getWriter().flush();
     	response.getWriter().close();
 	}

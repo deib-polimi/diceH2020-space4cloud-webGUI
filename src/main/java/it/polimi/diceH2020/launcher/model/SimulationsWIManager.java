@@ -101,7 +101,7 @@ public class SimulationsWIManager extends SimulationsManager{
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), Solution.class);
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.originalDecompress(getInput()), Solution.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;

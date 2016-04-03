@@ -1,23 +1,14 @@
 package it.polimi.diceH2020.launcher.model;
 
+import it.polimi.diceH2020.launcher.utility.Compressor;
+
+import javax.persistence.*;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-
-import it.polimi.diceH2020.launcher.utility.Compressor;
 
 @Entity
 public class SimulationsManager {
@@ -63,7 +54,7 @@ public class SimulationsManager {
 		this.date = dateFormat.format(date);
 		this.time = timeFormat.format(date);
 	}
-	
+
 	public synchronized void refreshState(){
 		int completed = 0;
 		int expSize = experimentsList.size();
@@ -107,7 +98,7 @@ public class SimulationsManager {
 
 	public String getInputFile(Integer pos1, Integer pos2) {
 		try {
-			return Compressor.decompress(inputFiles.get(pos1)[pos2]);
+			return Compressor.originalDecompress(inputFiles.get(pos1)[pos2]);
 		} catch (IOException e) {
 			return "";
 		}
@@ -222,5 +213,5 @@ public class SimulationsManager {
 	public void setInputFiles(ArrayList<String[]> inputFiles) {
 		this.inputFiles = inputFiles;
 	}
-	
+
 }

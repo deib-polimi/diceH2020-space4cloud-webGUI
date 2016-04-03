@@ -1,24 +1,23 @@
 package it.polimi.diceH2020.launcher.model;
 
-import java.io.IOException;
-
-import javax.persistence.Entity;
-import javax.persistence.Transient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+import java.io.IOException;
+
 @Entity
-public class SimulationsOptManager extends SimulationsManager{	
-	
+public class SimulationsOptManager extends SimulationsManager{
+
 	private Integer numIter;
-	
+
 	private String provider = "";
-	
+
 	private Integer gamma;
-	
+
 	@Transient
 	private InstanceData inputData;
 
@@ -28,7 +27,7 @@ public class SimulationsOptManager extends SimulationsManager{
 		this.numIter = set.getNumIterations();
 		setType("Opt");
 	}
-	
+
 	public void buildExperiments() {
 		super.getExperimentsList().clear();
 		for (int it = 1; it <= this.numIter; it++) {
@@ -62,15 +61,15 @@ public class SimulationsOptManager extends SimulationsManager{
 		}
 		setInstanceName(inputData.getId());
 	}
-	
-	
+
+
 	public InstanceData getInputData() {
 		if (inputData != null) {
 			return inputData;
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.originalDecompress(getInput()), InstanceData.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
