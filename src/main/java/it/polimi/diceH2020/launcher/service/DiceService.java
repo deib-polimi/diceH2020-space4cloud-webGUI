@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
-import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import reactor.bus.Event;
@@ -45,34 +43,16 @@ public class DiceService {
 	@Autowired
 	private InteractiveExperimentRepository intExpRepo;
 	
-	/*
-	public void simulation(SimulationsManager simManager){
-		simManagerRepo.saveAndFlush(simManager);
-		String channel = "channel"+getBestChannel();
-		System.out.println("Notify on "+channel);
-		eventBus.notify(channel, Event.wrap(simManager));
-	}*/
-	
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
-		if(simManager instanceof SimulationsWIManager){//TODO remove?
-			simManager.getExperimentsList().stream().forEach(e-> {
-				String channel = "channel"+getBestChannel();
-				//System.out.println("Notify on "+channel);
-				logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
-				eventBus.notify(channel, Event.wrap(e));
-			});
-		}
-		if(simManager instanceof SimulationsOptManager){ //TODO remove?
-			simManager.getExperimentsList().stream().forEach(e-> {
-				String channel = "channel"+getBestChannel();
-				logger.info("[LOCKS] Exp"+e.getId()+" has been enqueued on thread/"+channel);
-				eventBus.notify(channel, Event.wrap(e));
-			});
-		}
+		simManager.getExperimentsList().stream().forEach(e-> {
+			String channel = "channel"+getBestChannel();
+			logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
+			eventBus.notify(channel, Event.wrap(e));
+		});
 	}
 	
-	public void singleSimulation(InteractiveExperiment exp){
+	public void simulation(InteractiveExperiment exp){
 		SimulationsManager simManager = exp.getSimulationsManager();
 		updateExp(exp);
 		updateManager(simManager);

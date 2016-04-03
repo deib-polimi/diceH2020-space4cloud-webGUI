@@ -64,12 +64,13 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			}
 			
 			ds.updateExp(intExp);
+			
 			//System.out.println(intExp.getSimulationsManager().getSize()+" "+intExp.getSimulationsManager().getNumCompletedSimulations());
 			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
 				intExp.getSimulationsManager().writeFinalResults();
 				intExp.getSimulationsManager().setState("completed");
-				ds.updateManager(intExp.getSimulationsManager());
 			}
+			ds.updateManager(intExp.getSimulationsManager());
 			ds.updateBestChannel(this.id);  
 		}
 		else if(intExp.getSimType().equals("Opt")){
@@ -83,8 +84,8 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
 				intExp.getSimulationsManager().writeFinalResults();
 				intExp.getSimulationsManager().setState("completed");
-				ds.updateManager(intExp.getSimulationsManager());
 			}
+			ds.updateManager(intExp.getSimulationsManager());
 			ds.updateBestChannel(this.id);  
 		}else{
 			intExp.setState("error");

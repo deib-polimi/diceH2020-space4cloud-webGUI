@@ -6,11 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -66,14 +67,14 @@ public class MainFlowController {
 	}
 
 	@RequestMapping(value="/resultsWI", method=RequestMethod.GET)
-	public String resultsWI(@RequestParam("id") Long id,Model model) {
+	public String resultsWI(@RequestParam("id") Long id,Model model,@ModelAttribute("message") String message) {
 			SimulationsManager simManager = simulationsManagerRepository.findOne(id);
 			model.addAttribute("sim", intExperimentRepository.findBySimulationsManager(simManager));
 			return "simWIList";
 	}
 	
 	@RequestMapping(value="/resultsOpt", method=RequestMethod.GET)
-	public String resultsOpt(@RequestParam("id") Long id,Model model) {
+	public String resultsOpt(@RequestParam("id") Long id,Model model,@ModelAttribute("message") String message) {
 			SimulationsManager simManager = simulationsManagerRepository.findOne(id);
 			model.addAttribute("sim", intExperimentRepository.findBySimulationsManager(simManager));
 			return "simOptList";
@@ -104,7 +105,7 @@ public class MainFlowController {
 	}
 	
 	@RequestMapping(value = "/relaunch", method = RequestMethod.GET)
-	public synchronized String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
+	public synchronized String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
 		String idFrom, folder;
 		idFrom= folder = new String();
 		try{
@@ -126,20 +127,21 @@ public class MainFlowController {
 					simManager.setState("ready"); //TODO ready?running?partiallyCompleted?
 				}
 			}
-			ds.singleSimulation(exp);
+			ds.simulation(exp);
 			if(type.equals("WI")){
 				return "redirect:/resultsWI?id="+idFrom;
 			}else{
 				return "redirect:/simOptByFolder?folder="+folder;
 			}
 		}catch(Exception e){
+			redirectAttrs.addAttribute("message", "Error trying to relaunch an experiment.");
 			logger.info("Error trying to relaunch an experiment.");
 			return "redirect:" + request.getHeader("Referer");
 		}
 	}
 	
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	public synchronized String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request) {
+	public synchronized String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
 		String idFrom, folder;
 		idFrom= folder = new String();
 		try{
@@ -165,6 +167,7 @@ public class MainFlowController {
 				return "redirect:/simOptByFolder?folder="+folder;
 			}
 		}catch(Exception e){
+			redirectAttrs.addAttribute("message", "Error trying to delete an experiment.");
 			logger.info("Error trying to delete an experiment.");
 			return "redirect:" + request.getHeader("Referer");
 		}
