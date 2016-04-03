@@ -86,36 +86,6 @@ public class FileUtility {
 		else return null;
 	}
 
-	public static String createTempZip(Map<String,String> inputFiles) {
-		System.out.println("asking for a zip");
-		Path folderPath;
-		String uniqueString = generateUniqueString();
-		try {
-			folderPath = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), uniqueString);
-		} catch (IOException e) {
-			logger.info("Error creating folder for zipping files");
-			return "error";
-		}
-		for (Map.Entry<String, String> entry : inputFiles.entrySet())
-		{
-			try {
-				System.out.println("creating file in "+folderPath+"/"+entry.getKey());
-				Files.write(Paths.get(folderPath+"/"+entry.getKey()), Compressor.originalDecompress(entry.getValue()).getBytes(), StandardOpenOption.CREATE_NEW);
-			} catch (IOException e) {
-				logger.info("error creating files in zip folder");
-				return null;
-			}
-		}
-		try {
-			zipFolder(folderPath.toString(), LOCAL_DYNAMIC_FOLDER.toPath().toString()+"/simulations"+uniqueString+".zip");
-		} catch (Exception e) {
-			logger.info("Error zipping files");
-			return null;
-		}
-		System.out.println(LOCAL_DYNAMIC_FOLDER.toPath().toString()+"/simulations"+uniqueString+".zip");
-		return LOCAL_DYNAMIC_FOLDER.getAbsolutePath().toString()+"/simulations"+uniqueString+".zip";
-	}
-
 	private static  String generateUniqueString() {
 		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 		Date dNow = new Date( );
@@ -125,47 +95,53 @@ public class FileUtility {
 		return id;
 	}
 
-	static public void zipFolder(String srcFolder, String destZipFile) throws Exception {
-		ZipOutputStream zip = null;
-		FileOutputStream fileWriter = null;
-
-		fileWriter = new FileOutputStream(destZipFile);
-		zip = new ZipOutputStream(fileWriter);
-
-		addFolderToZip("", srcFolder, zip);
-		zip.flush();
-		zip.close();
+	public String createTempZip(Map<String,String> inputFiles) throws IOException {
+		String uniqueString = generateUniqueString();
+		Path folderPath = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), uniqueString);
+		for (Map.Entry<String, String> entry : inputFiles.entrySet()) {
+			Files.write(Paths.get(folderPath+"/"+entry.getKey()),
+					Compressor.originalDecompress(entry.getValue()).getBytes(),
+					StandardOpenOption.CREATE_NEW);
+		}
+		String fileName = String.format("simulations%s.zip", uniqueString);
+		File zip = new File(LOCAL_DYNAMIC_FOLDER, fileName);
+		zipFolder(folderPath.toFile(), zip);
+		return zip.getAbsolutePath();
 	}
 
-	static private void addFileToZip(String path, String srcFile, ZipOutputStream zip)
-			throws Exception {
+	private void zipFolder(File srcFolder, File destZipFile) throws IOException {
+		try (ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(
+				new FileOutputStream(destZipFile)))) {
+			addFolderToZip(null, srcFolder, zip);
+		}
+	}
 
-		File folder = new File(srcFile);
-		if (folder.isDirectory()) {
+	private void addFolderToZip(File path, File srcFolder, ZipOutputStream zip) throws IOException {
+		for (String fileName : srcFolder.list()) {
+			addFileToZip(path == null ? srcFolder : new File(path, srcFolder.getName()),
+					new File(srcFolder, fileName), zip);
+		}
+	}
+
+	private void addFileToZip(File path, File srcFile, ZipOutputStream zip) throws IOException {
+		if (srcFile.isDirectory()) {
 			addFolderToZip(path, srcFile, zip);
 		} else {
 			byte[] buf = new byte[1024];
 			int len;
-			@SuppressWarnings("resource")
-			FileInputStream in = new FileInputStream(srcFile);
-			zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
-			while ((len = in.read(buf)) > 0) {
-				zip.write(buf, 0, len);
+			try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(srcFile))) {
+				zip.putNextEntry(new ZipEntry(makeEntry(path, srcFile)));
+				while ((len = in.read(buf)) > 0) {
+					zip.write(buf, 0, len);
+				}
 			}
 		}
 	}
 
-	static private void addFolderToZip(String path, String srcFolder, ZipOutputStream zip)
-			throws Exception {
-		File folder = new File(srcFolder);
-
-		for (String fileName : folder.list()) {
-			if (path.equals("")) {
-				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
-			} else {
-				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
-			}
-		}
+	private ZipEntry makeEntry(File path, File file) {
+		String cleanPath = new File(path, file.getName()).toString()
+				.replace(LOCAL_DYNAMIC_FOLDER.toString(), "");
+		return new ZipEntry(cleanPath);
 	}
 
 }
