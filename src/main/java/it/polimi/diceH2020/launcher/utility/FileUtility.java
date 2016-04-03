@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -54,14 +55,25 @@ public class FileUtility {
 
 	public @Nonnull File createTempZip(@Nonnull Map<String, String> inputFiles) throws IOException {
 		File folder = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), null).toFile();
+		policy.markForDeletion(folder);
+
+		List<File> tempFiles = new LinkedList<>();
 		for (Map.Entry<String, String> entry : inputFiles.entrySet()) {
-			Files.write(new File(folder, entry.getKey()).toPath(),
+			File tmp = new File(folder, entry.getKey());
+			tempFiles.add(tmp);
+			Files.write(tmp.toPath(),
 					Compressor.originalDecompress(entry.getValue()).getBytes(),
 					StandardOpenOption.CREATE_NEW);
 		}
+
 		String fileName = String.format("%s.zip", folder.getName());
 		File zip = new File(LOCAL_DYNAMIC_FOLDER, fileName);
+		policy.markForDeletion(zip);
 		zipFolder(folder, zip);
+
+		tempFiles.forEach(policy::delete);
+		policy.delete(folder);
+
 		return zip;
 	}
 
