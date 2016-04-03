@@ -1,7 +1,6 @@
 package it.polimi.diceH2020.launcher.utility;
 
 import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
-import it.polimi.diceH2020.launcher.utility.policy.KeepFiles;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,13 +10,9 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,17 +38,8 @@ public class FileUtility {
 
 	public @Nonnull File provideTemporaryFile(@CheckForNull String prefix, String suffix) throws IOException {
 		File file = File.createTempFile(prefix, suffix, LOCAL_DYNAMIC_FOLDER);
-		if (policy == null) {
-			policy = new KeepFiles();
-		}
 		policy.markForDeletion(file);
 		return file;
-	}
-
-	public void writeContentToFile(@Nonnull String content, @Nonnull File file) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-		writer.write(content);
-		writer.close();
 	}
 
 	public void createWorkingDir() throws IOException {
@@ -62,51 +48,21 @@ public class FileUtility {
 		logger.info(LOCAL_DYNAMIC_FOLDER + " created.");
 	}
 
-	public void destroyWorkingDir() throws IOException{
-		Path folder = LOCAL_DYNAMIC_FOLDER.toPath();
-		if (Files.deleteIfExists(folder)) {
-			logger.info(LOCAL_DYNAMIC_FOLDER+ " deleted.");
-		}
-	}
-
 	public boolean delete(List<File> pFiles) {
-		return pFiles.stream().map(f -> delete(f)).allMatch(r -> r);
+		return pFiles.stream().map(this::delete).allMatch(r -> r);
 	}
 
-	public InputStream getFileAsStream(String fileName) {
-
-		Path filePath = new File(LOCAL_DYNAMIC_FOLDER, fileName).toPath();
-		if (Files.exists(filePath)) {
-			try {
-				return Files.newInputStream(filePath);
-			} catch (IOException e) {
-				return null;
-			}
-		}
-		else return null;
-	}
-
-	private static  String generateUniqueString() {
-		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-		Date dNow = new Date( );
-		SimpleDateFormat ft = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
-		Random random = new Random();
-		String id = ft.format(dNow)+random.nextInt(99999);
-		return id;
-	}
-
-	public String createTempZip(Map<String,String> inputFiles) throws IOException {
-		String uniqueString = generateUniqueString();
-		Path folderPath = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), uniqueString);
+	public @Nonnull File createTempZip(@Nonnull Map<String, String> inputFiles) throws IOException {
+		File folder = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), null).toFile();
 		for (Map.Entry<String, String> entry : inputFiles.entrySet()) {
-			Files.write(Paths.get(folderPath+"/"+entry.getKey()),
+			Files.write(new File(folder, entry.getKey()).toPath(),
 					Compressor.originalDecompress(entry.getValue()).getBytes(),
 					StandardOpenOption.CREATE_NEW);
 		}
-		String fileName = String.format("simulations%s.zip", uniqueString);
+		String fileName = String.format("%s.zip", folder.getName());
 		File zip = new File(LOCAL_DYNAMIC_FOLDER, fileName);
-		zipFolder(folderPath.toFile(), zip);
-		return zip.getAbsolutePath();
+		zipFolder(folder, zip);
+		return zip;
 	}
 
 	private void zipFolder(File srcFolder, File destZipFile) throws IOException {

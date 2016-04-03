@@ -169,7 +169,7 @@ public class DownloadsController {
 	}
 
 	private void respondWithZipFile(@NotNull Map<String, String> files, @NotNull HttpServletResponse response) {
-		String zipPath = null;
+		File zipPath = null;
 		try {
 			zipPath = fileUtility.createTempZip(files);
 		} catch (IOException e) {
