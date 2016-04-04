@@ -20,58 +20,65 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.settings.SolverType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * This class contain informations about client's requested set of simulations
  */
 @Entity
+@Data
 public class SimulationsWIManager extends SimulationsManager{
 
 	@NotNull
-	private Integer accuracy = 5;
+	private Integer accuracy;
 
 	@Transient
 	private Solution inputJson;
 
 	@Transient
-	private Integer maxNumUsers = 1;
+	private Integer maxNumUsers;
 	@Transient
-	private Integer maxNumVMs = 1;
+	private Integer maxNumVMs;
 	@Transient
-	private Integer minNumUsers = 1;
+	private Integer minNumUsers;
 	@Transient
-	private Integer minNumVMs = 1;
+	private Integer minNumVMs;
 
-	private Integer numIter = 1;
+	private Integer numIter;
 
-	private SolverType solver = SolverType.QNSolver;
+	private SolverType solver;
 	
 	@NotNull
 	@Transient
-	private Integer stepUsers = 1;
+	private Integer stepUsers;
 
 	@NotNull
 	@Transient
-	private Integer stepVMs = 1;
+	private Integer stepVMs;
 
 	@Transient
 	private Integer thinkTime;
 	
 	@NotNull
 	@Min(60)
-	private Integer simDuration = 60;
-
-	public Integer getSimDuration() {
-		return simDuration;
-	}
-
-	public void setSimDuration(Integer simDuration) {
-		this.simDuration = simDuration;
-	}
+	private Integer simDuration;
 
 	public SimulationsWIManager() {
 		super();
 		setType("WI");
+		
+		solver = SolverType.QNSolver;
+		
+		simDuration = 60;
+		stepVMs = 1;
+		stepUsers = 1;
+		numIter = 1;
+		accuracy = 5;
+		maxNumUsers = 1;
+		maxNumVMs = 1;
+		minNumUsers = 1;
+		minNumVMs = 1;
 	}
 
 	public void buildExperiments() {
@@ -91,10 +98,6 @@ public class SimulationsWIManager extends SimulationsManager{
 				}
 	}
 
-	public Integer getAccuracy() {
-		return accuracy;
-	}
-
 	public Solution getInputJson() {
 		if (inputJson != null) {
 			return inputJson;
@@ -108,42 +111,6 @@ public class SimulationsWIManager extends SimulationsManager{
 			}
 		}
 		return inputJson;
-	}
-
-	public Integer getMaxNumUsers() {
-		return maxNumUsers;
-	}
-
-	public Integer getMaxNumVMs() {
-		return maxNumVMs;
-	}
-
-	public Integer getMinNumUsers() {
-		return minNumUsers;
-	}
-
-	public Integer getMinNumVMs() {
-		return minNumVMs;
-	}
-
-	public Integer getNumIter() {
-		return numIter;
-	}
-
-	public Integer getStepUsers() {
-		return stepUsers;
-	}
-
-	public Integer getStepVMs() {
-		return stepVMs;
-	}
-
-	public Integer getThinkTime() {
-		return thinkTime;
-	}
-
-	public void setAccuracy(Integer accuracy) {
-		this.accuracy = accuracy;
 	}
 
 	public void setInputJson(Solution inputSolution) {
@@ -160,47 +127,6 @@ public class SimulationsWIManager extends SimulationsManager{
 		setInstanceName(inputSolution.getId());
 	}
 
-	public void setMaxNumUsers(Integer maxNumUsers) {
-		this.maxNumUsers = maxNumUsers;
-	}
-
-	public void setMaxNumVMs(Integer maxNumCores) {
-		this.maxNumVMs = maxNumCores;
-	}
-
-	public void setMinNumUsers(Integer minUsers) {
-		this.minNumUsers = minUsers;
-	}
-
-	public void setMinNumVMs(Integer minCores) {
-		this.minNumVMs = minCores;
-	}
-
-	public void setNumIter(Integer numIter) {
-		this.numIter = numIter;
-	}
-
-	public void setStepUsers(Integer stepUsrs) {
-		this.stepUsers = stepUsrs;
-	}
-
-	public void setStepVMs(Integer stepVMs) {
-		this.stepVMs = stepVMs;
-	}
-
-	public void setThinkTime(Integer thinkTime) {
-		this.thinkTime = thinkTime;
-	}
-
-
-	public SolverType getSolver() {
-		return solver;
-	}
-
-	public void setSolver(SolverType solver) {
-		this.solver = solver;
-	}
-
 	public void writeFinalResults(){
 		try {
 			writeResultOnExcel();
@@ -211,7 +137,6 @@ public class SimulationsWIManager extends SimulationsManager{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
 	}
 	
 	private void writeResultOnExcel() throws FileNotFoundException, IOException{

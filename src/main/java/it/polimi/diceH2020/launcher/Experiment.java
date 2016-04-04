@@ -31,6 +31,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
+import it.polimi.diceH2020.launcher.service.DiceService;
 
 @Scope("prototype")
 @Component
@@ -50,7 +51,10 @@ public class Experiment {
 	private Settings settings;
 	private boolean stop = false;
 	private String port;
-
+	
+	@Autowired
+	private DiceService ds;
+	
 	public Experiment(String port) {
 		mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
@@ -63,6 +67,19 @@ public class Experiment {
 		return stop;
 	}
 
+	/*
+  	intExp.setState("running");
+	if(intExp.getSimulationsManager().getNumFailedSimulations()==0){
+		intExp.getSimulationsManager().setState("running");
+	}//else already in warning state... TODO handling error state!(relaunch) 
+	ds.updateManager(intExp.getSimulationsManager());
+	ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
+ 
+ 	launch computation...
+ 
+ 
+ */
+	
 	public synchronized boolean initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getInputJson();
@@ -104,6 +121,12 @@ public class Experiment {
 	}
 
 	public synchronized boolean launchWI(InteractiveExperiment e) {
+		
+	  	e.setState(SimulationsStates.RUNNING);
+	  	e.getSimulationsManager().refreshState();
+		ds.updateManager(e.getSimulationsManager());
+		//ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
+		
 		if (!initWI(e)||isStop()){
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
@@ -183,6 +206,10 @@ public class Experiment {
 	}
 
 	public synchronized boolean launchOpt(InteractiveExperiment e) {
+		e.setState(SimulationsStates.RUNNING);
+	  	e.getSimulationsManager().refreshState();
+		ds.updateManager(e.getSimulationsManager());
+		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 		if (!initOpt(e)||isStop()){
 			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");

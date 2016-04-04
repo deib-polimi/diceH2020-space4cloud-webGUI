@@ -4,17 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.utility.Compressor;
+import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.io.IOException;
 
 @Entity
+@Data
 public class SimulationsOptManager extends SimulationsManager{
 
 	private Integer numIter;
 
-	private String provider = "";
+	private String provider;
 
 	private Integer gamma;
 
@@ -26,6 +28,8 @@ public class SimulationsOptManager extends SimulationsManager{
 		Settings set = new Settings();
 		this.numIter = set.getNumIterations();
 		setType("Opt");
+		
+		provider = new String();
 	}
 
 	public void buildExperiments() {
@@ -42,14 +46,6 @@ public class SimulationsOptManager extends SimulationsManager{
 		}
 	}
 
-	public Integer getNumIter() {
-		return numIter;
-	}
-
-	public void setNumIter(Integer numIter) {
-		this.numIter = numIter;
-	}
-
 	public void setInputData(InstanceData inputData) {
 		this.inputData = inputData;
 
@@ -61,7 +57,6 @@ public class SimulationsOptManager extends SimulationsManager{
 		}
 		setInstanceName(inputData.getId());
 	}
-
 
 	public InstanceData getInputData() {
 		if (inputData != null) {
@@ -77,21 +72,4 @@ public class SimulationsOptManager extends SimulationsManager{
 		}
 		return inputData;
 	}
-
-	public String getProvider() {
-		return provider;
-	}
-
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
-
-	public Integer getGamma() {
-		return gamma;
-	}
-
-	public void setGamma(Integer gamma) {
-		this.gamma = gamma;
-	}
-
 }

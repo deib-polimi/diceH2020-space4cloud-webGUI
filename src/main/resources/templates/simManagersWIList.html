@@ -62,8 +62,8 @@
 					</td>
 					<td>
 						<div class="linkFather">
-							<a th:if="*{manager.state}==completed" class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
-							<a th:if="*{manager.state}!=completed" class="link" style="z-index:10;" th:href="@{|/downloadPartial?id=${manager.id}|}"></a>
+							<a th:if="*{manager.state}==COMPLETED" class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
+							<a th:if="*{manager.state}!=COMPLETED" class="link" style="z-index:10;" th:href="@{|/downloadPartial?id=${manager.id}|}"></a>
 							<img height="25" th:src="${'/images/libreOffice.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>

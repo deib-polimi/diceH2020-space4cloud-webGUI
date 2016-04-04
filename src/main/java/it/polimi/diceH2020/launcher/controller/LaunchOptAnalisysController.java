@@ -123,7 +123,7 @@ public class LaunchOptAnalisysController {
 			}
 			simManager.buildExperiments();
 			simManager.setNumCompletedSimulations(0);
-			simManager.setSize();
+			//simManager.setSize();
 			
 			ds.simulation(simManager);
 			sessionStatus.setComplete();

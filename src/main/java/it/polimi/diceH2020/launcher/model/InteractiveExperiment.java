@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
+import it.polimi.diceH2020.launcher.SimulationsStates;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
 
@@ -20,7 +21,7 @@ public class InteractiveExperiment {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	@NotNull
-	private String instanceName = "";
+	private String instanceName;
 
 	@ManyToOne
 	@JoinColumn(name = "SIM_MANAGER")//, updatable = false, insertable=false, nullable = false)
@@ -30,34 +31,48 @@ public class InteractiveExperiment {
 
 	//@NotNull
 	@Min(1)
-	private  Integer thinkTime = 1;
+	private  Integer thinkTime;
 	//@NotNull
-	private  Integer numUsers=0;
+	private  Integer numUsers;
 	//@NotNull
-	private Integer numVMs=0;
+	private Integer numVMs;
 
-	private double responseTime = 0d;
+	private double responseTime;
 
-	private Integer gamma = 0;
+	private Integer gamma;
 
-	private String provider = "NONE";
+	private String provider;
 
-	private int numSolutions = 0;
+	private int numSolutions;
 
 	@Column(length = 1000)
 	@NotNull
-	private String finalSolution="";
+	private String finalSolution;
 
 	//@NotNull
-	private Integer iter = 1;
+	private Integer iter;
 
-	private long experimentalDuration = 0;
+	private long experimentalDuration;
 
-	private String state = "ready"; //states:  ready to be executed, running, completed, failed
+	private SimulationsStates state;
 	//@NotNull
 	private boolean done; //TODO is it used?
 
 	public InteractiveExperiment(){
+		thinkTime = 1;
+		numUsers=0;
+		numVMs=0;
+		responseTime = 0d;
+		gamma = 0;
+		numSolutions = 0;
+		iter = 1;
+		experimentalDuration = 0;
+		
+		finalSolution= new String();
+		instanceName = new String();
+		provider = "NONE";
+		
+		state = SimulationsStates.READY;
 	}
 
 	public Solution getInputSolution()  {
@@ -90,6 +105,7 @@ public class InteractiveExperiment {
 			this.finalSolution = "Error";
 		}
 	}
+	
 	public Solution getSol(){
 		ObjectMapper mapper = new ObjectMapper();
 		try {

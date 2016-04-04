@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.Experiment;
+import it.polimi.diceH2020.launcher.SimulationsStates;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import lombok.Data;
 import reactor.bus.Event;
@@ -54,42 +55,48 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	@Override
 	public void accept(Event<InteractiveExperiment> ev) {
 		InteractiveExperiment intExp = ev.getData();
+	
 		logger.info("[LOCKS] Exp"+intExp.getId()+" on thread"+id+"port: "+port+" has been inserted in the queue");
 		if(intExp.getSimType().equals("WI")){
 			if(experiment.launchWI(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState("completed");
+				intExp.setState(SimulationsStates.COMPLETED);
 			}else{
-				intExp.setState("error");
+				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
+				intExp.setState(SimulationsStates.ERROR);
 			}
-			
-			ds.updateExp(intExp);
-			
-			//System.out.println(intExp.getSimulationsManager().getSize()+" "+intExp.getSimulationsManager().getNumCompletedSimulations());
-			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
-				intExp.getSimulationsManager().writeFinalResults();
-				intExp.getSimulationsManager().setState("completed");
-			}
-			ds.updateManager(intExp.getSimulationsManager());
-			ds.updateBestChannel(this.id);  
 		}
 		else if(intExp.getSimType().equals("Opt")){
 			if(experiment.launchOpt(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState("completed");
+				intExp.setState(SimulationsStates.COMPLETED);
 			}else{
-				intExp.setState("error");
+				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
+				intExp.setState(SimulationsStates.ERROR);
 			}
-			ds.updateExp(intExp);
-			if(intExp.getSimulationsManager().getNumCompletedSimulations() == intExp.getSimulationsManager().getSize() ){
-				intExp.getSimulationsManager().writeFinalResults();
-				intExp.getSimulationsManager().setState("completed");
-			}
-			ds.updateManager(intExp.getSimulationsManager());
-			ds.updateBestChannel(this.id);  
 		}else{
-			intExp.setState("error");
+			intExp.setState(SimulationsStates.ERROR);
 			logger.info("Error for experiment"+intExp.getId()+", wrong type. It will not be launched.");
+			return;
 		}
+		
+//		if(intExp.getSimulationsManager().getNumFailedSimulations()+intExp.getSimulationsManager().getNumCompletedSimulations()==intExp.getSimulationsManager().getInputFiles().size()){
+//			if(intExp.getSimulationsManager().getNumFailedSimulations()>0){
+//				intExp.getSimulationsManager().setState(SimulationsStates.ERROR);
+//			}else{
+//				intExp.getSimulationsManager().writeFinalResults();
+//				intExp.getSimulationsManager().setState(SimulationsStates.COMPLETED);
+//			}
+//		}else{
+//			if(intExp.getSimulationsManager().getNumFailedSimulations()>0){
+//				intExp.getSimulationsManager().setState(SimulationsStates.WARNING);
+//			}else{
+//				intExp.getSimulationsManager().setState(SimulationsStates.RUNNING);
+//			}
+//		}
+		intExp.getSimulationsManager().refreshState();
+		//ds.updateExp(intExp);
+		ds.updateManager(intExp.getSimulationsManager());
+		ds.updateBestChannel(this.id);  
 	}
 }

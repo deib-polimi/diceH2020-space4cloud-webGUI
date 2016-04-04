@@ -1,6 +1,8 @@
 package it.polimi.diceH2020.launcher.model;
 
+import it.polimi.diceH2020.launcher.SimulationsStates;
 import it.polimi.diceH2020.launcher.utility.Compressor;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -11,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Data
 public class SimulationsManager {
 
 	@Id
@@ -23,29 +26,30 @@ public class SimulationsManager {
 
 	private String instanceName;
 
-	private String folder = "";
+	private String folder;
 
 	@Column(length = 20000000) //...
-	private ArrayList<String[]> inputFiles = new ArrayList<String[]>();
+	private ArrayList<String[]> inputFiles;
 
 	private String type = "";
 
-	private String state = "ready";
+	private SimulationsStates state;
 
-	private String resultFilePath = "";
+	private String resultFilePath;
 
 	@Column(length = 1000)
-	private String input = new String();
+	private String input;
 
-	private String inputFileName = new String();
+	private String inputFileName;
 
 	@OneToMany(mappedBy = "simulationsManager", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn(name = "simManager_index")
-	private List<InteractiveExperiment> experimentsList = new ArrayList<InteractiveExperiment>();
+	private List<InteractiveExperiment> experimentsList;
 
-	private Integer numCompletedSimulations = 0;
+	private Integer numCompletedSimulations;
+	
+	private Integer numFailedSimulations;
 
-	private Integer size = 0;
 
 	public SimulationsManager() {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -53,47 +57,55 @@ public class SimulationsManager {
 		Date date = new Date();
 		this.date = dateFormat.format(date);
 		this.time = timeFormat.format(date);
+		
+		numFailedSimulations = 0;
+		numCompletedSimulations = 0;
+		
+		experimentsList = new ArrayList<InteractiveExperiment>();
+		inputFiles = new ArrayList<String[]>();
+		
+		inputFileName = new String();
+		input = new String();
+		resultFilePath = new String();
+		type = new String();
+		folder = new String();
+		
+		state = SimulationsStates.READY;
 	}
 
 	public synchronized void refreshState(){
 		int completed = 0;
+		int error = 0;
+		int running = 0;
 		int expSize = experimentsList.size();
 		for(int i=0; i<expSize;i++){
-			if(experimentsList.get(i).getState().equals("completed")){
+			if(experimentsList.get(i).getState().equals(SimulationsStates.COMPLETED)){
 				completed++;
 			}
+			if(experimentsList.get(i).getState().equals(SimulationsStates.ERROR)){
+				error++;
+			}
+			if(experimentsList.get(i).getState().equals(SimulationsStates.RUNNING)){
+				running++;
+			}
 		}
-		if(expSize == completed){
-			state = "completed";
+		if(error > 0){
+			if(running == 0){ // error+completed == expSize
+				state = SimulationsStates.ERROR;
+			}else{
+				state = SimulationsStates.WARNING;
+			}
+		}else{
+			if(running == 0){
+				if(completed == expSize){// completed == expSize
+					state = SimulationsStates.COMPLETED;
+				}else{
+					state = SimulationsStates.READY;
+				}
+			}else{
+				state = SimulationsStates.RUNNING;
+			}
 		}
-	}
-
-	public String getDate() {
-		return date;
-	}
-
-	public String getTime() {
-		return time;
-	}
-
-	public Integer getNumCompletedSimulations() {
-		return numCompletedSimulations;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	public void setTime(String time) {
-		this.time = time;
-	}
-
-	public void setNumCompletedSimulations(Integer numCompletedSimulations) {
-		this.numCompletedSimulations = numCompletedSimulations;
 	}
 
 	public String getInputFile(Integer pos1, Integer pos2) {
@@ -122,96 +134,15 @@ public class SimulationsManager {
 		this.inputFiles.add(tmpList);
 	}
 
-	public ArrayList<String[]> getInputFiles() {
-		return inputFiles;
-	}
-
-	public List<InteractiveExperiment> getExperimentsList() {
-		return experimentsList;
-	}
-
-	public void setExperimentList(List<InteractiveExperiment> simulationsList) {
-		this.experimentsList = simulationsList;
-	}
-
-	public int getSize() {
-		return size;
-	}
-
-	public void setSize() {
+	public int getSize(){
 		if (experimentsList.isEmpty()) {
-			this.size = 0;
+			return 0;
 		} else {
-			this.size = experimentsList.size();
+			return experimentsList.size();
 		}
 	}
 
 	public void writeFinalResults() {
 		;
 	}
-
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getResultFilePath() {
-		return resultFilePath;
-	}
-
-	public void setResultFilePath(String resultFilePath) {
-		this.resultFilePath = resultFilePath;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getInput() {
-		return input;
-	}
-
-	public void setInput(String input) {
-		this.input = input;
-	}
-
-	public String getInstanceName() {
-		return instanceName;
-	}
-
-	public void setInstanceName(String instanceName) {
-		this.instanceName = instanceName;
-	}
-
-	public String getFolder() {
-		return folder;
-	}
-
-	public void setFolder(String folder) {
-		this.folder = folder;
-	}
-
-	public String getInputFileName() {
-		return inputFileName;
-	}
-
-	public void setInputFileName(String inputFileName) {
-		this.inputFileName = inputFileName;
-	}
-
-	public void setInputFiles(ArrayList<String[]> inputFiles) {
-		this.inputFiles = inputFiles;
-	}
-
 }

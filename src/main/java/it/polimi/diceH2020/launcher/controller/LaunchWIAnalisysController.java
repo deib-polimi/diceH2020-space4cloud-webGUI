@@ -92,7 +92,7 @@ public class LaunchWIAnalisysController {
 			fixParams(simManager);// just in case
 			simManager.buildExperiments();
 			simManager.setNumCompletedSimulations(0);
-			simManager.setSize();
+			//simManager.setSize();
 			return "createSimulations";
 		} else {
 			return "error";

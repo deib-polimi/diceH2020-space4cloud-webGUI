@@ -14,6 +14,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.polimi.diceH2020.launcher.FileService;
+import it.polimi.diceH2020.launcher.SimulationsStates;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
@@ -108,68 +109,95 @@ public class MainFlowController {
 	public synchronized String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
 		String idFrom, folder;
 		idFrom= folder = new String();
-		try{
-			InteractiveExperiment exp = intExperimentRepository.findById(id);
-			exp.setExperimentalDuration(0);
-			exp.setResponseTime(0d);
-			exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
-			String type = new String();
-			SimulationsManager simManager = exp.getSimulationsManager();
-			idFrom = simManager.getId().toString();
-			folder = simManager.getFolder(); 
-			if(exp.getState().equals("completed")){
+		InteractiveExperiment exp = intExperimentRepository.findById(id);
+		if(!exp.getState().equals(SimulationsStates.RUNNING)){
+			try{
+				exp.setExperimentalDuration(0);
+				exp.setResponseTime(0d);
+				exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
+				String type = new String();
+				SimulationsManager simManager = exp.getSimulationsManager();
+				idFrom = simManager.getId().toString();
+				folder = simManager.getFolder(); 
 				exp.setDone(false);
-				exp.setState("ready");
-				exp.setNumSolutions(exp.getNumSolutions()-1); 
+				
 				type = simManager.getType();
-				simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
-				if(simManager.getState().equals("completed")){
-					simManager.setState("ready"); //TODO ready?running?partiallyCompleted?
+//				if(exp.getState().equals(SimulationsStates.COMPLETED)){
+//					exp.setNumSolutions(exp.getNumSolutions()-1); 
+//					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
+//					if(simManager.getState().equals(SimulationsStates.COMPLETED)){
+//						simManager.setState(SimulationsStates.READY); //TODO ready?running?partiallyCompleted?
+//					}
+//				}
+//				if(exp.getState().equals(SimulationsStates.ERROR)){
+//					simManager.setNumFailedSimulations(simManager.getNumFailedSimulations()-1);
+//					if(simManager.getNumFailedSimulations()==0){
+//						simManager.setState(SimulationsStates.READY); 
+//					}else{
+//						simManager.setState(SimulationsStates.WARNING); 
+//					}
+//				}
+				if(exp.getState().equals(SimulationsStates.COMPLETED)){
+					exp.setNumSolutions(exp.getNumSolutions()-1); 
+					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
 				}
+				if(exp.getState().equals(SimulationsStates.ERROR)){
+					simManager.setNumFailedSimulations(simManager.getNumFailedSimulations()-1);
+				}
+				exp.setState(SimulationsStates.READY);
+				simManager.refreshState();
+				ds.updateManager(simManager);
+				ds.simulation(exp);
+				if(type.equals("WI")){
+					return "redirect:/resultsWI?id="+idFrom;
+				}else{
+					return "redirect:/simOptByFolder?folder="+folder;
+				}
+			}catch(Exception e){
+				redirectAttrs.addAttribute("message", "Error trying to relaunch an experiment.");
+				logger.info("Error trying to relaunch an experiment.");
+				return "redirect:" + request.getHeader("Referer");
 			}
-			ds.simulation(exp);
-			if(type.equals("WI")){
-				return "redirect:/resultsWI?id="+idFrom;
-			}else{
-				return "redirect:/simOptByFolder?folder="+folder;
-			}
-		}catch(Exception e){
-			redirectAttrs.addAttribute("message", "Error trying to relaunch an experiment.");
-			logger.info("Error trying to relaunch an experiment.");
-			return "redirect:" + request.getHeader("Referer");
 		}
+		redirectAttrs.addAttribute("message", "Cannot relaunch an experiment that is already running.");
+		return "redirect:" + request.getHeader("Referer");
 	}
 	
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	public synchronized String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
 		String idFrom, folder;
 		idFrom= folder = new String();
-		try{
-			InteractiveExperiment exp = intExperimentRepository.findById(id);
-			SimulationsManager sManager = simulationsManagerRepository.findById(exp.getSimulationsManager().getId());
-			idFrom = sManager.getId().toString();
-			folder = sManager.getFolder(); 
-			String type = sManager.getType();
-			sManager.setSize();
-			if(sManager.getSize()==1){
-				System.out.println("deleted manager"+sManager.getId());
-				simulationsManagerRepository.delete(sManager);
-			}else{
-				sManager.getExperimentsList().remove(exp);
-				sManager.refreshState();
-				sManager.setSize();
-				ds.updateManager(sManager);//intExperimentRepository.delete(exp); done by orphandelete=true 
+		InteractiveExperiment exp = intExperimentRepository.findById(id);
+		if(!exp.getState().equals(SimulationsStates.RUNNING)){
+			try{
+				
+				SimulationsManager sManager = simulationsManagerRepository.findById(exp.getSimulationsManager().getId());
+				idFrom = sManager.getId().toString();
+				folder = sManager.getFolder(); 
+				String type = sManager.getType();
+				//sManager.setSize();
+				if(sManager.getSize()==1){
+					System.out.println("deleted manager"+sManager.getId());
+					simulationsManagerRepository.delete(sManager);
+				}else{
+					sManager.getExperimentsList().remove(exp);
+					sManager.refreshState();
+					//sManager.setSize();
+					ds.updateManager(sManager);//intExperimentRepository.delete(exp); done by orphandelete=true 
+				}
+				
+				if(type.equals("WI")){
+					return "redirect:/resultsWI?id="+idFrom;
+				}else{
+					return "redirect:/simOptByFolder?folder="+folder;
+				}
+			}catch(Exception e){
+				redirectAttrs.addAttribute("message", "Error trying to delete an experiment.");
+				logger.info("Error trying to delete an experiment.");
+				return "redirect:" + request.getHeader("Referer");
 			}
-			
-			if(type.equals("WI")){
-				return "redirect:/resultsWI?id="+idFrom;
-			}else{
-				return "redirect:/simOptByFolder?folder="+folder;
-			}
-		}catch(Exception e){
-			redirectAttrs.addAttribute("message", "Error trying to delete an experiment.");
-			logger.info("Error trying to delete an experiment.");
-			return "redirect:" + request.getHeader("Referer");
 		}
+		redirectAttrs.addAttribute("message", "Cannot delete a running experiment.");
+		return "redirect:" + request.getHeader("Referer");
 	}
 }
