@@ -66,6 +66,12 @@
 			<groupId>it.polimi.diceH2020</groupId>
 			<artifactId>SPACE4Cloud-shared</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mailapi</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.codepoetics</groupId>
@@ -100,8 +106,9 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jersey</artifactId>
 		</dependency>
+
 		<!--  for retry -->
-	 	<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
@@ -114,6 +121,18 @@
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-cypher-compiler-2.1</artifactId>
 			<version>2.1.8</version>
+		</dependency>
+
+		<!-- for AOP -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.8.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>1.8.9</version>
 		</dependency>
 	</dependencies>
 
@@ -133,6 +152,39 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.8</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjrt</artifactId>
+						<version>1.8.9</version>
+					</dependency>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjtools</artifactId>
+						<version>1.8.9</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<showWeaveInfo/>
+					<forceAjcCompile>true</forceAjcCompile>
+					<sources/>
+					<weaveDirectories>
+						<weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+					</weaveDirectories>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

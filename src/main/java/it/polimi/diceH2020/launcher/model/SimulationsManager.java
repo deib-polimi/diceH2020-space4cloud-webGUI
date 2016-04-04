@@ -47,7 +47,7 @@ public class SimulationsManager {
 	private List<InteractiveExperiment> experimentsList;
 
 	private Integer numCompletedSimulations;
-	
+
 	private Integer numFailedSimulations;
 
 	public SimulationsManager() {
@@ -56,20 +56,20 @@ public class SimulationsManager {
 		Date date = new Date();
 		this.date = dateFormat.format(date);
 		this.time = timeFormat.format(date);
-		
+
 		numFailedSimulations = 0;
 		numCompletedSimulations = 0;
-		
-		experimentsList = new ArrayList<InteractiveExperiment>();
-		inputFiles = new ArrayList<String[]>();
-		
-		inputFileName = new String();
-		input = new String();
-		resultFilePath = new String();
-		type = new String();
-		folder = new String();
-		
-		state = SimulationsStates.READY;
+
+		experimentsList = new ArrayList<>();
+		inputFiles = new ArrayList<>();
+
+		inputFileName = "";
+		input = "";
+		resultFilePath = "";
+		type = "";
+		folder = "";
+
+		setState(SimulationsStates.READY);
 	}
 
 	public synchronized void refreshState(){
@@ -90,19 +90,19 @@ public class SimulationsManager {
 		}
 		if(error > 0){
 			if(running == 0){ // error+completed == expSize
-				state = SimulationsStates.ERROR;
+				setState(SimulationsStates.ERROR);
 			}else{
-				state = SimulationsStates.WARNING;
+				setState(SimulationsStates.WARNING);
 			}
 		}else{
 			if(running == 0){
 				if(completed == expSize){// completed == expSize
-					state = SimulationsStates.COMPLETED;
+					setState(SimulationsStates.COMPLETED);
 				}else{
-					state = SimulationsStates.READY;
+					setState(SimulationsStates.READY);
 				}
 			}else{
-				state = SimulationsStates.RUNNING;
+				setState(SimulationsStates.RUNNING);
 			}
 		}
 	}
