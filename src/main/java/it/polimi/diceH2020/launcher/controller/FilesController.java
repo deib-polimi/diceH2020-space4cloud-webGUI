@@ -66,11 +66,10 @@ public class FilesController {
 	public String multipleSaveOpt(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
-		int j = 1;
-		
+		ArrayList<ArrayList<String>> tmpValues = new ArrayList<ArrayList<String>>();
 		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
 			model.addAttribute("message", "Duplicated files!");
-			return "fileUpload";
+			return "fileUploadOpt";
 		}
 		
 		for (int i = 0; i < files.length; i++) {
@@ -85,13 +84,15 @@ public class FilesController {
 					model.addAttribute("message", "Invalid Json file!");
 					return "fileUploadOpt";
 				} else {
-					redirectAttrs.addAttribute("inputPath", f.toPath().toString());
+					ArrayList<String> tmp = new ArrayList<String>();
+					tmp.add(f.toPath().toString());
+					tmpValues.add(0,tmp);
 				}
 			} else {
-				redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
-				j++;
+				tmpValues.get(0).add(f.toPath().toString());
 			}
 		}
+		redirectAttrs.addFlashAttribute("pathList", tmpValues);
 		return "redirect:/launch/opt/simulationSetup";
 	}
 	
@@ -120,7 +121,6 @@ public class FilesController {
 			String[] splits = files[i].getOriginalFilename().split("/");
 			fileName = splits[splits.length-1];
 			System.out.println(fileName);
-			
 			
 			if (fileName.contains(".json")) {
 				File f = saveFile(files[i], fileName);

@@ -50,7 +50,6 @@ public class SimulationsManager {
 	
 	private Integer numFailedSimulations;
 
-
 	public SimulationsManager() {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
