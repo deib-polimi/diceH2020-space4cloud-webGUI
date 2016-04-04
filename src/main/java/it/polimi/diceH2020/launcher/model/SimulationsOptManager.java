@@ -64,7 +64,7 @@ public class SimulationsOptManager extends SimulationsManager{
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.originalDecompress(getInput()), InstanceData.class);
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;

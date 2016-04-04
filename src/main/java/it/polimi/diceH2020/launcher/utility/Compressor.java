@@ -18,25 +18,14 @@ public class Compressor {
         return outStr;
     }
 
-    public static @NotNull String originalDecompress(@NotNull String string) throws IOException {
-        return decompressHelper(string, true);
-    }
-    /* TODO: is there a reason why the Results and InteractiveExperiment classes had a decompress
-     * method of their own that adds newlines?
-     */
     public static @NotNull String decompress(@NotNull String string) throws IOException {
-        return decompressHelper(string, false);
-    }
-
-    private static @NotNull String decompressHelper(@NotNull String string, boolean newLine) throws IOException {
         System.out.println("Input String length: " + string.length());
         GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(string.getBytes("ISO-8859-1")));
         BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
         StringBuilder builder = new StringBuilder();
         String line;
         while ((line = bf.readLine()) != null) {
-            builder.append(line);
-            if (newLine) builder.append('\n');
+            builder.append(line).append('\n');
         }
         String output = builder.toString();
         System.out.println("Output String length: " + output.length());

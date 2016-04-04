@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-
 @Component
 public class FileUtility {
 
@@ -62,7 +61,7 @@ public class FileUtility {
 			File tmp = new File(folder, entry.getKey());
 			tempFiles.add(tmp);
 			Files.write(tmp.toPath(),
-					Compressor.originalDecompress(entry.getValue()).getBytes(),
+					Compressor.decompress(entry.getValue()).getBytes(),
 					StandardOpenOption.CREATE_NEW);
 		}
 

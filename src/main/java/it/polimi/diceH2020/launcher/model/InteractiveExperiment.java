@@ -67,11 +67,11 @@ public class InteractiveExperiment {
 		numSolutions = 0;
 		iter = 1;
 		experimentalDuration = 0;
-		
+
 		finalSolution= new String();
 		instanceName = new String();
 		provider = "NONE";
-		
+
 		state = SimulationsStates.READY;
 	}
 
@@ -91,8 +91,7 @@ public class InteractiveExperiment {
 	public InstanceData getInputData(){
 		if(simulationsManager instanceof SimulationsOptManager){
 			SimulationsOptManager wiM = (SimulationsOptManager)simulationsManager;
-			InstanceData data = wiM.getInputData();
-			return data;
+			return wiM.getInputData();
 		}
 		throw new ClassCastException();
 	}
@@ -103,17 +102,6 @@ public class InteractiveExperiment {
 			this.finalSolution = Compressor.compress(mapper.writeValueAsString(sol));
 		} catch ( IOException e) {
 			this.finalSolution = "Error";
-		}
-	}
-	
-	public Solution getSol(){
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return this.finalSolution.equals("") || this.finalSolution.equals("Error")? null :
-					mapper.readValue(Compressor.decompress(this.finalSolution), Solution.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
 		}
 	}
 

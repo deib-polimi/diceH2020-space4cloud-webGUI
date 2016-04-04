@@ -21,7 +21,6 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * This class contain informations about client's requested set of simulations
@@ -104,7 +103,7 @@ public class SimulationsWIManager extends SimulationsManager{
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.originalDecompress(getInput()), Solution.class);
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), Solution.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
