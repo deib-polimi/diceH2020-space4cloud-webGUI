@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,19 +44,23 @@ public class DownloadsController {
 	@Autowired
 	private FileUtility fileUtility;
 
+//	@RequestMapping(value="/download", method=RequestMethod.GET)
+//	@ResponseBody void downloadExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
+//		SimulationsManager manager = simulationsManagerRepository.findOne(id);
+//		try{
+//			FileInputStream file = new FileInputStream(new File(manager.getResultFilePath()));
+//			HSSFWorkbook wb = new HSSFWorkbook(file);
+//			wb.write(response.getOutputStream());
+//			response.setContentType("application/vnd.ms-excel;charset=utf-8");
+//			response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
+//			response.flushBuffer();
+//			file.close();
+//		}catch(IOException e){
+//			e.printStackTrace();
+//		}
+//	}
+
 	@RequestMapping(value="/download", method=RequestMethod.GET)
-	@ResponseBody FileSystemResource downloadExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
-		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		//response.setContentType("application/ms-excel;charset=utf-8");
-		response.setContentType("application/vnd.ms-excel;charset=utf-8");
-		//response.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-		//response.setHeader( "Content-Disposition", "inline;filename = results.xlsx" );
-		response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
-
-		return new FileSystemResource(new File(manager.getResultFilePath()));
-	}
-
-	@RequestMapping(value="/downloadPartial", method=RequestMethod.GET)
 	@ResponseBody void downloadPartialExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
 		SimulationsWIManager manager = (SimulationsWIManager)simulationsManagerRepository.findOne(id);
 		Workbook wb = excelWriter.createWorkbook(manager);

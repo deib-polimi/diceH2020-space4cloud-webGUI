@@ -67,19 +67,6 @@ public class Experiment {
 		return stop;
 	}
 
-	/*
-  	intExp.setState("running");
-	if(intExp.getSimulationsManager().getNumFailedSimulations()==0){
-		intExp.getSimulationsManager().setState("running");
-	}//else already in warning state... TODO handling error state!(relaunch) 
-	ds.updateManager(intExp.getSimulationsManager());
-	ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
- 
- 	launch computation...
- 
- 
- */
-	
 	public synchronized boolean initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
 		Solution sol = simManager.getDecompressedInputJson();
@@ -398,17 +385,6 @@ public class Experiment {
 		} else return false;
 	}
 
-//	private InstanceData getObjectFromPath(Path inputDataPath) {
-//		String serialized;
-//		try {
-//			serialized = new String(Files.readAllBytes(inputDataPath));
-//			InstanceData data = mapper.readValue(serialized, InstanceData.class);
-//			return data;
-//		} catch (IOException e) {
-//			return null;
-//		}
-//	}
-
 	@PostConstruct
 	private void init() throws IOException {
 		INPUTDATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
@@ -420,7 +396,6 @@ public class Experiment {
 		Path result = Paths.get(settings.getResultDir());
 		if (!Files.exists(result)) Files.createDirectory(result);
 		RESULT_FOLDER = result.toAbsolutePath().toString();
-
 	}
 
 	private boolean saveFinalSolution(InteractiveExperiment e) {

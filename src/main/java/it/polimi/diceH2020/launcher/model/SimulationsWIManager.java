@@ -125,66 +125,54 @@ public class SimulationsWIManager extends SimulationsManager{
 		this.thinkTime = tt.intValue();
 		setInstanceName(inputSolution.getId());
 	}
-
-	public void writeFinalResults(){
-		try {
-			writeResultOnExcel();
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
 	
-	private void writeResultOnExcel() throws FileNotFoundException, IOException{
-		List<InteractiveExperiment> simulationList = getExperimentsList();
-		 
-        // Using XSSF for xlsx format, for xls use HSSF
-        Workbook workbook = new XSSFWorkbook();
-
-        Sheet simulationSheet = workbook.createSheet("Simulations");
-        
-        int rowIndex = 0;
-        Row row = simulationSheet.createRow(rowIndex++);
-        int cellIndex = 0;
-        row.createCell(cellIndex++).setCellValue("Total Run Time");
-        row.createCell(cellIndex++).setCellValue(String.valueOf(simDuration));
-        
-        row = simulationSheet.createRow(rowIndex++);
-        
-        cellIndex = 0;
-        row.createCell(cellIndex++).setCellValue("Accuracy");
-        row.createCell(cellIndex++).setCellValue("Think Time[ms]");	        
-        row.createCell(cellIndex++).setCellValue("Map");
-        row.createCell(cellIndex++).setCellValue("Reduce");
-        row.createCell(cellIndex++).setCellValue("Users");
-        row.createCell(cellIndex++).setCellValue("VMs");
-        row.createCell(cellIndex++).setCellValue("Iteration");
-        row.createCell(cellIndex++).setCellValue("Response Time");
-        row.createCell(cellIndex++).setCellValue("Run Time");
-        
-        for(InteractiveExperiment sim : simulationList){	    
-            row = simulationSheet.createRow(rowIndex++);
-            cellIndex = 0;
-            row.createCell(cellIndex++).setCellValue(accuracy);
-	        row.createCell(cellIndex++).setCellValue(thinkTime);
-	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNM());
-	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNR());
-	        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
-	        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
-	        row.createCell(cellIndex++).setCellValue(sim.getIter());
-	        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
-	        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
-        }
-        	FileUtility fileUtility = new FileUtility();
-        	
-        	File tmpFile = fileUtility.provideTemporaryFile("result", ".xlsxon ti");
-        	FileOutputStream fos = new FileOutputStream(tmpFile);	        	
-            workbook.write(fos);
-            fos.close();
-            workbook.close();
-            setResultFilePath(tmpFile.getAbsolutePath());
-	}
+//	private void writeResultOnExcel() throws FileNotFoundException, IOException{
+//		List<InteractiveExperiment> simulationList = getExperimentsList();
+//		 
+//        // Using XSSF for xlsx format, for xls use HSSF
+//        Workbook workbook = new XSSFWorkbook();
+//
+//        Sheet simulationSheet = workbook.createSheet("Simulations");
+//        
+//        int rowIndex = 0;
+//        Row row = simulationSheet.createRow(rowIndex++);
+//        int cellIndex = 0;
+//        row.createCell(cellIndex++).setCellValue("Total Run Time");
+//        row.createCell(cellIndex++).setCellValue(String.valueOf(simDuration));
+//        
+//        row = simulationSheet.createRow(rowIndex++);
+//        
+//        cellIndex = 0;
+//        row.createCell(cellIndex++).setCellValue("Accuracy");
+//        row.createCell(cellIndex++).setCellValue("Think Time[ms]");	        
+//        row.createCell(cellIndex++).setCellValue("Map");
+//        row.createCell(cellIndex++).setCellValue("Reduce");
+//        row.createCell(cellIndex++).setCellValue("Users");
+//        row.createCell(cellIndex++).setCellValue("VMs");
+//        row.createCell(cellIndex++).setCellValue("Iteration");
+//        row.createCell(cellIndex++).setCellValue("Response Time");
+//        row.createCell(cellIndex++).setCellValue("Run Time");
+//        
+//        for(InteractiveExperiment sim : simulationList){	    
+//            row = simulationSheet.createRow(rowIndex++);
+//            cellIndex = 0;
+//            row.createCell(cellIndex++).setCellValue(accuracy);
+//	        row.createCell(cellIndex++).setCellValue(thinkTime);
+//	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNM());
+//	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNR());
+//	        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
+//	        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
+//	        row.createCell(cellIndex++).setCellValue(sim.getIter());
+//	        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
+//	        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
+//        }
+//        	FileUtility fileUtility = new FileUtility();
+//        	
+//        	File tmpFile = fileUtility.provideTemporaryFile("result", ".xlsxon ti");
+//        	FileOutputStream fos = new FileOutputStream(tmpFile);	        	
+//            workbook.write(fos);
+//            fos.close();
+//            workbook.close();
+//            setResultFilePath(tmpFile.getAbsolutePath());
+//	}
 }
