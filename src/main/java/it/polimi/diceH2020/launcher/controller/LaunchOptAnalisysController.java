@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
+import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 
 @SessionAttributes("sim_manager") // it will persist in each browser tab,
 								  // resolved with
@@ -35,6 +37,9 @@ public class LaunchOptAnalisysController {
 	
 	@Autowired
 	Validator validator;
+	
+	@Autowired
+	private DeletionPolicy policy;
 	
 	@Autowired
 	private DiceService ds;
@@ -68,6 +73,8 @@ public class LaunchOptAnalisysController {
 			
 			ArrayList<String> tmpList = pathList.get(i); 
 			String inputSolPath = tmpList.get(0);
+			File tmpFile = new File(inputSolPath);
+			policy.markForDeletion(tmpFile);
 			if (simManager == null) {
 				simManager = new SimulationsOptManager();
 				model.addAttribute("sim_manager", simManager);
@@ -79,11 +86,14 @@ public class LaunchOptAnalisysController {
 			simManager.setGamma(inputData.getGamma());
 			simManager.setFolder(folder);
 			
+			policy.delete(tmpFile);
 			tmpList.remove(0);
 			int j = 0;
 			while(tmpList.size()!=0){
 				String mapFile,rsFile,mapFileName,rsFileName,mapFileContent,rsFileContent;
 				mapFile=rsFile=mapFileName=rsFileName=mapFileContent=rsFileContent = new String();
+				tmpFile = new File(tmpList.get(j));
+				policy.markForDeletion(tmpFile);
 				if(tmpList.get(j).contains("Map")){
 					mapFile = tmpList.get(j);
 					mapFileName = Paths.get(mapFile).getFileName().toString();
@@ -92,8 +102,11 @@ public class LaunchOptAnalisysController {
 					} catch (IOException e) {
 						return "error";
 					}
-					int indexRS = tmpList.indexOf(mapFile.replace("Map", "RS"));
+					String mirrorName = mapFile.replace("Map", "RS");
+					int indexRS = tmpList.indexOf(mirrorName);
 					if(indexRS!=-1){
+						File tmpMirrorFile = new File(mirrorName);
+						policy.markForDeletion(tmpMirrorFile);
 						rsFile = tmpList.get(indexRS);
 						rsFileName = Paths.get(rsFile).getFileName().toString();
 						try {
@@ -101,10 +114,12 @@ public class LaunchOptAnalisysController {
 						} catch (IOException e) {
 							return "error";
 						}
-
+						policy.delete(tmpMirrorFile);
 						tmpList.remove(indexRS);
-						tmpList.remove(j);
+						
 					}//else{rsFileContent = "" rsFileName=""
+					policy.delete(tmpFile);
+					tmpList.remove(j);
 				}else 
 					if(tmpList.get(j).contains("RS")){
 						//and mapFileContent = "" name=""
@@ -114,6 +129,7 @@ public class LaunchOptAnalisysController {
 						} catch (IOException e) {
 							return "error";
 						}
+						policy.delete(tmpFile);
 						tmpList.remove(j);
 					}else{
 						return "error";

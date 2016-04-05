@@ -56,7 +56,7 @@ public class InteractiveExperiment {
 
 	private SimulationsStates state;
 	//@NotNull
-	private boolean done; //TODO is it used?
+	private boolean done;
 
 	public InteractiveExperiment(){
 		thinkTime = 1;
@@ -78,7 +78,7 @@ public class InteractiveExperiment {
 	public Solution getInputSolution()  {
 		if(simulationsManager instanceof SimulationsWIManager){
 			SimulationsWIManager wiM = (SimulationsWIManager)simulationsManager;
-			Solution sol = wiM.getInputJson();
+			Solution sol = wiM.getDecompressedInputJson();
 			SolutionPerJob spj = sol.getLstSolutions().get(0);
 			spj.getJob().setThink(thinkTime);
 			spj.setNumberVM(numVMs);
@@ -91,7 +91,7 @@ public class InteractiveExperiment {
 	public InstanceData getInputData(){
 		if(simulationsManager instanceof SimulationsOptManager){
 			SimulationsOptManager wiM = (SimulationsOptManager)simulationsManager;
-			return wiM.getInputData();
+			return wiM.getDecompressedInputData();
 		}
 		throw new ClassCastException();
 	}

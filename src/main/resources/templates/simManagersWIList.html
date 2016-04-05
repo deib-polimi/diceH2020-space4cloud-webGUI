@@ -43,7 +43,7 @@
 					<td th:text="${manager.accuracy}">Accuracy</td>
 					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
 					<td style="padding-right:0;">
-						<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
+						<div class="linkFather" style="float:left;">
 							<a class="link" style="z-index:10;" th:href="@{|/downloadJson?id=${manager.id}|}"></a>
 							<img height="25" th:src="${'/images/json.png'}" style="margin: 0 auto;display:block;" />
 						</div>

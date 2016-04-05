@@ -53,6 +53,7 @@ public class MainFlowController {
 		}
     	return "fileUploadWI";
     }	
+	
 	@RequestMapping(value="/launchOpt", method=RequestMethod.GET)
     public String launchOpt(SessionStatus sessionStatus, Model model){
 		if(model.containsAttribute("sim_manager")){
@@ -115,28 +116,13 @@ public class MainFlowController {
 				exp.setExperimentalDuration(0);
 				exp.setResponseTime(0d);
 				exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
+				exp.setDone(false);
 				String type = new String();
 				SimulationsManager simManager = exp.getSimulationsManager();
 				idFrom = simManager.getId().toString();
 				folder = simManager.getFolder(); 
-				exp.setDone(false);
-				
 				type = simManager.getType();
-//				if(exp.getState().equals(SimulationsStates.COMPLETED)){
-//					exp.setNumSolutions(exp.getNumSolutions()-1); 
-//					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
-//					if(simManager.getState().equals(SimulationsStates.COMPLETED)){
-//						simManager.setState(SimulationsStates.READY); //TODO ready?running?partiallyCompleted?
-//					}
-//				}
-//				if(exp.getState().equals(SimulationsStates.ERROR)){
-//					simManager.setNumFailedSimulations(simManager.getNumFailedSimulations()-1);
-//					if(simManager.getNumFailedSimulations()==0){
-//						simManager.setState(SimulationsStates.READY); 
-//					}else{
-//						simManager.setState(SimulationsStates.WARNING); 
-//					}
-//				}
+				
 				if(exp.getState().equals(SimulationsStates.COMPLETED)){
 					exp.setNumSolutions(exp.getNumSolutions()-1); 
 					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);

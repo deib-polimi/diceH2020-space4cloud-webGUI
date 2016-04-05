@@ -58,7 +58,7 @@ public class SimulationsOptManager extends SimulationsManager{
 		setInstanceName(inputData.getId());
 	}
 
-	public InstanceData getInputData() {
+	public InstanceData getDecompressedInputData() {
 		if (inputData != null) {
 			return inputData;
 		} else if (getInput() != null) {

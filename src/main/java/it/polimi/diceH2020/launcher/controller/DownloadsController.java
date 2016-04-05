@@ -100,15 +100,15 @@ public class DownloadsController {
 		response.setContentType("text/plain;charset=utf-8");
 
 		if(num==2){
-			System.out.println("Downloading: "+manager.getInputFile(0, 1));
+			System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 1));
 			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[1]);
-			response.getWriter().write(manager.getInputFile(0, 3));
+			response.getWriter().write(manager.getDecompressedInputFile(0, 3));
 			response.getWriter().flush();
 			response.getWriter().close();
 		}else{
-			System.out.println("Downloading: "+manager.getInputFile(0, 0));
+			System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 0));
 			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[0]);
-			response.getWriter().write(manager.getInputFile(0, 2));
+			response.getWriter().write(manager.getDecompressedInputFile(0, 2));
 			response.getWriter().flush();
 			response.getWriter().close();
 		}

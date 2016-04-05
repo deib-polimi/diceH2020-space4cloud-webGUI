@@ -53,7 +53,7 @@ public class DiceService {
 	}
 	
 	public void simulation(InteractiveExperiment exp){
-		SimulationsManager simManager = exp.getSimulationsManager();
+		//SimulationsManager simManager = exp.getSimulationsManager();
 		//updateExp(exp);
 		String channel = "channel"+getBestChannel();
 		logger.info("[LOCKS] Exp"+exp.getId()+"(Releaunched) has been sent to queue on thread/"+channel);

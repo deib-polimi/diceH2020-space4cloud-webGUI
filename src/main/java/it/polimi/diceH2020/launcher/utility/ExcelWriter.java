@@ -68,8 +68,8 @@ public class ExcelWriter {
 	            cellIndex = 0;
 	            row.createCell(cellIndex++).setCellValue(simManager.getAccuracy());
 		        row.createCell(cellIndex++).setCellValue(sim.getThinkTime());
-		        row.createCell(cellIndex++).setCellValue(simManager.getInputJson().getSolutionPerJob(0).getProfile().getNM());
-		        row.createCell(cellIndex++).setCellValue(simManager.getInputJson().getSolutionPerJob(0).getProfile().getNR());
+		        row.createCell(cellIndex++).setCellValue(simManager.getDecompressedInputJson().getSolutionPerJob(0).getProfile().getNM());
+		        row.createCell(cellIndex++).setCellValue(simManager.getDecompressedInputJson().getSolutionPerJob(0).getProfile().getNR());
 		        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
 		        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
 		        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());

@@ -40,7 +40,7 @@
 					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
 					<td>
 						<div class="clearfix" style="margin: 0 auto;">
-							<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">
+							<div class="linkFather" style="float:left;">
 								<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptSim?id=${manager.id}|}"></a>
 								<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 							</div>

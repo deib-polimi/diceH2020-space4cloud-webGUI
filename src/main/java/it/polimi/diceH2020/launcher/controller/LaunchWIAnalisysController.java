@@ -1,10 +1,12 @@
 package it.polimi.diceH2020.launcher.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
+import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 
 @SessionAttributes("sim_manager") // it will persist in each browser tab,
 								  // resolved with
@@ -29,6 +32,9 @@ public class LaunchWIAnalisysController {
 
 	@Autowired
 	Validator validator;
+	
+	@Autowired
+	private DeletionPolicy policy;
 
 	@Autowired
 	private DiceService ds;
@@ -54,27 +60,42 @@ public class LaunchWIAnalisysController {
 			@ModelAttribute("inputPath") String inputSolPath,
 			@ModelAttribute("pathFile1") String mapFile,
 			@ModelAttribute("pathFile2") String rsFile) {
-
-		if (inputSolPath == null) return "error";
-		if (simManager == null) {
-			simManager = new SimulationsWIManager();
-			model.addAttribute("sim_manager", simManager);
-		}
-		Solution inputJson = validator.objectFromPath(Paths.get(inputSolPath), Solution.class).get();
-		simManager.setInputJson(inputJson);
-		simManager.setInputFileName(inputSolPath);
-		String mapContent = "";
-		String rsContent = "";
-		try {
-			mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-			rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-		} catch (IOException e) {
-			return "error";
-		}
 		
-		simManager.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent); 
-		System.out.println("Sim manager inputs:"+simManager.getInputFiles().get(0)[0]+","+simManager.getInputFiles().get(0)[1]);
-		return "simulationSetup";
+		File json = new File(inputSolPath);
+		File map  = new File(mapFile); 
+		File red = new File(rsFile); 
+		policy.markForDeletion(json);
+		policy.markForDeletion(map);
+		policy.markForDeletion(red);
+
+		if (inputSolPath != null){
+			if (simManager == null) {
+				simManager = new SimulationsWIManager();
+				model.addAttribute("sim_manager", simManager);
+			}
+			Solution inputJson = validator.objectFromPath(Paths.get(inputSolPath), Solution.class).get();
+			simManager.setInputJson(inputJson);
+			simManager.setInputFileName(inputSolPath);
+			String mapContent = "";
+			String rsContent = "";
+			try {
+				mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+				rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+
+				simManager.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent); 
+				System.out.println("Sim manager inputs:"+simManager.getInputFiles().get(0)[0]+","+simManager.getInputFiles().get(0)[1]);
+				policy.delete(json);
+				policy.delete(map);
+				policy.delete(red);
+				return "simulationSetup";
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		policy.delete(json);
+		policy.delete(map);
+		policy.delete(red);
+		return "error";
 	}
 
 	@RequestMapping(value = "/simulations", method = RequestMethod.POST)

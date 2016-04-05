@@ -96,7 +96,6 @@ public class FilesController {
 		return "redirect:/launch/opt/simulationSetup";
 	}
 	
-	
 	//assuming that the order in folder is: .JSON1 json1map1.txt json1map2.txt json1rs.txt  json1rs1.txt JSON2 json2map1.txt ...
 	@RequestMapping(value = "/uploadOptFolderFiles", method = RequestMethod.POST)
 	public String multipleSaveOptFromFolder(@RequestParam("file[]") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {

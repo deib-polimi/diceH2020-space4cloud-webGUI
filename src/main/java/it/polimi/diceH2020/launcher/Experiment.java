@@ -82,15 +82,15 @@ public class Experiment {
 	
 	public synchronized boolean initWI(InteractiveExperiment intExp){
 		SimulationsWIManager simManager = (SimulationsWIManager)intExp.getSimulationsManager();
-		Solution sol = simManager.getInputJson();
+		Solution sol = simManager.getDecompressedInputJson();
 		String solID = sol.getId();
 		int jobID = sol.getSolutionPerJob(0).getJob().getId();
 		String typeVMID = sol.getSolutionPerJob(0).getTypeVMselected().getId();
 		String nameMapFile = String.format("%sMapJ%d%s.txt", solID, jobID, typeVMID);
 		String nameRSFile = String.format("%sRSJ%d%s.txt", solID, jobID, typeVMID);
 		try{
-			send(nameMapFile, simManager.getInputFile(0,2));
-			send(nameRSFile, simManager.getInputFile(0,3));
+			send(nameMapFile, simManager.getDecompressedInputFile(0,2));
+			send(nameRSFile, simManager.getDecompressedInputFile(0,3));
 		}catch (Exception e){
 			logger.info(e);
 			return false;
@@ -109,8 +109,8 @@ public class Experiment {
 			String nameMapFile = simManager.getInputFiles().get(i)[0];
 			String nameRSFile = simManager.getInputFiles().get(i)[1];
 			try{
-				send(nameMapFile, simManager.getInputFile(i,2));
-				send(nameRSFile, simManager.getInputFile(i,3));
+				send(nameMapFile, simManager.getDecompressedInputFile(i,2));
+				send(nameRSFile, simManager.getDecompressedInputFile(i,3));
 				System.out.println("sending:"+nameMapFile+", "+nameMapFile);
 			}catch(Exception e){
 				logger.debug("Error while sending replayer's files");
@@ -176,16 +176,10 @@ public class Experiment {
 		if (sol == null) return false;
 		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
 		e.setExperimentalDuration(sol.getOptimizationTime());
-		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-finalWI.json";
-		//CANBEREMOVED
-		try {
-			String solSerialized = mapper.writeValueAsString(sol);
-			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
-		}catch(Exception ex){
-			logger.debug("cannot create WI local solution file");
-		}
+		e.setSol(sol);
+		e.setDone(true);
+		e.setNumSolutions(e.getNumSolutions()+1);
 		return true;
-
 	}
 
 	private boolean evaluateInitSolution() {
@@ -431,23 +425,14 @@ public class Experiment {
 
 	private boolean saveFinalSolution(InteractiveExperiment e) {
 		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
-		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-final.json";
-		String solSerialized;
 		e.setSol(sol);
-		try {
-			//CANBEREMOVED
-			solSerialized = mapper.writeValueAsString(sol);
-			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
-			e.setDone(true);
-			e.setNumSolutions(e.getNumSolutions()+1);
-			//intExpRepository.saveAndFlush(e);
-			
-			String msg = String.format("-%s iter: %d ->%s", e.getInstanceName(), e.getIter(), sol.toStringReduced());
-			logger.info(msg);
-			return true;
-		} catch (Exception ex) {
-			return false;
-		}
+		e.setExperimentalDuration(sol.getOptimizationTime());
+		e.setDone(true);
+		e.setNumSolutions(e.getNumSolutions()+1);
+		//e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
+		String msg = String.format("-%s iter: %d ->%s", e.getInstanceName(), e.getIter(), sol.toStringReduced());
+		logger.info(msg);
+		return true;
 	}
 
 	private boolean saveInitSolution() {

@@ -97,7 +97,7 @@ public class SimulationsWIManager extends SimulationsManager{
 				}
 	}
 
-	public Solution getInputJson() {
+	public Solution getDecompressedInputJson() {
 		if (inputJson != null) {
 			return inputJson;
 		} else if (getInput() != null) {

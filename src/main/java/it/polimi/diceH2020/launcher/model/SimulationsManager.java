@@ -107,7 +107,7 @@ public class SimulationsManager {
 		}
 	}
 
-	public String getInputFile(Integer pos1, Integer pos2) {
+	public String getDecompressedInputFile(Integer pos1, Integer pos2) {
 		try {
 			return Compressor.decompress(inputFiles.get(pos1)[pos2]);
 		} catch (IOException e) {
