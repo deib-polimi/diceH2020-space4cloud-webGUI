@@ -94,8 +94,9 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 //				intExp.getSimulationsManager().setState(SimulationsStates.RUNNING);
 //			}
 //		}
-		intExp.getSimulationsManager().refreshState();
+		
 		//ds.updateExp(intExp);
+		intExp.getSimulationsManager().refreshState();
 		ds.updateManager(intExp.getSimulationsManager());
 		ds.updateBestChannel(this.id);  
 	}

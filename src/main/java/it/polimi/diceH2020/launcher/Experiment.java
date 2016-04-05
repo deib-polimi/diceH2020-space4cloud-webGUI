@@ -115,8 +115,12 @@ public class Experiment {
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
 		
 		if (!initWI(e)||isStop()){
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			try{
+				restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			}catch(Exception exc){
+				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> communication with WS");
+			}
 			return false;
 		}
 		int num = e.getIter();
@@ -192,8 +196,12 @@ public class Experiment {
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 		if (!initOpt(e)||isStop()){
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			try{
+				restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			}catch(Exception exc){
+				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> communication with WS");
+			}
 			return false;
 		}
 		if (isStop()) return false;

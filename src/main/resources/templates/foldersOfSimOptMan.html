@@ -42,7 +42,7 @@
 						</div>
 					</td>
 					<td>
-						<div th:if="*{manager.state}==completed" class="linkFather">
+						<div th:if="*{#strings.toString(manager.state)}==COMPLETED" class="linkFather">
 							<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptOutputJsons?folder=${manager.folder}|}"></a>
 							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 						</div>

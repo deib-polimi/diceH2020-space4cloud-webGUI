@@ -5,6 +5,7 @@ public enum SimulationsStates {
 	RUNNING,
 	WARNING,
 	ERROR,
-	COMPLETED
+	COMPLETED,
+	INTERRUPTED
 }
 //usage in thymeleaf th:if="*{#strings.toString(manager.state)}==COMPLETED"

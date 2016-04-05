@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import it.polimi.diceH2020.launcher.Settings;
+import it.polimi.diceH2020.launcher.SimulationsStates;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
@@ -72,16 +73,36 @@ public class DiceService {
 		logger.info("[LOCKS] SimManager"+simulationsManager.getId()+" has been updated.");
 	}
 	
-	
 	@PostConstruct
-	private void setUpChannels(){
+	private void setUpEnvironment(){
+		fixRunningSimulations();
 		createChannels();
 	}
 	
-	public void createChannels(){
+	public void fixRunningSimulations(){
+		List<InteractiveExperiment> previuoslyRunningExperiments = intExpRepo.findByState(SimulationsStates.RUNNING);
+		List<Long> managersToRefresh = new ArrayList<Long>();
+		
+		for(int i=0;i<previuoslyRunningExperiments.size();i++){
+			previuoslyRunningExperiments.get(i).setState(SimulationsStates.ERROR);
+			Long smID = previuoslyRunningExperiments.get(i).getSimulationsManager().getId();
+			updateExp(previuoslyRunningExperiments.get(i));
+			if(!managersToRefresh.contains(smID)){
+				managersToRefresh.add(smID);
+			}
+		}
+		
+		for(int i=0;i<managersToRefresh.size();i++){
+			SimulationsManager sm = simManagerRepo.findById(managersToRefresh.get(i));
+			//sm.refreshState();
+			sm.setState(SimulationsStates.INTERRUPTED);
+			updateManager(sm);
+		}
+	}
+	
+	private void createChannels(){
 		channelsUsageList = new ArrayList<ArrayList<Integer>>();
 		//consumersList = new ArrayList<DiceConsumer>();
-		
 		channelsUsageList.add(new ArrayList<Integer>());
 		for(int i=settings.getPorts().length-1; i >= 0; i--){
 			context.getBean("diceConsumer",i,settings.getPorts()[i]);
