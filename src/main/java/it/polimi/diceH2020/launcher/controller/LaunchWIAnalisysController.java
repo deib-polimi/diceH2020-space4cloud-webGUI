@@ -64,9 +64,6 @@ public class LaunchWIAnalisysController {
 		File json = new File(inputSolPath);
 		File map  = new File(mapFile); 
 		File red = new File(rsFile); 
-		policy.markForDeletion(json);
-		policy.markForDeletion(map);
-		policy.markForDeletion(red);
 
 		if (inputSolPath != null){
 			if (simManager == null) {

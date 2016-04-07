@@ -19,7 +19,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +30,9 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
+import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.DiceService;
+import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
 
 @Scope("prototype")
 @Component
@@ -40,31 +41,28 @@ public class Experiment {
 	private String INPUTDATA_ENDPOINT;
 	private String RESULT_FOLDER;
 	private String SOLUTION_ENDPOINT;
-	private String STATE_ENDPOINT;
+	private String STATE_ENDPOINT; //not used restTemplate.getForObject(STATE_ENDPOINT, String.class);
 	private String SETTINGS_ENDPOINT;
 	private String UPLOAD_ENDPOINT;
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private ObjectMapper mapper;
-	private RestTemplate restTemplate = new RestTemplate();
 	@Autowired
 	private Settings settings;
-	private boolean stop = false;
-	private String port;
+	private DiceConsumer consumer;
 	
 	@Autowired
 	private DiceService ds;
 	
-	public Experiment(String port) {
+	@Autowired
+	private RestCommunicationWrapper restWrapper;
+	
+	public Experiment(DiceConsumer consumer) {
 		mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
 		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
 		mapper.registerModule(module);
-		this.port = port;
-	}
-
-	public boolean isStop() {
-		return stop;
+		this.consumer = consumer;
 	}
 
 	public synchronized boolean initWI(InteractiveExperiment intExp){
@@ -75,34 +73,30 @@ public class Experiment {
 		String typeVMID = sol.getSolutionPerJob(0).getTypeVMselected().getId();
 		String nameMapFile = String.format("%sMapJ%d%s.txt", solID, jobID, typeVMID);
 		String nameRSFile = String.format("%sRSJ%d%s.txt", solID, jobID, typeVMID);
-		try{
-			send(nameMapFile, simManager.getDecompressedInputFile(0,2));
-			send(nameRSFile, simManager.getDecompressedInputFile(0,3));
-		}catch (Exception e){
-			logger.info(e);
-			return false;
-		}
+		
+		if(!send(nameMapFile, simManager.getDecompressedInputFile(0,2))){return false;}
+		if(!send(nameRSFile, simManager.getDecompressedInputFile(0,3))){return false;}
+		
 		it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings set = new it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings();
 		set.setSimDuration(simManager.getSimDuration());
 		set.setSolver(simManager.getSolver());
 		set.setAccuracy(simManager.getAccuracy()/100.0);
-		String res = restTemplate.postForObject(SETTINGS_ENDPOINT, set, String.class);
+		String res;
+		
+		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }catch(Exception e){return true;}
+		
 		logger.info(res);
 		return true;
 	}
+
 	public synchronized boolean initOpt(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
 		for(int i=0; i<simManager.getInputFiles().size();i++){
 			String nameMapFile = simManager.getInputFiles().get(i)[0];
 			String nameRSFile = simManager.getInputFiles().get(i)[1];
-			try{
-				send(nameMapFile, simManager.getDecompressedInputFile(i,2));
-				send(nameRSFile, simManager.getDecompressedInputFile(i,3));
-				System.out.println("sending:"+nameMapFile+", "+nameMapFile);
-			}catch(Exception e){
-				logger.debug("Error while sending replayer's files");
-				return false;
-			}
+			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2)))return false;
+			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3)))return false;
+			System.out.println("sending:"+nameMapFile+", "+nameMapFile);
 		}
 		return true;
 	}
@@ -114,57 +108,55 @@ public class Experiment {
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
 		
-		if (!initWI(e)||isStop()){
-			try{
-				restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
-			}catch(Exception exc){
-				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> communication with WS");
-			}
+		if (!initWI(e)){
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		int num = e.getIter();
-		String nameInstance = e.getInstanceName();
-		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
 		boolean idle = checkWSIdle();
-		if (!idle || isStop()) {
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> service not idle");
+		if (!idle) {
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> service not idle");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+port);
+		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+consumer.getPort());
 		
 		boolean charged_initsolution = sendSolution(e.getInputSolution());
 
-		if (!charged_initsolution || isStop()) {
-			logger.info(baseErrorString + "-> uploading the initial solution");
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> uploading the initial solution");
+		if (!charged_initsolution) {
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> uploading the initial solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
-		if (!evaluated_initsolution || isStop()) {
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> evaluating the initial solution");
+		if (!evaluated_initsolution) {
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> evaluating the initial solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean update_experiment = updateExperiment(e);
-		if (!update_experiment || isStop()) {
-			restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> updating the experiment information");
+		if (!update_experiment) {
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> updating the experiment information");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		// to go to idle
-		restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
+		notifyWsUnreachability(e.getId());
+		
+		//MIGRATE?
 		return true;
 	}
 
 	private boolean updateExperiment(InteractiveExperiment e) {
-		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
-		if (sol == null) return false;
+		Solution sol;
+		
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception exc){return false;}
+		
+		if (sol == null){
+			return false;
+		}
 		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
 		e.setExperimentalDuration(sol.getOptimizationTime());
 		e.setSol(sol);
@@ -172,20 +164,23 @@ public class Experiment {
 		e.setNumSolutions(e.getNumSolutions()+1);
 		return true;
 	}
-
+	
 	private boolean evaluateInitSolution() {
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class);
+		String res;
+		
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class); }catch(Exception e){return false;}
+		
 		if (res.equals("EVALUATING_INIT")) {
 			res = "EVALUATING_INIT"; //useful?
 			while (res.equals("EVALUATING_INIT")) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+				try { Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
+				
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
+				
 			}
-			if (res.equals("EVALUATED_INITSOLUTION")) return true;
+		}
+		if (res.equals("EVALUATED_INITSOLUTION")){
+			return true;
 		}
 		return false;
 	}
@@ -195,80 +190,79 @@ public class Experiment {
 	  	e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
-		if (!initOpt(e)||isStop()){
-			try{
-				restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
-			}catch(Exception exc){
-				logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> communication with WS");
-			}
+		if (!initOpt(e)){
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		if (isStop()) return false;
-
 		int num = e.getIter();
-		//Path inputDataPath = e.getInstanceName();
-		//if (!Files.exists(inputDataPath)) return;
-
 		String nameInstance = e.getInstanceName();
 		String baseErrorString = "Iter: " + num + " Error for experiment: " + nameInstance;
 
 		boolean idle = checkWSIdle();
 
-		if (!idle || isStop()) {
+		if (!idle) {
 			logger.info(baseErrorString + "-> service not idle");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean charged_inputdata = sendInputData(e.getInputData());
 
-		if (!charged_inputdata || isStop()) return false;
+		if (!charged_inputdata) return false;
 
 		boolean charged_initsolution = generateInitialSolution();
 
-		if (!charged_initsolution || isStop()) {
+		if (!charged_initsolution) {
 			logger.info(baseErrorString + "-> generation of the initial solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
-		if (!evaluated_initsolution || isStop()) {
+		if (!evaluated_initsolution) {
 			logger.info(baseErrorString + "-> evaluating the initial solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean initsolution_saved = saveInitSolution();
 		if (!initsolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving initial solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean finish = executeLocalSearch();
 
-		if (!finish || isStop()) {
+		if (!finish) {
 			logger.info(baseErrorString + "-> local search");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean finalSolution_saved = saveFinalSolution(e);
 		if (!finalSolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving final solution");
+			notifyWsUnreachability(e.getId());
 			return false;
 		}
 		// to go to idle
-		restTemplate.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class);
-
-		//String percentage = BigDecimal.valueOf((double) analysisExecuted * 100 / (double) totalAnalysisToExecute).setScale(2, RoundingMode.HALF_EVEN).toString();
-		
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
+		try{ 
+			restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); 
+		}catch(Exception exc){
+			logger.info("Impossible sending migrate to WS");
+			return false;
+		}
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
 		return true;
 	}
 
-
-	public void send(String filename, String content ) throws Exception{
+	public boolean send(String filename, String content ){
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
 		map.add("name", filename);
 		map.add("filename", filename);
+		
 		try {
 			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8"))  {
 				@Override
@@ -277,75 +271,66 @@ public class Experiment {
 				}
 			};
 			map.add("file", contentsAsResource);
-			String res =  restTemplate.postForObject(UPLOAD_ENDPOINT, map, String.class);
-			logger.info(res);
+			
+			try{ restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class); }catch(Exception e){return false;}
+			
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-
-	public void send(Path f) {
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-		String content;
-		try {
-			content = new String(Files.readAllBytes(f));
-
-			final String filename = f.getFileName().toString();
-			map.add("name", filename);
-			map.add("filename", filename);
-			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8")) {
-				@Override
-				public String getFilename() {
-					return filename;
-				}
-			};
-			map.add("file", contentsAsResource);
-			restTemplate.postForObject(UPLOAD_ENDPOINT, map, String.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void setStop(boolean stop) {
-		this.stop = stop;
-	}
-
-	public boolean stop() {
-		this.stop = true;
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-		if (res.equals("IDLE")) return true;
-		else {
-			logger.info(res);
 			return false;
 		}
-
+		return true;
 	}
 
-	public void waitForWS() {
-		try {
-			restTemplate.getForObject(STATE_ENDPOINT, String.class);
-		} catch (Exception e) {
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			logger.info("trying to extablish a connection with S4C ws");
-			waitForWS();
-		}
+//	public boolean send(Path f) {
+//		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+//		String content;
+//		try {
+//			content = new String(Files.readAllBytes(f));
+//
+//			final String filename = f.getFileName().toString();
+//			map.add("name", filename);
+//			map.add("filename", filename);
+//			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8")) {
+//				@Override
+//				public String getFilename() {
+//					return filename;
+//				}
+//			};
+//			map.add("file", contentsAsResource);
+//			try{postObject(map);}catch(Exception e){return false;}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			return false;
+//		}
+//		return true;
+//	}
 
-	}
+//	public void waitForWS() {
+//		try {
+//			restTemplate.getForObject(STATE_ENDPOINT, String.class);
+//		} catch (Exception e) {
+//			try {
+//				Thread.sleep(5000);
+//			} catch (InterruptedException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			logger.info("trying to extablish a connection with S4C ws");
+//			waitForWS();
+//		}
+//
+//	}
 
 	private boolean checkWSIdle() {
 		return checkWSIdle(0);
-
 	}
 
 	private boolean checkWSIdle(int iter) {
 		if (iter > 50) { return false; }
-		String res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+		String res;
+		
+		try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
+		
 		if (res.equals("IDLE")) return true;
 		else {
 			try {
@@ -359,55 +344,61 @@ public class Experiment {
 	}
 
 	private boolean executeLocalSearch() {
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class);
+		String res;
+		
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class); }catch(Exception e){return false;}
+		
 		if (res.equals("RUNNING_LS")) {
 			res = "RUNNING_LS";
 			while (res.equals("RUNNING_LS")) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
+				
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
 			}
 		}
-		if (res.equals("FINISH")) return true;
-		else return false;
+		if (res.equals("FINISH")){
+			return true;
+		}
+		return false;
 	}
 
 	private boolean generateInitialSolution() {
-		String res = restTemplate.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class);
-		if (res.equals("RUNNING_INIT")) {
+		String res;
+		
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); }catch(Exception e){return false;}
+		
+		if (res.equals("RUNNING_INIT")){
 			res = "RUNNING_INIT";
-			while (res.equals("RUNNING_INIT")) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				res = restTemplate.getForObject(STATE_ENDPOINT, String.class);
+			while (res.equals("RUNNING_INIT")){
+				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
+				
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
 			}
-			if (res.equals("CHARGED_INITSOLUTION")) {
+			if (res.equals("CHARGED_INITSOLUTION")){
 				return true;
-			} else return false;
-		} else return false;
+			}
+		} 
+		return false;
 	}
 
 	@PostConstruct
 	private void init() throws IOException {
-		INPUTDATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
-		EVENT_ENDPOINT = settings.getFullAddress() + port + "/event";
-		STATE_ENDPOINT = settings.getFullAddress() + port + "/state";
-		UPLOAD_ENDPOINT = settings.getFullAddress() + port + "/upload";
-		SOLUTION_ENDPOINT = settings.getFullAddress() + port + "/solution";
-		SETTINGS_ENDPOINT = settings.getFullAddress() + port +"/settings";
+		INPUTDATA_ENDPOINT = settings.getFullAddress() + consumer.getPort()  + "/inputdata";
+		EVENT_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/event";
+		STATE_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/state";
+		UPLOAD_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/upload";
+		SOLUTION_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/solution";
+		SETTINGS_ENDPOINT = settings.getFullAddress() + consumer.getPort() +"/settings";
 		Path result = Paths.get(settings.getResultDir());
 		if (!Files.exists(result)) Files.createDirectory(result);
 		RESULT_FOLDER = result.toAbsolutePath().toString();
 	}
 
 	private boolean saveFinalSolution(InteractiveExperiment e) {
-		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
+		Solution sol;
+		
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception exc){return false;}
+		
 		e.setSol(sol);
 		e.setExperimentalDuration(sol.getOptimizationTime());
 		e.setDone(true);
@@ -418,8 +409,12 @@ public class Experiment {
 		return true;
 	}
 
-	private boolean saveInitSolution() {
-		Solution sol = restTemplate.getForObject(SOLUTION_ENDPOINT, Solution.class);
+	private boolean saveInitSolution() {//TODO usefull?
+		
+		Solution sol;
+		
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception e){return false;}
+		
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-MINLP.json";
 		String solSerialized;
 		try {
@@ -436,7 +431,10 @@ public class Experiment {
 
 	private boolean sendInputData(InstanceData data) {
 		if (data != null) {
-			String res = restTemplate.postForObject(INPUTDATA_ENDPOINT, data, String.class);
+			String res;
+			
+			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }catch(Exception e){ return false;}
+			
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
 				logger.info("Error for experiment: " + data.getId() + " server respondend in an unexpected way: " + res);
@@ -447,12 +445,40 @@ public class Experiment {
 			return false;
 		}
 	}
-
+	
 	private boolean sendSolution(Solution solution) {
-		String res = restTemplate.postForObject(SOLUTION_ENDPOINT, solution, String.class);
-		if (res.equals("CHARGED_INITSOLUTION")) return true;
-		else return false;
+		String res;
+		
+		try{ res = restWrapper.postForObject(SOLUTION_ENDPOINT, solution, String.class); }catch(Exception e){return false;}
+		
+		if (res.equals("CHARGED_INITSOLUTION")){
+			return true;
+		}
+		return false;
 	}
+	
+	private void notifyWsUnreachability(long id){
+		consumer.setWorking(false);
+		logger.info("WS unreachable. (id: "+consumer.getId()+" port:"+consumer.getPort()+")");
+	}
+	
+    //@Retryable(value = Exception.class,maxAttempts = 3)
+	//private void takeBackToIdle(long id){
+		//logger.info("Error with the WS");
+	//	consumer.setWorking(false);
+//try{
+		 //	restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
+//		}catch(Exception exc){
+//			logger.info("[LOCKS] Exp"+id+" on port: "+port+" has been canceled"+"-> communication with WS");
+//		}
+//	}
+	
+//	@Recover
+//	private void recoverFromWsDisconnected(Exception exc){
+//		logger.info("Error: communication with WS");
+//		consumer.setWorking(false);
+//		//TODO ds.refresh channels ... 
+//	}
 
 	void wipeResultDir() throws IOException {
 		Path result = Paths.get(settings.getResultDir());
@@ -463,7 +489,6 @@ public class Experiment {
 					Files.delete(dir);
 					return FileVisitResult.CONTINUE;
 				}
-
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					Files.delete(file);
@@ -474,5 +499,4 @@ public class Experiment {
 			Files.createDirectory(result);
 		}
 	}
-
 }

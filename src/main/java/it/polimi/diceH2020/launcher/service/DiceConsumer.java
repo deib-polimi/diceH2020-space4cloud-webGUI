@@ -40,6 +40,8 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	
 	private int id;
 	
+	private boolean working;
+	
 	public DiceConsumer(int num, String port) {
 		this.id = num;
 		this.port = port;
@@ -48,7 +50,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	@PostConstruct
 	private void register(){
 	    logger.info("[LOCKS] channel"+id+"-->"+port);
-	    experiment = (Experiment) context.getBean("experiment",port);
+	    experiment = (Experiment) context.getBean("experiment",this);
 		eventBus.on($("channel"+id), this); //registering the consumer
 	}
 	
@@ -79,23 +81,6 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			logger.info("Error for experiment"+intExp.getId()+", wrong type. It will not be launched.");
 			return;
 		}
-		
-//		if(intExp.getSimulationsManager().getNumFailedSimulations()+intExp.getSimulationsManager().getNumCompletedSimulations()==intExp.getSimulationsManager().getInputFiles().size()){
-//			if(intExp.getSimulationsManager().getNumFailedSimulations()>0){
-//				intExp.getSimulationsManager().setState(SimulationsStates.ERROR);
-//			}else{
-//				intExp.getSimulationsManager().writeFinalResults();
-//				intExp.getSimulationsManager().setState(SimulationsStates.COMPLETED);
-//			}
-//		}else{
-//			if(intExp.getSimulationsManager().getNumFailedSimulations()>0){
-//				intExp.getSimulationsManager().setState(SimulationsStates.WARNING);
-//			}else{
-//				intExp.getSimulationsManager().setState(SimulationsStates.RUNNING);
-//			}
-//		}
-		
-		//ds.updateExp(intExp);
 		intExp.getSimulationsManager().refreshState();
 		ds.updateManager(intExp.getSimulationsManager());
 		ds.updateBestChannel(this.id);  

@@ -12,11 +12,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 
-
+@EnableRetry
 @SpringBootApplication
 @ComponentScan({"it.polimi.diceH2020.*" })
 @EntityScan("it.polimi.diceH2020.launcher.model")

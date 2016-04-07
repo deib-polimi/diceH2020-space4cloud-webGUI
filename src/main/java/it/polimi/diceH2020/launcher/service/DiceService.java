@@ -2,7 +2,9 @@ package it.polimi.diceH2020.launcher.service;
  
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -28,6 +30,8 @@ public class DiceService {
 	
 	private List<ArrayList<Integer>> channelsUsageList; 
 	//private List<DiceConsumer> consumersList; 
+	private Map<DiceConsumer, ArrayList<InteractiveExperiment>> consumerExperimentsMap;
+	
 	
  	@Autowired
  	private EventBus eventBus;
@@ -46,6 +50,9 @@ public class DiceService {
 	
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
+		
+		//refreshChannelStatus();
+		
 		simManager.getExperimentsList().stream().forEach(e-> {
 			String channel = "channel"+getBestChannel();
 			logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
@@ -56,6 +63,7 @@ public class DiceService {
 	public void simulation(InteractiveExperiment exp){
 		//SimulationsManager simManager = exp.getSimulationsManager();
 		//updateExp(exp);
+		//refreshChannelStatus();
 		String channel = "channel"+getBestChannel();
 		logger.info("[LOCKS] Exp"+exp.getId()+"(Releaunched) has been sent to queue on thread/"+channel);
 		eventBus.notify(channel, Event.wrap(exp));
@@ -102,13 +110,74 @@ public class DiceService {
 	
 	private void createChannels(){
 		channelsUsageList = new ArrayList<ArrayList<Integer>>();
+		consumerExperimentsMap = new HashMap<DiceConsumer,ArrayList<InteractiveExperiment>>();
 		//consumersList = new ArrayList<DiceConsumer>();
 		channelsUsageList.add(new ArrayList<Integer>());
 		for(int i=settings.getPorts().length-1; i >= 0; i--){
-			context.getBean("diceConsumer",i,settings.getPorts()[i]);
+			DiceConsumer diceConsumer= (DiceConsumer)context.getBean("diceConsumer",i,settings.getPorts()[i]);
 			//consumer.register(i);
 			//consumersList.add(0,consumer);
 			channelsUsageList.get(0).add(0,i);
+			
+			consumerExperimentsMap.put(diceConsumer,new ArrayList<InteractiveExperiment>());
+		}
+	}
+	
+	//need to be synchronized to avoid conflicts with getBestChannels and updateBestChannels
+	private synchronized void refreshChannelStatus(){
+		List<InteractiveExperiment> pendingExperimentList = new ArrayList<InteractiveExperiment>();
+		List<Integer> channelIDToRemove = new ArrayList<Integer>();
+		List<Integer> workingChannelsID = new ArrayList<Integer>();
+		
+		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
+			if(!entry.getKey().isWorking()){
+					pendingExperimentList.addAll(entry.getValue());
+					channelIDToRemove.add(entry.getKey().getId());
+			}else{
+				workingChannelsID.add(entry.getKey().getId());
+			}
+		}
+		
+		List<Integer> currentlyUsedID = removeNotWorkingChannels(channelIDToRemove);
+		
+		workingChannelsID.removeAll(currentlyUsedID); //workingChannelsID--> missingWorkingChannelsID
+		if(!workingChannelsID.isEmpty()){
+			addMissingWorkingChannels(workingChannelsID);
+		}
+		movePendingExperiments(pendingExperimentList);
+	}
+	
+	private void movePendingExperiments(List<InteractiveExperiment> pendingExperimentList){
+		pendingExperimentList.stream().forEach(e-> {
+			String channel = "channel"+getBestChannel();
+			logger.info("[LOCKS] Exp"+e.getId()+" has been moved to queue on thread/"+channel);
+			eventBus.notify(channel, Event.wrap(e));
+		});
+	}
+
+	private List<Integer> removeNotWorkingChannels(List<Integer>idToRemove){
+		List<Integer> tmpChannels = new ArrayList<Integer>();
+
+		for(int i=0; i< channelsUsageList.size();i++){
+			int currListSize = channelsUsageList.get(i).size();
+			if(currListSize!=0){//TODO remove?
+				if(channelsUsageList.get(i).get(0)!=null||currListSize != 1){
+					if(!idToRemove.isEmpty()){ //I need to run this method also if idToRemove is empty to retrieve currentlyUsedID 
+						channelsUsageList.get(i).removeAll(idToRemove);
+					}
+					tmpChannels.addAll(channelsUsageList.get(i));	//add to currentlyUsedID
+				}//else (get(0)==null&&size==1) --> skip
+			}
+		}
+		return tmpChannels;
+	}
+	
+	private void addMissingWorkingChannels(List<Integer> currentlyUsedID ){
+		if(channelsUsageList.get(0).get(0)==null){
+			channelsUsageList.get(0).addAll(1,currentlyUsedID);
+			channelsUsageList.get(0).remove(0);
+		}else{
+			channelsUsageList.get(0).addAll(0,currentlyUsedID);
 		}
 		
 	}
@@ -118,7 +187,7 @@ public class DiceService {
 		int i=0;
 		while(true){
 			int currListSize = channelsUsageList.get(i).size();
-			if(currListSize!=0){
+			if(currListSize!=0){ //TODO remove?
 				if(channelsUsageList.get(i).get(0)!=null||currListSize != 1){
 					bestChannel = channelsUsageList.get(i).get(0);
 					updateArr(i, 0, i+1);
@@ -129,6 +198,7 @@ public class DiceService {
 		}
 		return bestChannel;
 	}
+	
 	
 	public synchronized void updateBestChannel(int element){
 		int i=0, j = 0;
