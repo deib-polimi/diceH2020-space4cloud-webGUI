@@ -51,6 +51,7 @@ public class DiceService {
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
 		//refreshChannelStatus();
+		checkWSAvailability();
 		simManager.getExperimentsList().stream().forEach(e-> {
 			DiceConsumer bestConsumer = getBestChannel();
 			if(bestConsumer != null){
@@ -82,6 +83,7 @@ public class DiceService {
 		//SimulationsManager simManager = exp.getSimulationsManager();
 		//updateExp(exp);
 		//refreshChannelStatus();
+		checkWSAvailability();
 		DiceConsumer bestConsumer = getBestChannel();
 		if(bestConsumer != null){
 			int bestChannel = bestConsumer.getId();
@@ -232,7 +234,7 @@ public class DiceService {
 		}
 	}
 	
-	@Scheduled(fixedDelay = 300000, initialDelay = 5000)
+	@Scheduled(fixedDelay = 600000, initialDelay = 5000)
 	public void checkWSAvailability(){
 		String res, message;
 		message = new String();
