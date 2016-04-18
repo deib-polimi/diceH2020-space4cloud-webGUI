@@ -44,6 +44,27 @@
     	    </a>
     	</div>
     </div>
-     
+    <div id="wsStatusButton" onclick="show()">Show WS Status</div>
+    <div id="wsStatusContainer" class="basic-grey" th:if="${wsStatusMap!=null}" style="visibility:hidden;margin:0 auto;">
+    	<ul style="display:table;">
+	  		<li th:each="wsStatus: ${wsStatusMap}" class="clearfix" style="margin:5px 0;">
+				<div th:text="${wsStatus.key + ': '}" style="float:left;line-height: 25px;margin:0 5px;width: 40px;">No WS</div>
+				<img height="25" th:src="${'/images/' + wsStatus.value + '.gif'}" style="margin: 0 auto;display:block;float:left;" />
+			</li>
+		</ul>
+    </div>
+  	<script>
+  		var container = document.getElementById("wsStatusContainer");
+  		var button = document.getElementById("wsStatusButton");
+  		function show(){
+  			if(container.style.visibility=="hidden"){
+  				container.style.visibility = "visible";
+  				button.innerHTML = "Hide WS Status";
+  			}else{
+  				container.style.visibility = "hidden";
+  				button.innerHTML = "Show WS Status";
+  			}
+  		}
+  	</script>
 </body>
 </html>

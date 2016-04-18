@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import it.polimi.diceH2020.launcher.Experiment;
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import lombok.Data;
 import reactor.bus.Event;
@@ -40,11 +40,15 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	
 	private int id;
 	
-	private boolean working;
+	private States state;//READY, ERROR, INTERRUPTED
 	
 	public DiceConsumer(int num, String port) {
 		this.id = num;
 		this.port = port;
+		state = States.COMPLETED;
+	}
+	
+	public DiceConsumer() {
 	}
 	
 	@PostConstruct
@@ -62,27 +66,34 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		if(intExp.getSimType().equals("WI")){
 			if(experiment.launchWI(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState(SimulationsStates.COMPLETED);
+				intExp.setState(States.COMPLETED);
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
-				intExp.setState(SimulationsStates.ERROR);
+				intExp.setState(States.ERROR);
 			}
 		}
 		else if(intExp.getSimType().equals("Opt")){
 			if(experiment.launchOpt(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState(SimulationsStates.COMPLETED);
+				intExp.setState(States.COMPLETED);
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
-				intExp.setState(SimulationsStates.ERROR);
+				intExp.setState(States.ERROR);
 			}
 		}else{
-			intExp.setState(SimulationsStates.ERROR);
+			intExp.setState(States.ERROR);
 			logger.info("Error for experiment"+intExp.getId()+", wrong type. It will not be launched.");
 			return;
 		}
 		intExp.getSimulationsManager().refreshState();
 		ds.updateManager(intExp.getSimulationsManager());
-		ds.updateBestChannel(this.id);  
+		ds.updateBestChannel(id, intExp);  
+	}
+	
+	public boolean isWorking(){
+		if(state.equals(States.COMPLETED)){
+			return true;
+		}
+		return false;
 	}
 }

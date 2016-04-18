@@ -83,7 +83,11 @@ public class Experiment {
 		set.setAccuracy(simManager.getAccuracy()/100.0);
 		String res;
 		
-		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }catch(Exception e){return true;}
+		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return true;
+		}
 		
 		logger.info(res);
 		return true;
@@ -103,20 +107,18 @@ public class Experiment {
 
 	public synchronized boolean launchWI(InteractiveExperiment e) {
 		
-	  	e.setState(SimulationsStates.RUNNING);
+	  	e.setState(States.RUNNING);
 	  	e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
 		
 		if (!initWI(e)){
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		boolean idle = checkWSIdle();
+		boolean idle = checkWSIdle(); 
 		if (!idle) {
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> service not idle");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+consumer.getPort());
@@ -125,34 +127,40 @@ public class Experiment {
 
 		if (!charged_initsolution) {
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> uploading the initial solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution) {
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> evaluating the initial solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean update_experiment = updateExperiment(e);
 		if (!update_experiment) {
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> updating the experiment information");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
-		notifyWsUnreachability(e.getId());
 		
-		//MIGRATE?
+		try{ 
+			restWrapper.postForObject(EVENT_ENDPOINT, Events.RESET, String.class); //from evaluated_init to idle 
+		}catch(Exception exc){
+			notifyWsUnreachability();
+			return false;
+		}
+		//TODO IF NOT IDLE...
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
 		return true;
 	}
 
 	private boolean updateExperiment(InteractiveExperiment e) {
 		Solution sol;
 		
-		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception exc){return false;}
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
+		catch(Exception exc){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (sol == null){
 			return false;
@@ -168,31 +176,38 @@ public class Experiment {
 	private boolean evaluateInitSolution() {
 		String res;
 		
-		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class); }catch(Exception e){return false;}
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (res.equals("EVALUATING_INIT")) {
-			res = "EVALUATING_INIT"; //useful?
+			res = "EVALUATING_INIT"; 
 			while (res.equals("EVALUATING_INIT")) {
 				try { Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
 				
-				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
-				
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
+				catch(Exception e){
+					notifyWsUnreachability();
+					return false;
+				}
 			}
 		}
 		if (res.equals("EVALUATED_INITSOLUTION")){
 			return true;
 		}
+		notifyWsErrorState(res); 
 		return false;
 	}
 
 	public synchronized boolean launchOpt(InteractiveExperiment e) {
-		e.setState(SimulationsStates.RUNNING);
+		e.setState(States.RUNNING);
 	  	e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 		if (!initOpt(e)){
 			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 		int num = e.getIter();
@@ -203,7 +218,6 @@ public class Experiment {
 
 		if (!idle) {
 			logger.info(baseErrorString + "-> service not idle");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
@@ -215,21 +229,18 @@ public class Experiment {
 
 		if (!charged_initsolution) {
 			logger.info(baseErrorString + "-> generation of the initial solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution) {
 			logger.info(baseErrorString + "-> evaluating the initial solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean initsolution_saved = saveInitSolution();
 		if (!initsolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving initial solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
@@ -237,21 +248,19 @@ public class Experiment {
 
 		if (!finish) {
 			logger.info(baseErrorString + "-> local search");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
 
 		boolean finalSolution_saved = saveFinalSolution(e);
 		if (!finalSolution_saved) {
 			logger.info(baseErrorString + "-> getting or saving final solution");
-			notifyWsUnreachability(e.getId());
 			return false;
 		}
-		// to go to idle
+
 		try{ 
-			restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); 
+			restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); //from FINISHED to idle
 		}catch(Exception exc){
-			logger.info("Impossible sending migrate to WS");
+			notifyWsUnreachability();
 			return false;
 		}
 		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
@@ -272,7 +281,11 @@ public class Experiment {
 			};
 			map.add("file", contentsAsResource);
 			
-			try{ restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class); }catch(Exception e){return false;}
+			try{ restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class); }
+			catch(Exception e){
+				notifyWsUnreachability();
+				return false;
+			}
 			
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -321,15 +334,24 @@ public class Experiment {
 //
 //	}
 
+	/**
+	 *  Wait until WS is in IDLE state.
+	 *  It has a fixed max wait time.
+	 *  Useful when WS has been stopped.
+	 */
 	private boolean checkWSIdle() {
-		return checkWSIdle(0);
+		return checkWSIdle(50);  //quick fix(0-->50): WS cannot be stopped from launcher till now.
 	}
 
 	private boolean checkWSIdle(int iter) {
 		if (iter > 50) { return false; }
 		String res;
 		
-		try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
+		try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (res.equals("IDLE")) return true;
 		else {
@@ -346,38 +368,56 @@ public class Experiment {
 	private boolean executeLocalSearch() {
 		String res;
 		
-		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class); }catch(Exception e){return false;}
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (res.equals("RUNNING_LS")) {
 			res = "RUNNING_LS";
 			while (res.equals("RUNNING_LS")) {
 				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
 				
-				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
+				catch(Exception e){
+					notifyWsUnreachability();
+					return false;
+				}
 			}
 		}
 		if (res.equals("FINISH")){
 			return true;
 		}
+		notifyWsErrorState(res);
 		return false;
 	}
 
 	private boolean generateInitialSolution() {
 		String res;
 		
-		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); }catch(Exception e){return false;}
+		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (res.equals("RUNNING_INIT")){
 			res = "RUNNING_INIT";
 			while (res.equals("RUNNING_INIT")){
 				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
 				
-				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }catch(Exception e){return false;}
+				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
+				catch(Exception e){
+					notifyWsUnreachability();
+					return false;
+				}
 			}
 			if (res.equals("CHARGED_INITSOLUTION")){
 				return true;
 			}
 		} 
+		notifyWsErrorState(res);
 		return false;
 	}
 
@@ -397,7 +437,11 @@ public class Experiment {
 	private boolean saveFinalSolution(InteractiveExperiment e) {
 		Solution sol;
 		
-		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception exc){return false;}
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
+		catch(Exception exc){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		e.setSol(sol);
 		e.setExperimentalDuration(sol.getOptimizationTime());
@@ -413,7 +457,11 @@ public class Experiment {
 		
 		Solution sol;
 		
-		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }catch(Exception e){return false;}
+		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-MINLP.json";
 		String solSerialized;
@@ -433,11 +481,16 @@ public class Experiment {
 		if (data != null) {
 			String res;
 			
-			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }catch(Exception e){ return false;}
+			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
+			catch(Exception e){ 
+				notifyWsUnreachability();
+				return false;
+			}
 			
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
 				logger.info("Error for experiment: " + data.getId() + " server respondend in an unexpected way: " + res);
+				notifyWsErrorState(res);
 				return false;
 			}
 		} else {
@@ -449,17 +502,29 @@ public class Experiment {
 	private boolean sendSolution(Solution solution) {
 		String res;
 		
-		try{ res = restWrapper.postForObject(SOLUTION_ENDPOINT, solution, String.class); }catch(Exception e){return false;}
+		try{ res = restWrapper.postForObject(SOLUTION_ENDPOINT, solution, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
 		
 		if (res.equals("CHARGED_INITSOLUTION")){
 			return true;
 		}
+		notifyWsErrorState(res);
 		return false;
 	}
 	
-	private void notifyWsUnreachability(long id){
-		consumer.setWorking(false);
-		logger.info("WS unreachable. (id: "+consumer.getId()+" port:"+consumer.getPort()+")");
+	private void notifyWsUnreachability(){
+		consumer.setState(States.INTERRUPTED);
+		logger.info("WS unreachable. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
+	}
+	
+	private void notifyWsErrorState(String res){
+		if(res.equals("ERROR")){
+			consumer.setState(States.ERROR);
+			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
+		}
 	}
 	
     //@Retryable(value = Exception.class,maxAttempts = 3)

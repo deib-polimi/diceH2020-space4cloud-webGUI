@@ -1,6 +1,6 @@
 package it.polimi.diceH2020.launcher.model;
 
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
 
@@ -33,7 +33,7 @@ public class SimulationsManager {
 
 	private String type = "";
 
-	private SimulationsStates state;
+	private States state;
 
 	private String resultFilePath;
 
@@ -69,7 +69,7 @@ public class SimulationsManager {
 		type = "";
 		folder = "";
 
-		setState(SimulationsStates.READY);
+		setState(States.READY);
 	}
 
 	public synchronized void refreshState(){
@@ -78,31 +78,31 @@ public class SimulationsManager {
 		int running = 0;
 		int expSize = experimentsList.size();
 		for(int i=0; i<expSize;i++){
-			if(experimentsList.get(i).getState().equals(SimulationsStates.COMPLETED)){
+			if(experimentsList.get(i).getState().equals(States.COMPLETED)){
 				completed++;
 			}
-			if(experimentsList.get(i).getState().equals(SimulationsStates.ERROR)){
+			if(experimentsList.get(i).getState().equals(States.ERROR)){
 				error++;
 			}
-			if(experimentsList.get(i).getState().equals(SimulationsStates.RUNNING)){
+			if(experimentsList.get(i).getState().equals(States.RUNNING)){
 				running++;
 			}
 		}
 		if(error > 0){
 			if(running == 0){ // error+completed == expSize
-				setState(SimulationsStates.ERROR);
+				setState(States.ERROR);
 			}else{
-				setState(SimulationsStates.WARNING);
+				setState(States.WARNING);
 			}
 		}else{
 			if(running == 0){
 				if(completed == expSize){// completed == expSize
-					setState(SimulationsStates.COMPLETED);
+					setState(States.COMPLETED);
 				}else{
-					setState(SimulationsStates.READY);
+					setState(States.READY);
 				}
 			}else{
-				setState(SimulationsStates.RUNNING);
+				setState(States.RUNNING);
 			}
 		}
 	}

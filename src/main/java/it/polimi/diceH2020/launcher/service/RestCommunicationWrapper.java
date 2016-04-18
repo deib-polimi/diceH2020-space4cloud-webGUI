@@ -31,17 +31,17 @@ public class RestCommunicationWrapper {
 	
 	@Retryable(maxAttempts = maxRequests, backoff = @Backoff(delay = delayRequests,multiplier=multiplierRequests))
 	public <T> T postForObject(String url, Object request, Class<T> responseType) throws Exception{
-		printTimeoutDuration();
+		//printTimeoutDuration();
 		return restTemplate.postForObject(url, request, responseType);
 	}
 	
 	@Retryable(maxAttempts = maxRequests, backoff = @Backoff(delay = delayRequests,multiplier=multiplierRequests))
 	public <T> T getForObject(String url, Class<T> responseType) throws Exception{
-		printTimeoutDuration();
+		//printTimeoutDuration();
 		return restTemplate.getForObject(url,responseType);
 	}
 	
-	private void printTimeoutDuration(){
+	public void printTimeoutDuration(){
 		long endTime = System.currentTimeMillis();
 		long duration = (endTime - startTime);
 		startTime = endTime;

@@ -125,7 +125,20 @@ input{
 	margin:0!important;
 	padding:0!important;
 }
-	
-	
-	
+#wsStatusButton{	
+	padding: 10px 25px 10px 25px;
+	display: table;
+	background: rgb(109,131,161);
+    border: solid 0 #e3edf4;
+    border-bottom: 2px solid rgba(54,88,135,1);
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	color: white;
+	margin: 50px auto;
+}
+#wsStatusButton:hover{	
+	background: #4371B1;
+	cursor: pointer;
+}
 	

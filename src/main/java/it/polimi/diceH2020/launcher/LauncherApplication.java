@@ -17,6 +17,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
@@ -26,32 +27,33 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @EnableSpringConfigured
 @EnableRetry
+@EnableScheduling
 // This is to configure the EmailSender early on in the initialization process
 @DependsOn("EmailSender")
 public class LauncherApplication {
 
-	private static Logger logger = Logger.getLogger(LauncherApplication.class.getName());
+    private static Logger logger = Logger.getLogger(LauncherApplication.class.getName());
 
-	@Autowired
-	private FileUtility fileUtility;
+    @Autowired
+    private FileUtility fileUtility;
 
-	@EventListener
-	public void handleContextRefresh(ContextRefreshedEvent event) throws Exception {
-		try {
-			fileUtility.createWorkingDir();
-		} catch (Exception e) {
-			logger.info("Error in the creation of local work directory!");
-		}
-	}
+    @EventListener
+    public void handleContextRefresh(ContextRefreshedEvent event) throws Exception {
+        try {
+            fileUtility.createWorkingDir();
+        } catch (Exception e) {
+            logger.info("Error in the creation of local work directory!");
+        }
+    }
 
-	@Bean
-	public ServletRegistrationBean h2servletRegistration() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
-		registration.addUrlMappings("/console/*");
-		return registration;
-	}
+    @Bean
+    public ServletRegistrationBean h2servletRegistration() {
+        ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
+        registration.addUrlMappings("/console/*");
+        return registration;
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(LauncherApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(LauncherApplication.class, args);
+    }
 }

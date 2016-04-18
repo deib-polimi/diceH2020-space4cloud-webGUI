@@ -14,7 +14,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.polimi.diceH2020.launcher.FileService;
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
@@ -43,6 +43,7 @@ public class MainFlowController {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
+		model.addAttribute("wsStatusMap", ds.getWsStatus());
     	return "home";
     }	
 	
@@ -111,7 +112,7 @@ public class MainFlowController {
 		String idFrom, folder;
 		idFrom= folder = new String();
 		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		if(!exp.getState().equals(SimulationsStates.RUNNING)){
+		if(exp.getState().equals(States.COMPLETED)||exp.getState().equals(States.ERROR)){
 			try{
 				exp.setExperimentalDuration(0);
 				exp.setResponseTime(0d);
@@ -123,14 +124,14 @@ public class MainFlowController {
 				folder = simManager.getFolder(); 
 				type = simManager.getType();
 				
-				if(exp.getState().equals(SimulationsStates.COMPLETED)){
+				if(exp.getState().equals(States.COMPLETED)){
 					exp.setNumSolutions(exp.getNumSolutions()-1); 
 					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
 				}
-				if(exp.getState().equals(SimulationsStates.ERROR)){
+				if(exp.getState().equals(States.ERROR)){
 					simManager.setNumFailedSimulations(simManager.getNumFailedSimulations()-1);
 				}
-				exp.setState(SimulationsStates.READY);
+				exp.setState(States.READY);
 				simManager.refreshState();
 				ds.updateManager(simManager);
 				ds.simulation(exp);
@@ -145,7 +146,7 @@ public class MainFlowController {
 				return "redirect:" + request.getHeader("Referer");
 			}
 		}
-		redirectAttrs.addAttribute("message", "Cannot relaunch an experiment that is already running.");
+		redirectAttrs.addAttribute("message", "Cannot relaunch an uncompleted experiment.");
 		return "redirect:" + request.getHeader("Referer");
 	}
 	
@@ -154,7 +155,7 @@ public class MainFlowController {
 		String idFrom, folder;
 		idFrom= folder = new String();
 		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		if(!exp.getState().equals(SimulationsStates.RUNNING)){
+		if(exp.getState().equals(States.COMPLETED)||exp.getState().equals(States.ERROR)){
 			try{
 				
 				SimulationsManager sManager = simulationsManagerRepository.findById(exp.getSimulationsManager().getId());
@@ -165,6 +166,7 @@ public class MainFlowController {
 				if(sManager.getSize()==1){
 					System.out.println("deleted manager"+sManager.getId());
 					simulationsManagerRepository.delete(sManager);
+					return "redirect:/";
 				}else{
 					sManager.getExperimentsList().remove(exp);
 					sManager.refreshState();
@@ -183,7 +185,7 @@ public class MainFlowController {
 				return "redirect:" + request.getHeader("Referer");
 			}
 		}
-		redirectAttrs.addAttribute("message", "Cannot delete a running experiment.");
+		redirectAttrs.addAttribute("message", "Cannot delete an uncompleted experiment .");
 		return "redirect:" + request.getHeader("Referer");
 	}
 }

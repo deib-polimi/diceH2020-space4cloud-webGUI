@@ -1,6 +1,6 @@
 package it.polimi.diceH2020.launcher;
 
-public enum SimulationsStates {
+public enum States {
 	READY,
 	RUNNING,
 	WARNING,

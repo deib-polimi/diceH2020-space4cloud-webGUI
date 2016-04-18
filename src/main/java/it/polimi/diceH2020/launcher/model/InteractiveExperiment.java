@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
 
@@ -54,7 +54,7 @@ public class InteractiveExperiment {
 
 	private long experimentalDuration;
 
-	private SimulationsStates state;
+	private States state;
 	//@NotNull
 	private boolean done;
 
@@ -72,7 +72,7 @@ public class InteractiveExperiment {
 		instanceName = new String();
 		provider = "NONE";
 
-		state = SimulationsStates.READY;
+		state = States.READY;
 	}
 
 	public Solution getInputSolution()  {
