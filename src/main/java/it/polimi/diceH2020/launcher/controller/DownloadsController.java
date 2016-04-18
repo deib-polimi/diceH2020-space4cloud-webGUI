@@ -1,6 +1,8 @@
 package it.polimi.diceH2020.launcher.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
@@ -161,7 +163,7 @@ public class DownloadsController {
 			List<InteractiveExperiment> intExpList = manager.getExperimentsList();
 			for(int i=0; i<intExpList.size();i++){
 				if(intExpList.get(i)!=null){
-					if(intExpList.get(i).getState().equals("completed")){
+					if(intExpList.get(i).getState().equals(States.COMPLETED)){
 						files.put(intExpList.get(i).getInstanceName()+".json",intExpList.get(i).getFinalSolution() );
 						System.out.println("Created "+intExpList.get(i).getInstanceName()+".json");
 					}
