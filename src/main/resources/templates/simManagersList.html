@@ -38,8 +38,8 @@
 					<td th:text="${manager.date}">Date</td>
 					<td th:text="${manager.time}">Time</td>
 					<td th:text="${manager.accuracy}">Accuracy</td>
-					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
-					<td th:if="*{manager.state}==completed" class="linkFather">
+					<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(#strings.toString(manager.state)) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td th:if="*{#strings.toString(manager.state)}==COMPLETED" class="linkFather">
 					<a class="link" style="z-index:10;" th:href="@{|/download?id=${manager.id}|}"></a>
 					<img height="25" th:src="${'/images/libreOffice.png'}" style="margin: 0 auto;display:block;" />
 					</td>

@@ -42,7 +42,7 @@
           <tr th:each="sim: ${sim}" >
             <td th:text="${sim.id}">ID</td>
             <td th:text="${sim.instanceName}">instanceName</td>
-            <td><img height="25" th:src="${'/images/' + sim.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+            <td><img height="25" th:src="${'/images/' + #strings.toLowerCase(sim.state) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
             <td th:text="${sim.gamma}">ThinkTime</td>
             <td th:text="${sim.provider}">VMs</td>
             <td th:text="${sim.iter}">iter</td>

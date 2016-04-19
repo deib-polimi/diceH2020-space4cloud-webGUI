@@ -37,7 +37,7 @@
 					<td th:text="${manager.numCompletedSimulations + '/' + manager.size}">Size</td>
 					<td th:text="${manager.date}">Date</td>
 					<td th:text="${manager.time}">Time</td>
-					<td><img height="25" th:src="${'/images/' + manager.state + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(#strings.toString(manager.state)) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
 					<td>
 						<div class="clearfix" style="margin: 0 auto;">
 							<div class="linkFather" style="float:left;">
