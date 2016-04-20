@@ -1,6 +1,6 @@
 package it.polimi.diceH2020.launcher.email;
 
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.annotation.After;
@@ -43,10 +43,10 @@ public class EmailSender {
     }
 
     @Pointcut(value = "execution(* it.polimi.diceH2020.launcher.model.SimulationsManager.setState(*)) && args(state,..)")
-    private void onStateChange(SimulationsStates state) {}
+    private void onStateChange(States state) {}
 
     @After(value = "onStateChange(state)", argNames = "state")
-    public void sendEmailBasedOnState(SimulationsStates state) {
+    public void sendEmailBasedOnState(States state) {
         if (emailSettings.isEnabled()) {
             String text = emailSettings.getMessages().get(state);
             if (text != null) {

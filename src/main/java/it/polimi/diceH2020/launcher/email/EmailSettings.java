@@ -1,6 +1,6 @@
 package it.polimi.diceH2020.launcher.email;
 
-import it.polimi.diceH2020.launcher.SimulationsStates;
+import it.polimi.diceH2020.launcher.States;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -15,5 +15,5 @@ class EmailSettings {
     private boolean enabled;
     private String[] recipients;
     private String subject;
-    private Map<SimulationsStates, String> messages = new TreeMap<>();
+    private Map<States, String> messages = new TreeMap<>();
 }
