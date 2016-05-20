@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * <strong>Wrap main RestTemplate functions to add @Retryable</strong> 
+ * <strong>Wrap main RestTemplate functions to add @Retryable</strong> <br>
  * Useful for prototype components that can't support it.
  * 
  * @author Jacopo Rigoli

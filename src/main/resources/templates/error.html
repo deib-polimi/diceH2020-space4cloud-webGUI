@@ -16,6 +16,10 @@
     		<h3>Simulator launcher</h3>
     		<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
     </div>
+    <div th:if ="${message != null and message != ''}" class="basic-grey" > 
+   		<p class ="text" th:text = "${message}"></p>
+  	</div>
+  	<br />
 	<h1>Navigation Error</h1>
     <div id="errorsDiv">
     	<img th:src="@{/images/error.gif}" src="../../images/error.gif"/>

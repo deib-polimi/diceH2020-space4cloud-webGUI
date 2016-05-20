@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
@@ -81,12 +82,13 @@ public class Experiment {
 		set.setSimDuration(simManager.getSimDuration());
 		set.setSolver(simManager.getSolver());
 		set.setAccuracy(simManager.getAccuracy()/100.0);
+		//set.setCloudType(simManager.getCloudType());
 		String res;
 		
 		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
-			return true;
+			return false;
 		}
 		
 		logger.info(res);
@@ -102,6 +104,17 @@ public class Experiment {
 			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3)))return false;
 			System.out.println("sending:"+nameMapFile+", "+nameMapFile);
 		}
+		
+		it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings set = new it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings();
+		//set.setCloudType(simManager.getCloudType());
+		String res;
+		
+		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }
+		catch(Exception e){
+			notifyWsUnreachability();
+			return false;
+		}
+		logger.info(res);
 		return true;
 	}
 
@@ -165,9 +178,17 @@ public class Experiment {
 		if (sol == null){
 			return false;
 		}
-		e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
+		SolutionPerJob spj = sol.getSolutionPerJob(0);
+		
+		boolean errorOnWS = spj.getError();
 		e.setExperimentalDuration(sol.getOptimizationTime());
-		e.setSol(sol);
+		if(errorOnWS){
+			e.setResponseTime("error");
+		}else{
+			e.setResponseTime(spj.getDuration().toString());
+			
+		}
+		e.setError(errorOnWS);
 		e.setDone(true);
 		e.setNumSolutions(e.getNumSolutions()+1);
 		return true;

@@ -63,7 +63,8 @@ public class ExcelWriter {
 	        row.createCell(cellIndex++).setCellValue("Response Time");
 	        row.createCell(cellIndex++).setCellValue("Run Time");
 	        
-	        for(InteractiveExperiment sim : simulationList){	    
+	        for(InteractiveExperiment sim : simulationList){
+	        	
 	            row = simulationSheet.createRow(rowIndex++);
 	            cellIndex = 0;
 	            row.createCell(cellIndex++).setCellValue(simManager.getAccuracy());

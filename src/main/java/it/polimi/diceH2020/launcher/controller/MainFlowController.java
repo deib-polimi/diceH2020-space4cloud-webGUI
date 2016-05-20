@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+//import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -60,6 +61,7 @@ public class MainFlowController {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
+		//model.addAttribute("cloudTypes", CloudType.values());
     	return "fileUploadOpt";
     }	
 	
@@ -115,7 +117,7 @@ public class MainFlowController {
 		if(exp.getState().equals(States.COMPLETED)||exp.getState().equals(States.ERROR)){
 			try{
 				exp.setExperimentalDuration(0);
-				exp.setResponseTime(0d);
+				exp.setResponseTime("");
 				exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
 				exp.setDone(false);
 				String type = new String();

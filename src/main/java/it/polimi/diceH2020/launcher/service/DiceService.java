@@ -51,7 +51,7 @@ public class DiceService {
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
 		//refreshChannelStatus();
-		checkWSAvailability();
+		//checkWSAvailability();
 		simManager.getExperimentsList().stream().forEach(e-> {
 			DiceConsumer bestConsumer = getBestChannel();
 			if(bestConsumer != null){
@@ -59,7 +59,6 @@ public class DiceService {
 				String channel = "channel"+bestChannel;
 				int prevSize = consumerExperimentsMap.get(bestConsumer).size();
 				consumerExperimentsMap.get(bestConsumer).add(e);
-				System.out.println("[ASD]"+prevSize+", "+consumerExperimentsMap.get(bestConsumer).size());
 				logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
 				eventBus.notify(channel, Event.wrap(e));
 			}else{
@@ -83,7 +82,7 @@ public class DiceService {
 		//SimulationsManager simManager = exp.getSimulationsManager();
 		//updateExp(exp);
 		//refreshChannelStatus();
-		checkWSAvailability();
+		//checkWSAvailability();
 		DiceConsumer bestConsumer = getBestChannel();
 		if(bestConsumer != null){
 			int bestChannel = bestConsumer.getId();
@@ -99,7 +98,6 @@ public class DiceService {
 			updateManager(exp.getSimulationsManager());
 			//updateExp(exp);
 		}
-		
 	}
 	
 	public synchronized void updateExp(InteractiveExperiment intExp){
@@ -281,18 +279,12 @@ public class DiceService {
 	
 	public synchronized void updateBestChannel(Integer id, InteractiveExperiment exp){
 		DiceConsumer dc = getConsumer(id);
-		
-		
 		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
 			if(entry.getKey().equals(dc)){
 				int prevSize = entry.getValue().size();
 				entry.getValue().remove(exp);
-				System.out.println("[DSA]"+prevSize+", "+entry.getValue().size());
 			}
 		}
-		
-		
-		
 		printStatus();
 	}
 	

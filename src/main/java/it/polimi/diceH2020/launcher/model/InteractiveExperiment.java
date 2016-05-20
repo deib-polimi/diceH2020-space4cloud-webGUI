@@ -37,7 +37,7 @@ public class InteractiveExperiment {
 	//@NotNull
 	private Integer numVMs;
 
-	private double responseTime;
+	private String responseTime; //string to contain "error" message
 
 	private Integer gamma;
 
@@ -57,12 +57,14 @@ public class InteractiveExperiment {
 	private States state;
 	//@NotNull
 	private boolean done;
-
+	
+	private boolean error = false;
+	
 	public InteractiveExperiment(){
 		thinkTime = 1;
 		numUsers=0;
 		numVMs=0;
-		responseTime = 0d;
+		responseTime = "";
 		gamma = 0;
 		numSolutions = 0;
 		iter = 1;

@@ -352,15 +352,10 @@ h1,h2,h3,h4,h5,h6,td,th{
   padding: 5px 3px 3px 5px;
 }
 .basic-grey select {
-  background: #FFF url('down-arrow.png') no-repeat right;
-  background: #FFF url('down-arrow.png') no-repeat right);
-  appearance:none;
-  -webkit-appearance:none; 
-  -moz-appearance: none;
   text-indent: 0.01px;
   text-overflow: '';
-  width: 70%;
-  height: 35px;
+  width: auto;
+  min-width: 80px;
   line-height: 25px;
 }
 .basic-grey textarea{
