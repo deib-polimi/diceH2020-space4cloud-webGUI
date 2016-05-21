@@ -66,7 +66,8 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		if(intExp.getSimType().equals("WI")){
 			if(experiment.launchWI(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState(States.COMPLETED);
+				if(intExp.getResponseTime().equals("error")) intExp.setState(States.ERROR);
+				else intExp.setState(States.COMPLETED);
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 				intExp.setState(States.ERROR);
@@ -75,7 +76,8 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		else if(intExp.getSimType().equals("Opt")){
 			if(experiment.launchOpt(intExp)){
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
-				intExp.setState(States.COMPLETED);
+				if(intExp.getResponseTime().equals("error")) intExp.setState(States.ERROR);
+				else intExp.setState(States.COMPLETED);
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 				intExp.setState(States.ERROR);
