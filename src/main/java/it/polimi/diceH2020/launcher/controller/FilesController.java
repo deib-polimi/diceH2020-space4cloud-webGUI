@@ -63,7 +63,7 @@ public class FilesController {
 	}
 	
 	@RequestMapping(value = "/uploadOpt", method = RequestMethod.POST)
-	public String multipleSaveOpt(@RequestParam("file") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+	public String multipleSaveOpt(@RequestParam("file") MultipartFile[] files,@RequestParam("cloudType") String cloudType, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
 		ArrayList<ArrayList<String>> tmpValues = new ArrayList<ArrayList<String>>();
@@ -93,12 +93,13 @@ public class FilesController {
 			}
 		}
 		redirectAttrs.addFlashAttribute("pathList", tmpValues);
+		redirectAttrs.addFlashAttribute("cloudType", cloudType);
 		return "redirect:/launch/opt/simulationSetup";
 	}
 	
 	//assuming that the order in folder is: .JSON1 json1map1.txt json1map2.txt json1rs.txt  json1rs1.txt JSON2 json2map1.txt ...
 	@RequestMapping(value = "/uploadOptFolderFiles", method = RequestMethod.POST)
-	public String multipleSaveOptFromFolder(@RequestParam("file[]") MultipartFile[] files, Model model, RedirectAttributes redirectAttrs) {
+	public String multipleSaveOptFromFolder(@RequestParam("file[]") MultipartFile[] files,@RequestParam("cloudType") String cloudType, Model model, RedirectAttributes redirectAttrs) {
 		// TODO remove all files
 		String fileName = null;
 		//int j = 1;
@@ -147,6 +148,7 @@ public class FilesController {
 			}
 		}
 		redirectAttrs.addFlashAttribute("pathList", tmpValues);
+		redirectAttrs.addFlashAttribute("cloudType", cloudType);
 		return "redirect:/launch/opt/simulationSetup";
 	}
 

@@ -82,7 +82,7 @@ public class Experiment {
 		set.setSimDuration(simManager.getSimDuration());
 		set.setSolver(simManager.getSolver());
 		set.setAccuracy(simManager.getAccuracy()/100.0);
-		//set.setCloudType(simManager.getCloudType());
+		set.setCloud(simManager.getCloudType());
 		String res;
 		
 		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }
@@ -106,7 +106,7 @@ public class Experiment {
 		}
 		
 		it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings set = new it.polimi.diceH2020.SPACE4Cloud.shared.settings.Settings();
-		//set.setCloudType(simManager.getCloudType());
+		set.setCloud(simManager.getCloudType());
 		String res;
 		
 		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }

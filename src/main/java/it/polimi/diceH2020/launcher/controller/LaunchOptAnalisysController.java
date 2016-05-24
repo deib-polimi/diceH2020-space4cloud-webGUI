@@ -22,6 +22,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsOptManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
@@ -62,7 +63,7 @@ public class LaunchOptAnalisysController {
 	@RequestMapping(value = "/simulationSetup", method = RequestMethod.GET)
 	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model,  WebRequest request,
 			@ModelAttribute("sim_manager") SimulationsOptManager simManager, 
-			@ModelAttribute("pathList") ArrayList<ArrayList<String>> pathList) {
+			@ModelAttribute("pathList") ArrayList<ArrayList<String>> pathList, @ModelAttribute("cloudType") String cloudType) {
 		
 		String folder = generateUniqueString();
 		
@@ -85,6 +86,11 @@ public class LaunchOptAnalisysController {
 			simManager.setProvider(inputData.getProvider());
 			simManager.setGamma(inputData.getGamma());
 			simManager.setFolder(folder);
+			
+			try {
+				simManager.setCloudType(CloudType.valueOf(cloudType));
+			}catch(Exception exc){
+			}
 			
 			policy.delete(tmpFile);
 			tmpList.remove(0);

@@ -25,6 +25,7 @@
 				<tr>
 					<th>Date</th>
 					<th>Time</th>
+					<th>Cloud</th>
 					<th>Input</th>
 					<th>Output</th>
 				</tr>
@@ -33,6 +34,7 @@
 				<tr style="cursor:pointer;" th:each="manager : ${folders}" th:onclick="'javascript:rowClicked(\'' + ${manager.folder} + '\');'">
 					<td th:text="${manager.date}">Date</td>
 					<td th:text="${manager.time}">Time</td>
+					<td th:text="${#strings.toString(manager.cloudType)}">Type</td>
 					<td>
 						<div class="clearfix" style="margin: 0 auto;">
 							<div th:if="*{manager.input}!=null" class="linkFather" style="float:left;">

@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher.model;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
@@ -37,6 +38,8 @@ public class SimulationsManager {
 
 	private String resultFilePath;
 
+	private CloudType cloudType;
+
 	@Column(length = 1000)
 	private String input;
 
@@ -69,6 +72,7 @@ public class SimulationsManager {
 		type = "";
 		folder = "";
 
+		cloudType = CloudType.Public;
 		setState(States.READY);
 	}
 
