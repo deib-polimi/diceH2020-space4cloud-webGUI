@@ -1,8 +1,6 @@
 package it.polimi.diceH2020.launcher.service;
- 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,94 +8,87 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
+import it.polimi.diceH2020.launcher.reactor.JobsDispatcher;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
-import reactor.bus.Event;
-import reactor.bus.EventBus;
 
 
 @Service
-public class DiceService {
+public class DiceService{
  	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
 	
-	private Map<DiceConsumer, ArrayList<InteractiveExperiment>> consumerExperimentsMap;
-	
- 	@Autowired
- 	private EventBus eventBus;
+	//private Map<DiceConsumer, ArrayList<InteractiveExperiment>> consumerExperimentsMap;
 	
 	@Autowired
 	private SimulationsManagerRepository simManagerRepo;
 	
 	@Autowired
-	private ApplicationContext context;
+	JobsDispatcher dispatcher;
 	
-	@Autowired
-	private Settings settings;
+//	@Autowired
+//	private ApplicationContext context;
+//	
+//	@Autowired
+//	private Settings settings;
 
 	@Autowired
 	private InteractiveExperimentRepository intExpRepo;
 	
-	@Autowired
-	private RestCommunicationWrapper restWrapper;
+//	@Autowired
+//	private RestCommunicationWrapper restWrapper;
 	
 	public void simulation(SimulationsManager simManager){
 		updateManager(simManager);
-		//refreshChannelStatus();
-		//checkWSAvailability();
 		simManager.getExperimentsList().stream().forEach(e-> {
-			DiceConsumer bestConsumer = getBestChannel();
-			if(bestConsumer != null){
-				int bestChannel = bestConsumer.getId();
-				String channel = "channel"+bestChannel;
-				int prevSize = consumerExperimentsMap.get(bestConsumer).size();
-				consumerExperimentsMap.get(bestConsumer).add(e);
-				logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
-				eventBus.notify(channel, Event.wrap(e));
-			}else{
-				logger.info("All WS aren't working.");
-				setFailedManager(simManager);
-				updateManager(simManager);
-				return;
-			}
+			dispatcher.enqueueJob(e);
+			//DiceConsumer bestConsumer = getBestChannel();
+			//if(bestConsumer != null){
+				//int bestChannel = bestConsumer.getId();
+				//String channel = "channel"+bestChannel;
+				//int prevSize = consumerExperimentsMap.get(bestConsumer).size();
+				//consumerExperimentsMap.get(bestConsumer).add(e);
+				//logger.info("[LOCKS] Exp"+e.getId()+" has been sent to queue on thread/"+channel);
+				//eventBus.notify(channel, Event.wrap(e));
+//			}else{
+//				logger.info("All WS aren't working.");
+//				setFailedManager(simManager);
+//				updateManager(simManager);
+//				return;
+//			}
 		});
-		printStatus();
+		//printStatus();
 	}
 	
-	private void setFailedManager(SimulationsManager simManager){
-		simManager.getExperimentsList().stream().forEach(e-> {
-			e.setState(States.ERROR);
-		});
-		simManager.refreshState();
-	}
+	
+//	private void setFailedManager(SimulationsManager simManager){
+//		simManager.getExperimentsList().stream().forEach(e-> {
+//			e.setState(States.ERROR);
+//		});
+//		simManager.refreshState();
+//	}
 	
 	public void simulation(InteractiveExperiment exp){
-		//SimulationsManager simManager = exp.getSimulationsManager();
-		//updateExp(exp);
-		//refreshChannelStatus();
-		//checkWSAvailability();
-		DiceConsumer bestConsumer = getBestChannel();
-		if(bestConsumer != null){
-			int bestChannel = bestConsumer.getId();
-			String channel = "channel"+bestChannel;
-			consumerExperimentsMap.get(bestConsumer).add(exp);
-			logger.info("[LOCKS] Exp"+exp.getId()+"(Releaunched) has been sent to queue on thread/"+channel);
-			eventBus.notify(channel, Event.wrap(exp));
-			printStatus();
-		}else{
-			logger.info("All WS aren't working.");
-			exp.setState(States.ERROR);
-			exp.getSimulationsManager().refreshState();
-			updateManager(exp.getSimulationsManager());
-			//updateExp(exp);
-		}
+		dispatcher.enqueueJob(exp);
+//		DiceConsumer bestConsumer = getBestChannel();
+//		if(bestConsumer != null){
+//			int bestChannel = bestConsumer.getId();
+//			String channel = "channel"+bestChannel;
+//			consumerExperimentsMap.get(bestConsumer).add(exp);
+//			logger.info("[LOCKS] Exp"+exp.getId()+"(Releaunched) has been sent to queue on thread/"+channel);
+//			eventBus.notify(channel, Event.wrap(exp));
+//			printStatus();
+//		}else{
+//			logger.info("All WS aren't working.");
+//			exp.setState(States.ERROR);
+//			exp.getSimulationsManager().refreshState();
+//			updateManager(exp.getSimulationsManager());
+//			//updateExp(exp);
+//		}
 	}
 	
 	public synchronized void updateExp(InteractiveExperiment intExp){
@@ -116,10 +107,11 @@ public class DiceService {
 	@PostConstruct
 	private void setUpEnvironment(){
 		fixRunningSimulations();
-		createChannels();
+		//createChannels();
 	}
 	
 	public void fixRunningSimulations(){
+		//TODO update also job in queue
 		List<InteractiveExperiment> previuoslyRunningExperiments = intExpRepo.findByState(States.RUNNING);
 		List<Long> managersToRefresh = new ArrayList<Long>();
 		
@@ -134,215 +126,84 @@ public class DiceService {
 		
 		for(int i=0;i<managersToRefresh.size();i++){
 			SimulationsManager sm = simManagerRepo.findById(managersToRefresh.get(i));
-			//sm.refreshState();
 			sm.setState(States.INTERRUPTED);
 			updateManager(sm);
 		}
 	}
 	
-	private void createChannels(){
-		//channelsUsageList = new ArrayList<ArrayList<Integer>>();
-		consumerExperimentsMap = new HashMap<DiceConsumer,ArrayList<InteractiveExperiment>>();
-		//consumersList = new ArrayList<DiceConsumer>();
-		//channelsUsageList.add(new ArrayList<Integer>());
-		for(int i=settings.getPorts().length-1; i >= 0; i--){
-			DiceConsumer diceConsumer= (DiceConsumer)context.getBean("diceConsumer",i,settings.getPorts()[i]);
-			//consumer.register(i);
-			//consumersList.add(0,consumer);
-			//channelsUsageList.get(0).add(0,i);
-			consumerExperimentsMap.put(diceConsumer,new ArrayList<InteractiveExperiment>());
-		}
-	}
+//	private void createChannels(){
+//		consumerExperimentsMap = new HashMap<DiceConsumer,ArrayList<InteractiveExperiment>>();
+//		for(int i=settings.getPorts().length-1; i >= 0; i--){
+//			DiceConsumer diceConsumer= (DiceConsumer)context.getBean("diceConsumer",i,settings.getPorts()[i]);
+//			consumerExperimentsMap.put(diceConsumer,new ArrayList<InteractiveExperiment>());
+//		}
+//	}
 	
-//	//need to be synchronized to avoid conflicts with getBestChannels and updateBestChannels
-//	private synchronized void refreshChannelStatus(){
-//		//List<InteractiveExperiment> pendingExperimentList = new ArrayList<InteractiveExperiment>(); //experiment in not working channels
-//		List<Integer> channelIDToRemove = new ArrayList<Integer>(); //channels no more working ids
-//		List<Integer> workingChannelsID = new ArrayList<Integer>(); //
-//		
+//	private synchronized DiceConsumer getBestChannel(){
+//		int bestChannelSize = Integer.MAX_VALUE;
+//		DiceConsumer dc = new DiceConsumer();
 //		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-//			if(!entry.getKey().isWorking()){
-//					//pendingExperimentList.addAll(entry.getValue());
-//					channelIDToRemove.add(entry.getKey().getId());
-//			}else{
-//				workingChannelsID.add(entry.getKey().getId());
-//			}
-//		}
-//		
-//		List<Integer> currentlyUsedID = removeNotWorkingChannels(channelIDToRemove);
-//		
-//		workingChannelsID.removeAll(currentlyUsedID); //workingChannelsID--> missingWorkingChannelsID
-//		if(!workingChannelsID.isEmpty()){
-//			addMissingWorkingChannels(workingChannelsID);
-//		}
-//		//movePendingExperiments(pendingExperimentList);
-//	}
-	
-//	private void movePendingExperiments(List<InteractiveExperiment> pendingExperimentList){
-//		pendingExperimentList.stream().forEach(e-> {
-//			String channel = "channel"+getBestChannel();
-//			logger.info("[LOCKS] Exp"+e.getId()+" has been moved to queue on thread/"+channel);
-//			eventBus.notify(channel, Event.wrap(e));
-//		});
-//	}
-
-//	private List<Integer> removeNotWorkingChannels(List<Integer>idToRemove){
-//		List<Integer> tmpChannels = new ArrayList<Integer>();
-//
-//		for(int i=0; i< channelsUsageList.size();i++){
-//			int currListSize = channelsUsageList.get(i).size();
-//			if(currListSize!=0){//TODO remove?
-//				if(channelsUsageList.get(i).get(0)!=null||currListSize != 1){
-//					if(!idToRemove.isEmpty()){ //I need to run this method also if idToRemove is empty to retrieve currentlyUsedID 
-//						channelsUsageList.get(i).removeAll(idToRemove);
-//					}
-//					tmpChannels.addAll(channelsUsageList.get(i));	//add to currentlyUsedID
-//				}//else (get(0)==null&&size==1) --> skip
-//			}
-//		}
-//		return tmpChannels;
-//	}
-	
-//	private void addMissingWorkingChannels(List<Integer> currentlyUsedID ){
-//		if(channelsUsageList.get(0).get(0)==null){
-//			channelsUsageList.get(0).addAll(1,currentlyUsedID);
-//			channelsUsageList.get(0).remove(0);
-//		}else{
-//			channelsUsageList.get(0).addAll(0,currentlyUsedID);
-//		}
-//		
-//	}
-	
-	private synchronized DiceConsumer getBestChannel(){
-		int bestChannelSize = Integer.MAX_VALUE;
-		DiceConsumer dc = new DiceConsumer();
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			if(entry.getKey().isWorking()){
-				if(entry.getValue().size()<bestChannelSize){
-					bestChannelSize = entry.getValue().size();
-					dc = entry.getKey();
-				}
-			}
-		}
-		
-		if(bestChannelSize == Integer.MAX_VALUE){
-			return null;
-		}else{
-			return dc;
-		}
-	}
-	
-	@Scheduled(fixedDelay = 600000, initialDelay = 5000)
-	public void checkWSAvailability(){
-		String res, message;
-		message = new String();
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			DiceConsumer dc =  entry.getKey();
-			try{
-				res = restWrapper.getForObject(settings.getFullAddress() + dc.getPort() + "/state", String.class);
-			}catch(Exception e){
-				dc.setState(States.INTERRUPTED);
-				message += dc.getPort()+": NOT working, ";
-				continue;
-			}
-			if(res.equals("ERROR")){
-				dc.setState(States.ERROR);
-				message += dc.getPort()+": NOT working, ";
-			}else{
-				dc.setState(States.COMPLETED);
-				message += dc.getPort()+": working, ";
-			}
-		}
-		logger.info(message);
-	}
-	
-//	public synchronized void updateBestChannel(int element){
-//		int i=0, j = 0;
-//		outerloop:
-//		while(true){
-//			j = 0;
-//			int currListSize = channelsUsageList.get(i).size();
-//			if(currListSize!=0){
-//				while(j<currListSize){
-//					if(channelsUsageList.get(i).get(j)!=null){
-//						if(element == channelsUsageList.get(i).get(j)){
-//							updateArr(i, j, i-1);
-//							break outerloop;
-//						}
-//					}
-//					j++;
+//			if(entry.getKey().isWorking()){
+//				if(entry.getValue().size()<bestChannelSize){
+//					bestChannelSize = entry.getValue().size();
+//					dc = entry.getKey();
 //				}
 //			}
-//			i++;
+//		}
+//		
+//		if(bestChannelSize == Integer.MAX_VALUE){
+//			return null;
+//		}else{
+//			return dc;
 //		}
 //	}
 	
-	public synchronized void updateBestChannel(Integer id, InteractiveExperiment exp){
-		DiceConsumer dc = getConsumer(id);
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			if(entry.getKey().equals(dc)){
-				int prevSize = entry.getValue().size();
-				entry.getValue().remove(exp);
-			}
-		}
-		printStatus();
-	}
 	
-//	private void updateArr(int i,int j, int newI){
-//		int element = channelsUsageList.get(i).get(j);
-//		
-//		if(channelsUsageList.get(i).size() == 1){
-//			channelsUsageList.get(i).set(j,null);
-//		}else{
-//			channelsUsageList.get(i).remove(j);
-//		}
-//		if(newI>channelsUsageList.size()-1){
-//			channelsUsageList.add(newI,new ArrayList<Integer>());
-//		}
-//		channelsUsageList.get(newI).add(element);
-//		if(channelsUsageList.get(newI).get(0)==null){
-//			channelsUsageList.get(newI).remove(0);
+	
+//	public synchronized void updateBestChannel(Integer id, InteractiveExperiment exp){
+//		DiceConsumer dc = getConsumer(id);
+//		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
+//			if(entry.getKey().equals(dc)){
+//				int prevSize = entry.getValue().size();
+//				entry.getValue().remove(exp);
+//			}
 //		}
 //		printStatus();
 //	}
 	
-	private DiceConsumer getConsumer(Integer id){
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			if(entry.getKey().getId()==id){
-					return entry.getKey();
-			}
-		}
-		return null;
+//	private DiceConsumer getConsumer(Integer id){
+//		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
+//			if(entry.getKey().getId()==id){
+//					return entry.getKey();
+//			}
+//		}
+//		return null;
+//	}
+	public Map<String,String> getWsStatus(){
+		return dispatcher.getWsStatus();
 	}
 	
+	public int getQueueSize(){
+		return dispatcher.getQueueSize();
+	}
+	
+	public void setChannelState(DiceConsumer consumer, States state){
+		dispatcher.notifyChannelStatus(consumer, state);
+	}
+//	public Map<String,String> getWsStatus(){
+//		Map<String,String> status = new HashMap<String,String>();
+//		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
+//			status.put(entry.getKey().getPort(), entry.getKey().getState().toString());
+//		}
+//		return status;
+//	}
+	
 //	private void printStatus(){
-//		String queueStatus ="[Q-STATUS]";
-//		for(int i=0; i<channelsUsageList.size();i++){
-//			queueStatus +=i+": "; 
-//			for(int j=0;j<channelsUsageList.get(i).size();j++){
-//				queueStatus += channelsUsageList.get(i).get(j);
-//				if(j!=channelsUsageList.get(i).size()-1){
-//					queueStatus +=","; 
-//				}
-//			}
-//			queueStatus +=(" || ");
+//		String queueStatus ="[Q-STATUS] ";
+//		
+//		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
+//			queueStatus += entry.getKey().getPort()+": "+entry.getValue().size()+" || ";
 //		}
 //		System.out.println(queueStatus);
 //	}
-	public Map<String,String> getWsStatus(){
-		Map<String,String> status = new HashMap<String,String>();
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			status.put(entry.getKey().getPort(), entry.getKey().getState().toString());
-		}
-		return status;
-	}
-	
-	private void printStatus(){
-		String queueStatus ="[Q-STATUS] ";
-		
-		for (Map.Entry<DiceConsumer,ArrayList<InteractiveExperiment> > entry : consumerExperimentsMap.entrySet()) {
-			queueStatus += entry.getKey().getPort()+": "+entry.getValue().size()+" || ";
-		}
-		System.out.println(queueStatus);
-	}
 }

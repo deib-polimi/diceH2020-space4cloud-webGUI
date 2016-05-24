@@ -48,9 +48,13 @@ public class Experiment {
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private ObjectMapper mapper;
+	
 	@Autowired
 	private Settings settings;
+
+	
 	private DiceConsumer consumer;
+	private String port;
 	
 	@Autowired
 	private DiceService ds;
@@ -63,6 +67,7 @@ public class Experiment {
 		SimpleModule module = new SimpleModule();
 		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
 		mapper.registerModule(module);
+		port = consumer.getPort();
 		this.consumer = consumer;
 	}
 
@@ -126,32 +131,32 @@ public class Experiment {
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade.. 
 		
 		if (!initWI(e)){
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
 			return false;
 		}
 		boolean idle = checkWSIdle(); 
 		if (!idle) {
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> service not idle");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> service not idle");
 			return false;
 		}
-		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+consumer.getPort());
+		logger.info("[LOCKS] Exp"+e.getId()+"is been running on port:"+port);
 		
 		boolean charged_initsolution = sendSolution(e.getInputSolution());
 
 		if (!charged_initsolution) {
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> uploading the initial solution");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> uploading the initial solution");
 			return false;
 		}
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution) {
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> evaluating the initial solution");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> evaluating the initial solution");
 			return false;
 		}
 
 		boolean update_experiment = updateExperiment(e);
 		if (!update_experiment) {
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+ "-> updating the experiment information");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+ "-> updating the experiment information");
 			return false;
 		}
 		
@@ -162,7 +167,7 @@ public class Experiment {
 			return false;
 		}
 		//TODO IF NOT IDLE...
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
 		return true;
 	}
 
@@ -228,7 +233,7 @@ public class Experiment {
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 		if (!initOpt(e)){
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" has been canceled"+"-> initialization of files");
+			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
 			return false;
 		}
 		int num = e.getIter();
@@ -284,7 +289,7 @@ public class Experiment {
 			notifyWsUnreachability();
 			return false;
 		}
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+consumer.getPort()+" completed");
+		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
 		return true;
 	}
 
@@ -444,12 +449,12 @@ public class Experiment {
 
 	@PostConstruct
 	private void init() throws IOException {
-		INPUTDATA_ENDPOINT = settings.getFullAddress() + consumer.getPort()  + "/inputdata";
-		EVENT_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/event";
-		STATE_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/state";
-		UPLOAD_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/upload";
-		SOLUTION_ENDPOINT = settings.getFullAddress() + consumer.getPort() + "/solution";
-		SETTINGS_ENDPOINT = settings.getFullAddress() + consumer.getPort() +"/settings";
+		INPUTDATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
+		EVENT_ENDPOINT = settings.getFullAddress() + port + "/event";
+		STATE_ENDPOINT = settings.getFullAddress() + port + "/state";
+		UPLOAD_ENDPOINT = settings.getFullAddress() + port + "/upload";
+		SOLUTION_ENDPOINT = settings.getFullAddress() + port + "/solution";
+		SETTINGS_ENDPOINT = settings.getFullAddress() + port +"/settings";
 		Path result = Paths.get(settings.getResultDir());
 		if (!Files.exists(result)) Files.createDirectory(result);
 		RESULT_FOLDER = result.toAbsolutePath().toString();
@@ -537,13 +542,13 @@ public class Experiment {
 	}
 	
 	private void notifyWsUnreachability(){
-		consumer.setState(States.INTERRUPTED);
+		ds.setChannelState(consumer,States.INTERRUPTED);
 		logger.info("WS unreachable. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 	}
 	
 	private void notifyWsErrorState(String res){
 		if(res.equals("ERROR")){
-			consumer.setState(States.ERROR);
+			ds.setChannelState(consumer,States.ERROR);
 			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 		}
 	}

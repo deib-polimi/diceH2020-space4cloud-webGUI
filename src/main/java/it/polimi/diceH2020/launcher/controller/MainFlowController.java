@@ -45,6 +45,7 @@ public class MainFlowController {
 			sessionStatus.isComplete();
 		}
 		model.addAttribute("wsStatusMap", ds.getWsStatus());
+		model.addAttribute("queueSize", ds.getQueueSize());
     	return "home";
     }	
 	

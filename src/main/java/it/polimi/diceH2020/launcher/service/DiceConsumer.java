@@ -25,6 +25,7 @@ import reactor.fn.Consumer;
 public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	
 	@Autowired
 	private EventBus eventBus;
 	
@@ -40,12 +41,10 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	
 	private int id;
 	
-	private States state;//READY, ERROR, INTERRUPTED
 	
 	public DiceConsumer(int num, String port) {
 		this.id = num;
 		this.port = port;
-		state = States.COMPLETED;
 	}
 	
 	public DiceConsumer() {
@@ -61,6 +60,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 	@Override
 	public void accept(Event<InteractiveExperiment> ev) {
 		InteractiveExperiment intExp = ev.getData();
+		boolean executedCorrectly = false;
 	
 		logger.info("[LOCKS] Exp"+intExp.getId()+" on thread"+id+"port: "+port+" has been inserted in the queue");
 		if(intExp.getSimType().equals("WI")){
@@ -68,6 +68,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
 				if(intExp.getResponseTime().equals("error")) intExp.setState(States.ERROR);
 				else intExp.setState(States.COMPLETED);
+				executedCorrectly = true;
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 				intExp.setState(States.ERROR);
@@ -78,6 +79,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 				intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
 				if(intExp.getResponseTime().equals("error")) intExp.setState(States.ERROR);
 				else intExp.setState(States.COMPLETED);
+				executedCorrectly = true;
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 				intExp.setState(States.ERROR);
@@ -89,13 +91,14 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		}
 		intExp.getSimulationsManager().refreshState();
 		ds.updateManager(intExp.getSimulationsManager());
-		ds.updateBestChannel(id, intExp);  
+		//ds.updateBestChannel(id, intExp);  
+		if(executedCorrectly) ds.dispatcher.notifyReadyChannel(this); 
 	}
 	
-	public boolean isWorking(){
-		if(state.equals(States.COMPLETED)){
-			return true;
-		}
-		return false;
-	}
+//	public boolean isWorking(){
+//		if(state.equals(States.COMPLETED)){
+//			return true;
+//		}
+//		return false;
+//	}
 }
