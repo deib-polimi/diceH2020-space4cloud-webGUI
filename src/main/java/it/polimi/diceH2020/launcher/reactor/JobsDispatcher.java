@@ -66,6 +66,7 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 			}
 		};
 		logger.info(message);
+		sendJobsToFreeChannels();
 	}
 	
 	public Map<String,String> getWsStatus(){
