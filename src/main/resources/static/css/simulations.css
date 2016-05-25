@@ -146,4 +146,9 @@ input{
 	float:left;
 	margin:10px 5px 0 0;
 }
-	
+
+.resultContainer .maxWidth{
+	width: 155px;
+	max-width: 155px;
+    overflow-x: scroll;
+}

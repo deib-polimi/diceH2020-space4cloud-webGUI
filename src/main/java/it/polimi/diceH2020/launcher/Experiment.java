@@ -181,6 +181,7 @@ public class Experiment {
 		boolean errorOnWS = spj.getError();
 		e.setExperimentalDuration(sol.getOptimizationTime());
 		//Double roundedDuration= Math.round( spj.getDuration() *100.0)/100.0;
+
 		e.setResponseTime(spj.getDuration().toString());
 
 		e.setError(errorOnWS);
