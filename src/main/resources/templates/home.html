@@ -45,10 +45,10 @@
     	</div>
     </div>
     <div id="wsStatusButton" onclick="show()">Show WS Status</div>
-    <div id="wsStatusContainer" class="basic-grey" th:if="${wsStatusMap!=null}" style="visibility:hidden;margin:0 auto;">
+    <div id="wsStatusContainer" class="basic-grey" th:if="${wsStatusMap!=null}" style="display:none;margin:0 auto;">
     	<ul style="display:table;">
     		<li>Simulations waiting: <span th:text="${queueSize}"></span></li>
-	  		<li th:each="wsStatus: ${wsStatusMap}" class="clearfix" style="margin:5px 0;">
+	  		<li th:each="wsStatus: ${wsStatusMap}" class="clearfix">
 				<div th:text="${wsStatus.key + ': '}" style="float:left;line-height: 25px;margin:0 5px;width: 40px;">No WS</div>
 				<img height="25" th:src="${'/images/' + #strings.toLowerCase(#strings.toString(wsStatus.value)) + '.gif'}" style="margin: 0 auto;display:block;float:left;" />
 			</li>
@@ -58,11 +58,11 @@
   		var container = document.getElementById("wsStatusContainer");
   		var button = document.getElementById("wsStatusButton");
   		function show(){
-  			if(container.style.visibility=="hidden"){
-  				container.style.visibility = "visible";
+  			if(container.style.display=="none"){
+  				container.style.display = "table";
   				button.innerHTML = "Hide WS Status";
   			}else{
-  				container.style.visibility = "hidden";
+  				container.style.display = "none";
   				button.innerHTML = "Show WS Status";
   			}
   		}

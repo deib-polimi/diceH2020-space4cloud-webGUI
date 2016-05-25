@@ -180,7 +180,9 @@ public class Experiment {
 
 		boolean errorOnWS = spj.getError();
 		e.setExperimentalDuration(sol.getOptimizationTime());
+		//Double roundedDuration= Math.round( spj.getDuration() *100.0)/100.0;
 		e.setResponseTime(spj.getDuration().toString());
+
 		e.setError(errorOnWS);
 		e.setDone(true);
 		e.setNumSolutions(e.getNumSolutions()+1);
@@ -308,45 +310,6 @@ public class Experiment {
 		return true;
 	}
 
-//	public boolean send(Path f) {
-//		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
-//		String content;
-//		try {
-//			content = new String(Files.readAllBytes(f));
-//
-//			final String filename = f.getFileName().toString();
-//			map.add("name", filename);
-//			map.add("filename", filename);
-//			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8")) {
-//				@Override
-//				public String getFilename() {
-//					return filename;
-//				}
-//			};
-//			map.add("file", contentsAsResource);
-//			try{postObject(map);}catch(Exception e){return false;}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			return false;
-//		}
-//		return true;
-//	}
-
-//	public void waitForWS() {
-//		try {
-//			restTemplate.getForObject(STATE_ENDPOINT, String.class);
-//		} catch (Exception e) {
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			logger.info("trying to extablish a connection with S4C ws");
-//			waitForWS();
-//		}
-//
-//	}
 
 	/**
 	 *  Wait until WS is in IDLE state.
@@ -540,24 +503,6 @@ public class Experiment {
 			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 		}
 	}
-
-	//@Retryable(value = Exception.class,maxAttempts = 3)
-	//private void takeBackToIdle(long id){
-	//logger.info("Error with the WS");
-	//	consumer.setWorking(false);
-//try{
-	//	restTemplate.postForObject(EVENT_ENDPOINT, Events.RESET, String.class);
-//		}catch(Exception exc){
-//			logger.info("[LOCKS] Exp"+id+" on port: "+port+" has been canceled"+"-> communication with WS");
-//		}
-//	}
-
-//	@Recover
-//	private void recoverFromWsDisconnected(Exception exc){
-//		logger.info("Error: communication with WS");
-//		consumer.setWorking(false);
-//		//TODO ds.refresh channels ... 
-//	}
 
 	void wipeResultDir() throws IOException {
 		Path result = Paths.get(settings.getResultDir());

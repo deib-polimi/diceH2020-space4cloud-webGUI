@@ -141,4 +141,9 @@ input{
 	background: #4371B1;
 	cursor: pointer;
 }
+
+#wsStatusContainer ul li:not(:first-child){
+	float:left;
+	margin:10px 5px 0 0;
+}
 	
