@@ -61,8 +61,8 @@ public class DiceService{
 	}
 	
 	public void fixRunningSimulations(){
-		List<InteractiveExperiment> previuoslyRunningExperiments = intExpRepo.findByState(States.RUNNING);
-		List<InteractiveExperiment> previouslyReadyExperiments = intExpRepo.findByState(States.READY);//jobs in Q
+		List<InteractiveExperiment> previuoslyRunningExperiments = intExpRepo.findByStateOrderByIdAsc(States.RUNNING);
+		List<InteractiveExperiment> previouslyReadyExperiments = intExpRepo.findByStateOrderByIdAsc(States.READY);//jobs in Q
 		
 		List<Long> managersToRefresh = new ArrayList<Long>();
 		

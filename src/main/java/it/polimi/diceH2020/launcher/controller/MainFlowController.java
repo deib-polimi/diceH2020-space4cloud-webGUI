@@ -75,38 +75,38 @@ public class MainFlowController {
 	@RequestMapping(value="/resultsWI", method=RequestMethod.GET)
 	public String resultsWI(@RequestParam("id") Long id,Model model,@ModelAttribute("message") String message) {
 			SimulationsManager simManager = simulationsManagerRepository.findOne(id);
-			model.addAttribute("sim", intExperimentRepository.findBySimulationsManager(simManager));
+			model.addAttribute("sim", intExperimentRepository.findBySimulationsManagerOrderByIdAsc(simManager));
 			return "simWIList";
 	}
 	
 	@RequestMapping(value="/resultsOpt", method=RequestMethod.GET)
 	public String resultsOpt(@RequestParam("id") Long id,Model model,@ModelAttribute("message") String message) {
 			SimulationsManager simManager = simulationsManagerRepository.findOne(id);
-			model.addAttribute("sim", intExperimentRepository.findBySimulationsManager(simManager));
+			model.addAttribute("sim", intExperimentRepository.findBySimulationsManagerOrderByIdAsc(simManager));
 			return "simOptList";
 	}
 	
 	@RequestMapping(value="/foldersOpt", method=RequestMethod.GET)
 	public String foldersOpt(Model model) {
-			model.addAttribute("folders", simulationsManagerRepository.findByIdIn(simulationsManagerRepository.findSimManagerGroupedByFolders()));
+			model.addAttribute("folders", simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findSimManagerGroupedByFolders()));
 			return "foldersOfSimOptMan";
 	}
 	
 	@RequestMapping(value="/resWI", method=RequestMethod.GET)
 	public String listWi(Model model) {
-			model.addAttribute("sim_manager", simulationsManagerRepository.findByType("WI"));
+			model.addAttribute("sim_manager", simulationsManagerRepository.findByTypeOrderByIdAsc("WI"));
 			return "simManagersWIList";
 	}
 	
 	@RequestMapping(value="/resOpt", method=RequestMethod.GET)
 	public String listOpt(Model model) {
-			model.addAttribute("sim_manager", simulationsManagerRepository.findByType("Opt"));
+			model.addAttribute("sim_manager", simulationsManagerRepository.findByTypeOrderByIdAsc("Opt"));
 			return "simManagersOptList";
 	}
 	
 	@RequestMapping(value="/simOptByFolder", method=RequestMethod.GET)
 	public String simOptFolderContent(@RequestParam(value="folder") String folder, Model model) {
-	    model.addAttribute("sim_manager", simulationsManagerRepository.findByFolder(folder));
+	    model.addAttribute("sim_manager", simulationsManagerRepository.findByFolderOrderByIdAsc(folder));
 	    return "simManagersOptList";
 	}
 	

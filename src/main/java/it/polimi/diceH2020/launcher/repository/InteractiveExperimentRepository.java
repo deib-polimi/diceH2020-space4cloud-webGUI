@@ -12,9 +12,9 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 
 @Repository
 public interface InteractiveExperimentRepository extends JpaRepository<InteractiveExperiment, Long> {
-	public List<InteractiveExperiment> findBySimulationsManager(SimulationsManager simManager);
+	public List<InteractiveExperiment> findBySimulationsManagerOrderByIdAsc(SimulationsManager simManager);
 	
-	public List<InteractiveExperiment> findByState(States state);
+	public List<InteractiveExperiment> findByStateOrderByIdAsc(States state);
 	
 	public InteractiveExperiment findById(Long id);
 	

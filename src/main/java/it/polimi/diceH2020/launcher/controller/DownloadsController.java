@@ -136,7 +136,7 @@ public class DownloadsController {
 
 	@RequestMapping(value="/downloadZipOptInputFolder", method=RequestMethod.GET)
 	@ResponseBody void downloadZipOptInputFolder(@RequestParam(value="folder") String folder,HttpServletResponse response) {
-		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolder(folder);
+		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<String,String>();
 
 		for(int managerEntry=0;managerEntry<folderManagerList.size();managerEntry++){
@@ -155,7 +155,7 @@ public class DownloadsController {
 
 	@RequestMapping(value="/downloadZipOptOutputJsons", method=RequestMethod.GET)
 	@ResponseBody void downloadZipOptOutputJsons(@RequestParam(value="folder") String folder,HttpServletResponse response) {
-		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolder(folder);
+		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<String,String>();
 
 		for(int managerEntry=0;managerEntry<folderManagerList.size();managerEntry++){
