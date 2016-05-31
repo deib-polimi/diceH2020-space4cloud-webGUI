@@ -81,11 +81,9 @@ public class Experiment {
 		set.setSolver(simManager.getSolver());
 		set.setAccuracy((double) simManager.getAccuracy());
 		set.setCloud(simManager.getCloudType());
-
 		logger.info("Accuracy:"+set.getAccuracy()+" Duration:"+set.getSimDuration());
 
 		String res;
-
 		try{ res = restWrapper.postForObject(SETTINGS_ENDPOINT, set, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
