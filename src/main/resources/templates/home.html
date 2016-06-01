@@ -47,7 +47,7 @@
     <div id="wsStatusButton" onclick="show()">Show WS Status</div>
     <div id="wsStatusContainer" class="basic-grey" th:if="${wsStatusMap!=null}" style="display:none;margin:0 auto;">
     	<ul style="display:table;">
-    		<li>Simulations waiting: <span th:text="${queueSize}"></span></li>
+    		<li style="text-align:center;">Simulations waiting: <span th:text="${queueSize}" ></span><span th:if="${privateQueueSize!=0}"> - Private simulations in execution: <span th:text="${privateQueueSize}"></span></span></li>
 	  		<li th:each="wsStatus: ${wsStatusMap}" class="clearfix">
 				<div th:text="${wsStatus.key + ': '}" style="float:left;line-height: 25px;margin:0 5px;width: 40px;">No WS</div>
 				<img height="25" th:src="${'/images/' + #strings.toLowerCase(#strings.toString(wsStatus.value)) + '.gif'}" style="margin: 0 auto;display:block;float:left;" />

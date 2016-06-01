@@ -92,6 +92,14 @@ public class DiceService{
 		return dispatcher.getQueueSize();
 	}
 	
+	public int getPrivateQueueSize(){
+		return dispatcher.getNumPrivateExperiments();
+	}
+	
+	public void signalPrivateExperimentEnd(){
+		dispatcher.signalPrivateExperimentEnd();
+	}
+	
 	public void setChannelState(DiceConsumer consumer, States state){
 		dispatcher.notifyChannelStatus(consumer, state);
 	}

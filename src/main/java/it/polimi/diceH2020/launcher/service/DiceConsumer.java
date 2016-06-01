@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher.service;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.Experiment;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -82,6 +83,9 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			}else{
 				intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 				intExp.setState(States.ERROR);
+			}
+			if(intExp.getSimulationsManager().getCloudType().equals(CloudType.Private)){
+				ds.signalPrivateExperimentEnd();
 			}
 		}else{
 			intExp.setState(States.ERROR);

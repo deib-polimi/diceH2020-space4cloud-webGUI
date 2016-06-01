@@ -15,8 +15,8 @@ public class Settings {
 	private Integer numIterations = 1;
 	private String resultDir;
 	private String address;
-	private String port;
 	private String[] ports;
+	private Integer privateConcurrentExperiments = 1;
 	
 	
 	

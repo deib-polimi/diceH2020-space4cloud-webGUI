@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 
@@ -114,14 +113,6 @@ public class FilesController {
 		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
 			model.addAttribute("message", "Duplicated files!");
 			return "fileUploadOpt";
-		}
-		
-		if(cloudType.equals("Private")){
-			long numJson = Arrays.stream(files).filter(a->a.getOriginalFilename().contains(".json")).count();
-			if(numJson > 1){
-				model.addAttribute("message", "You are trying to upload too many Json files for Private Cloud!");
-				return "fileUploadOpt";
-			}
 		}
 		
 		ArrayList<ArrayList<String>> tmpValues = new ArrayList<ArrayList<String>>();

@@ -16,7 +16,7 @@ import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.service.DiceConsumer;
 
-public class QueueHandler<T>{
+public abstract class QueueHandler<T>{
 	
 	private final Logger logger = Logger.getLogger(QueueHandler.class.getName());
 	
@@ -56,12 +56,18 @@ public class QueueHandler<T>{
 	}
 	
 	private synchronized void sendJob(ChannelInfo info){ //synch for the Q
-		if(!jobsQueue.isEmpty() && info.getState().equals(States.COMPLETED)){
+		int nextJob = getJobToSend();
+		if(!jobsQueue.isEmpty() && info.getState().equals(States.COMPLETED) && nextJob != -1 ){
 			String channel = "channel"+ info.getConsumer().getId();
 			info.setState(States.RUNNING); 
-			eventBus.notify(channel, Event.wrap(jobsQueue.remove(0)));
+			eventBus.notify(channel, Event.wrap(jobsQueue.remove(nextJob)));
 			logger.info("|Q-STATUS| job sent to " + channel );
 		}
+	}
+	
+	protected int getJobToSend(){
+		int nextJob = 0;
+		return nextJob;
 	}
 	
 	public synchronized void notifyChannelStatus(DiceConsumer consumer, States state ){
