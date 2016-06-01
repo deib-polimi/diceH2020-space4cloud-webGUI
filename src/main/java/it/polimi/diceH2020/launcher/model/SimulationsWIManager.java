@@ -1,23 +1,24 @@
 package it.polimi.diceH2020.launcher.model;
 
-import java.io.IOException;
-
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.SolverType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 /**
  * This class contain informations about client's requested set of simulations
  */
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class SimulationsWIManager extends SimulationsManager{
 
 	@NotNull
@@ -38,7 +39,7 @@ public class SimulationsWIManager extends SimulationsManager{
 	private Integer numIter;
 
 	private SolverType solver;
-	
+
 	@NotNull
 	@Transient
 	private Integer stepUsers;
@@ -49,7 +50,7 @@ public class SimulationsWIManager extends SimulationsManager{
 
 	@Transient
 	private Integer thinkTime;
-	
+
 	@NotNull
 	@Min(60)
 	private Integer simDuration;
@@ -57,9 +58,9 @@ public class SimulationsWIManager extends SimulationsManager{
 	public SimulationsWIManager() {
 		super();
 		setType("WI");
-		
+
 		solver = SolverType.QNSolver;
-		
+
 		simDuration = 60;
 		stepVMs = 1;
 		stepUsers = 1;
@@ -94,7 +95,8 @@ public class SimulationsWIManager extends SimulationsManager{
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), Solution.class);
+				return getInput().equals("") || getInput().equals("Error") ? null :
+						mapper.readValue(Compressor.decompress(getInput()), Solution.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
@@ -116,54 +118,4 @@ public class SimulationsWIManager extends SimulationsManager{
 		this.thinkTime = tt.intValue();
 		setInstanceName(inputSolution.getId());
 	}
-	
-//	private void writeResultOnExcel() throws FileNotFoundException, IOException{
-//		List<InteractiveExperiment> simulationList = getExperimentsList();
-//		 
-//        // Using XSSF for xlsx format, for xls use HSSF
-//        Workbook workbook = new XSSFWorkbook();
-//
-//        Sheet simulationSheet = workbook.createSheet("Simulations");
-//        
-//        int rowIndex = 0;
-//        Row row = simulationSheet.createRow(rowIndex++);
-//        int cellIndex = 0;
-//        row.createCell(cellIndex++).setCellValue("Total Run Time");
-//        row.createCell(cellIndex++).setCellValue(String.valueOf(simDuration));
-//        
-//        row = simulationSheet.createRow(rowIndex++);
-//        
-//        cellIndex = 0;
-//        row.createCell(cellIndex++).setCellValue("Accuracy");
-//        row.createCell(cellIndex++).setCellValue("Think Time[ms]");	        
-//        row.createCell(cellIndex++).setCellValue("Map");
-//        row.createCell(cellIndex++).setCellValue("Reduce");
-//        row.createCell(cellIndex++).setCellValue("Users");
-//        row.createCell(cellIndex++).setCellValue("VMs");
-//        row.createCell(cellIndex++).setCellValue("Iteration");
-//        row.createCell(cellIndex++).setCellValue("Response Time");
-//        row.createCell(cellIndex++).setCellValue("Run Time");
-//        
-//        for(InteractiveExperiment sim : simulationList){	    
-//            row = simulationSheet.createRow(rowIndex++);
-//            cellIndex = 0;
-//            row.createCell(cellIndex++).setCellValue(accuracy);
-//	        row.createCell(cellIndex++).setCellValue(thinkTime);
-//	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNM());
-//	        row.createCell(cellIndex++).setCellValue(inputJson.getSolutionPerJob(0).getProfile().getNR());
-//	        row.createCell(cellIndex++).setCellValue(sim.getNumUsers());
-//	        row.createCell(cellIndex++).setCellValue(sim.getNumVMs());
-//	        row.createCell(cellIndex++).setCellValue(sim.getIter());
-//	        row.createCell(cellIndex++).setCellValue(sim.getResponseTime());
-//	        row.createCell(cellIndex++).setCellValue(sim.getExperimentalDuration());	            
-//        }
-//        	FileUtility fileUtility = new FileUtility();
-//        	
-//        	File tmpFile = fileUtility.provideTemporaryFile("result", ".xlsxon ti");
-//        	FileOutputStream fos = new FileOutputStream(tmpFile);	        	
-//            workbook.write(fos);
-//            fos.close();
-//            workbook.close();
-//            setResultFilePath(tmpFile.getAbsolutePath());
-//	}
 }

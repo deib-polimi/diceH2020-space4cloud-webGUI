@@ -5,6 +5,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class SimulationsOptManager extends SimulationsManager{
 
 	private Integer numIter;
@@ -28,8 +30,8 @@ public class SimulationsOptManager extends SimulationsManager{
 		Settings set = new Settings();
 		this.numIter = set.getNumIterations();
 		setType("Opt");
-		
-		provider = new String();
+
+		provider = "";
 	}
 
 	public void buildExperiments() {
@@ -58,13 +60,14 @@ public class SimulationsOptManager extends SimulationsManager{
 		setInstanceName(inputData.getId());
 	}
 
-	public InstanceData getDecompressedInputData() {
+	InstanceData getDecompressedInputData() {
 		if (inputData != null) {
 			return inputData;
 		} else if (getInput() != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
+				return getInput().equals("") || getInput().equals("Error") ? null :
+						mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
