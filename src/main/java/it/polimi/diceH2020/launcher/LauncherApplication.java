@@ -13,8 +13,6 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -23,16 +21,13 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 
+@EnableRetry
 @SpringBootApplication
 @ComponentScan({"it.polimi.diceH2020.*" })
 @EntityScan("it.polimi.diceH2020.launcher.model")
 @EnableJpaRepositories("it.polimi.diceH2020.launcher.repository")
 @EnableAsync
-@EnableSpringConfigured
-@EnableRetry
 @EnableScheduling
-// This is to configure the EmailSender early on in the initialization process
-@DependsOn("EmailSender")
 public class LauncherApplication {
 
 	private static final int uploadTomcatMaxSize = -1; //for a correct redirect disable tomcat. set -1 to disable preupload check

@@ -7,13 +7,17 @@
   /* outline: none;*/
   font-weight: 100;
 }
+html{
+	min-width:900px;
+}
 h1,h2,h3,h4,h5,h6,td,th{
   text-align:center;
 }
 #topBar{
   width:100%; 
   display:table;
-  background: rgb(109,131,161);	
+ /* background: rgb(109,131,161);*/
+  background-color: #014495;	
 }
 #topBar h3{
   margin:0 auto;
@@ -21,7 +25,7 @@ h1,h2,h3,h4,h5,h6,td,th{
   line-height: 40px;
   color: white;
   display:table;
-  background: rgb(109,131,161);	
+  background: #014495;/*rgb(109,131,161);*/	
   position:relative;
   z-index:1;
 }
@@ -190,14 +194,14 @@ h1,h2,h3,h4,h5,h6,td,th{
 #ios-arrow-left,
 #ios-arrow-left:after,
 #ios-arrow-left:before {
-  background-color: rgba(74,108,155,1);/*originalcolor*/
+  background-color: #043877;/*(74,108,155,1);*//*originalcolor*/
 
 }
 
 #ios-arrow-left:hover,
 #ios-arrow-left:hover:after,
 #ios-arrow-left:hover:before {
-  background-color: rgba(54,88,135,1);/*hovercolor*/
+  background-color: #0f51a2;/*rgba(54,88,135,1);*//*hovercolor*/
 }
 #ios-arrow-container{
   position: absolute;
@@ -235,28 +239,35 @@ h1,h2,h3,h4,h5,h6,td,th{
 	width:50%;
 	float:left;
 	height:230px;
+	opacity:0.9;
 
 }
 .launchType:hover, .resType:hover{
-  opacity:0.9;
+  opacity:1;
 }
 .launchType:nth-child(even){
-	background-color: #4371B1;
+	/*background-color: #4371B1;*/
+	background-color: #004BA5;
 	/*border-top-left-radius: 50px;
 	border-bottom-right-radius: 50px;*/
 	
 }
 .launchType:nth-child(odd){
-	background-color: #5A98ED;
+	/*background-color: #5A98ED;*/
+	
+	background-color: #0267E1;
+	
 	/*border-top-right-radius: 50px;
 	border-bottom-left-radius: 50px;*/
 }
 .resType:nth-child(even){
-	background-color: #A1C1ED;
+	/*background-color: #A1C1ED;*/
+	background-color: #458CE1;
 	/*border-top-left-radius: 50px;*/
 }
 .resType:nth-child(odd){
-	background-color: #4A5A6E;
+	/*background-color: #4A5A6E;*/
+	background-color:#012D62;
 	/*border-top-right-radius: 50px;*/
 }
 .launchType h2, .resType h2{
@@ -279,6 +290,8 @@ h1,h2,h3,h4,h5,h6,td,th{
 }
 .linkFather{
   position: relative;
+  display: table;
+  margin: 0 auto;
 }
 .linkFather .link:visited{
   color: initial;
