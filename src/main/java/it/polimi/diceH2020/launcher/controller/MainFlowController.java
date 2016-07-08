@@ -1,8 +1,13 @@
 package it.polimi.diceH2020.launcher.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,22 +18,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
-import it.polimi.diceH2020.launcher.FileService;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import it.polimi.diceH2020.launcher.service.DiceService;
+import it.polimi.diceH2020.launcher.utility.SimulationsUtilities;
 
-//@SessionAttributes("sim_manager") //it will persist in each browser tab, resolved with http://stackoverflow.com/questions/368653/how-to-differ-sessions-in-browser-tabs/11783754#11783754
 @Controller
 public class MainFlowController {
-	@Autowired
-	private FileService fileService;
-	
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
 	
 	@Autowired
 	private DiceService ds;
@@ -47,30 +48,113 @@ public class MainFlowController {
 		model.addAttribute("wsStatusMap", ds.getWsStatus());
 		model.addAttribute("queueSize", ds.getQueueSize());
 		model.addAttribute("privateQueueSize", ds.getPrivateQueueSize());
+		
+		Map<Integer,Scenarios> scenarios = new HashMap<>();
+		scenarios.put(0,Scenarios.PrivateAdmissionControl);
+		scenarios.put(1,Scenarios.PrivateNoAdmissionControl);
+		scenarios.put(2,Scenarios.PublicPeakWorkload);
+		scenarios.put(3,Scenarios.PublicAvgWorkLoad);
+		
+		model.addAttribute("scenarios", scenarios);
     	return "home";
     }	
 	
-	@RequestMapping(value="/launchWI", method=RequestMethod.GET)
-    public String launchWI(SessionStatus sessionStatus, Model model){
+	//TODO still useful?
+	@RequestMapping(value="/launch2", method=RequestMethod.GET)
+    public String launchWithMultipleJson(@RequestParam("scenario") String scenario,SessionStatus sessionStatus, Model model){
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
-    	return "fileUploadWI";
-    }	
+		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		//model.addAttribute("activeJson", FileService.activeJson(Scenarios.valueOf(scenario)));
+		
+    	return "launchSimulation_FileUploadWithMultipleJson";
+    }
 	
-	@RequestMapping(value="/launchOpt", method=RequestMethod.GET)
-    public String launchOpt(SessionStatus sessionStatus, Model model){
+	
+	@RequestMapping(value="/launch", method=RequestMethod.GET)
+    public String launch(@RequestParam("scenario") String scenario,SessionStatus sessionStatus, Model model){
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
-		model.addAttribute("cloudTypes", CloudType.values());
-    	return "fileUploadOpt";
-    }	
+		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		//model.addAttribute("activeJson", FileService.activeJson(Scenarios.valueOf(scenario)));
+		
+    	return "launchSimulation_FileUpload";
+    }
 	
-	@RequestMapping(value="/list/instances", method=RequestMethod.GET)
-	public String listSolutions(Model model) {
-			model.addAttribute("sim_manager", fileService.getListFileWithIndex());
-			return "solutionList";
+	@RequestMapping(value="/resPub", method=RequestMethod.GET)
+	public String listPub(Model model) {
+			List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,Scenarios.PublicPeakWorkload));
+			model.addAttribute("folderList", getFolderList(smList));
+			model.addAttribute("cloudType", "Public");
+			return "resultsSimulations_GroupedByFolder";
+	}
+
+	@RequestMapping(value="/resPri", method=RequestMethod.GET)
+	public String listPri(Model model){
+		List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl));
+		model.addAttribute("folderList", getFolderList(smList));
+		model.addAttribute("cloudType", "Private");
+		return "resultsSimulations_GroupedByFolder";
+	}
+	
+	private List<Map<String,String>> getFolderList(List<SimulationsManager> smList){
+		List<Map<String,String>> returnList = new ArrayList<>();
+		
+		for(SimulationsManager simMan : smList){
+			
+			Map<String,String> tmpMap = new HashMap<>();
+			States state =  SimulationsUtilities.getStateFromList(simulationsManagerRepository.findStatesByFolder(simMan.getFolder()));
+		
+			tmpMap.put("date", simMan.getDate());
+			tmpMap.put("time", simMan.getTime());
+			tmpMap.put("scenario", simMan.getScenario().getDescription());
+			tmpMap.put("id", simMan.getId().toString());
+			tmpMap.put("state", state.toString());
+			tmpMap.put("input", simMan.getInput());
+			tmpMap.put("folder",simMan.getFolder());
+			tmpMap.put("num", String.valueOf(simulationsManagerRepository.countByFolder(simMan.getFolder())));
+			tmpMap.put("completed", simMan.getNumCompletedSimulations().toString());
+			returnList.add(tmpMap);
+		}
+		return returnList;
+	}
+	
+	private List<Map<String,String>> getFolderContentList(List<SimulationsManager> smList){
+		List<Map<String,String>> returnList = new ArrayList<>();
+		
+		for(SimulationsManager simMan : smList){
+			for(InteractiveExperiment exp : simMan.getExperimentsList()){
+				Map<String,String> tmpMap = new HashMap<>();
+			
+				tmpMap.put("date", simMan.getDate());
+				tmpMap.put("time", simMan.getTime());
+				tmpMap.put("scenario", simMan.getScenario().getDescription());
+				tmpMap.put("id", simMan.getId().toString());
+				tmpMap.put("input", simMan.getInput());
+				tmpMap.put("folder",simMan.getFolder());
+				//tmpMap.put("num", String.valueOf(simulationsManagerRepository.countByFolder(simMan.getFolder())));
+	//			tmpMap.put("completed", simMan.getNumCompletedSimulations().toString());
+	//			
+	//			tmpMap.put("size", String.valueOf(simMan.getSize()));
+				tmpMap.put("state", simMan.getState().toString());
+				tmpMap.put("provider", simMan.getProvider());
+				tmpMap.put("cloudType", simMan.getScenario().getCloudType().toString());
+				boolean error = false;
+				try {
+					for(SolutionPerJob spj: exp.getSol().getLstSolutions()){
+						if(spj.getError()) error = true;
+					}
+				} catch (IOException e) {
+					//TODO;
+				}
+				tmpMap.put("duration", String.valueOf(exp.getExperimentalDuration()));
+				tmpMap.put("errors", String.valueOf(error));
+				returnList.add(tmpMap);
+			}
+		}
+		return returnList;
 	}
 
 	@RequestMapping(value="/resultsWI", method=RequestMethod.GET)
@@ -80,116 +164,47 @@ public class MainFlowController {
 			return "simWIList";
 	}
 	
-	@RequestMapping(value="/resultsOpt", method=RequestMethod.GET)
-	public String resultsOpt(@RequestParam("id") Long id,Model model,@ModelAttribute("message") String message) {
-			SimulationsManager simManager = simulationsManagerRepository.findOne(id);
-			model.addAttribute("sim", intExperimentRepository.findBySimulationsManagerOrderByIdAsc(simManager));
-			return "simOptList";
-	}
-	
-	@RequestMapping(value="/foldersOpt", method=RequestMethod.GET)
-	public String foldersOpt(Model model) {
-			model.addAttribute("folders", simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findSimManagerGroupedByFolders()));
-			return "foldersOfSimOptMan";
-	}
-	
-	@RequestMapping(value="/resWI", method=RequestMethod.GET)
-	public String listWi(Model model) {
-			model.addAttribute("sim_manager", simulationsManagerRepository.findByTypeOrderByIdAsc("WI"));
-			return "simManagersWIList";
-	}
-	
-	@RequestMapping(value="/resOpt", method=RequestMethod.GET)
-	public String listOpt(Model model) {
-			model.addAttribute("sim_manager", simulationsManagerRepository.findByTypeOrderByIdAsc("Opt"));
-			return "simManagersOptList";
-	}
-	
-	@RequestMapping(value="/simOptByFolder", method=RequestMethod.GET)
-	public String simOptFolderContent(@RequestParam(value="folder") String folder, Model model) {
-	    model.addAttribute("sim_manager", simulationsManagerRepository.findByFolderOrderByIdAsc(folder));
-	    return "simManagersOptList";
-	}
-	
-	@RequestMapping(value = "/relaunch", method = RequestMethod.GET)
-	public synchronized String relaunchExperiment (@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
-		String idFrom, folder;
-		idFrom= folder = new String();
-		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		if(exp.getState().equals(States.COMPLETED)||exp.getState().equals(States.ERROR)){
-			try{
-				exp.setExperimentalDuration(0);
-				exp.setResponseTime("");
-				exp.setFinalSolution(new String()); //inverse of e.setSol(sol);
-				exp.setDone(false);
-				String type = new String();
-				SimulationsManager simManager = exp.getSimulationsManager();
-				idFrom = simManager.getId().toString();
-				folder = simManager.getFolder(); 
-				type = simManager.getType();
-				
-				if(exp.getState().equals(States.COMPLETED)){
-					exp.setNumSolutions(exp.getNumSolutions()-1); 
-					simManager.setNumCompletedSimulations(simManager.getNumCompletedSimulations()-1);
-				}
-				if(exp.getState().equals(States.ERROR)){
-					simManager.setNumFailedSimulations(simManager.getNumFailedSimulations()-1);
-				}
-				exp.setState(States.READY);
-				simManager.refreshState();
-				ds.updateManager(simManager);
-				ds.simulation(exp);
-				if(type.equals("WI")){
-					return "redirect:/resultsWI?id="+idFrom;
-				}else{
-					return "redirect:/simOptByFolder?folder="+folder;
-				}
-			}catch(Exception e){
-				redirectAttrs.addAttribute("message", "Error trying to relaunch an experiment.");
-				logger.info("Error trying to relaunch an experiment.");
-				return "redirect:" + request.getHeader("Referer");
-			}
-		}
-		redirectAttrs.addAttribute("message", "Cannot relaunch an uncompleted experiment.");
-		return "redirect:" + request.getHeader("Referer");
+	@RequestMapping(value="/simOfFolder", method=RequestMethod.GET)
+	public String simFolderContent(@RequestParam(value="folder") String folder, Model model) {
+	    model.addAttribute("simManagerList", getFolderContentList(simulationsManagerRepository.findByFolderOrderByIdAsc(folder)));
+	    return "resultsSimulations_inFolder";
 	}
 	
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	public synchronized String deleteExperiment(@RequestParam(value="id") Long id,SessionStatus sessionStatus, Model model,HttpServletRequest request,RedirectAttributes redirectAttrs) {
-		String idFrom, folder;
-		idFrom= folder = new String();
-		InteractiveExperiment exp = intExperimentRepository.findById(id);
-		if(exp.getState().equals(States.COMPLETED)||exp.getState().equals(States.ERROR)){
-			try{
-				
-				SimulationsManager sManager = simulationsManagerRepository.findById(exp.getSimulationsManager().getId());
-				idFrom = sManager.getId().toString();
-				folder = sManager.getFolder(); 
-				String type = sManager.getType();
-				//sManager.setSize();
-				if(sManager.getSize()==1){
-					System.out.println("deleted manager"+sManager.getId());
-					simulationsManagerRepository.delete(sManager);
-					return "redirect:/";
-				}else{
-					sManager.getExperimentsList().remove(exp);
-					sManager.refreshState();
-					//sManager.setSize();
-					ds.updateManager(sManager);//intExperimentRepository.delete(exp); done by orphandelete=true 
-				}
-				
-				if(type.equals("WI")){
-					return "redirect:/resultsWI?id="+idFrom;
-				}else{
-					return "redirect:/simOptByFolder?folder="+folder;
-				}
-			}catch(Exception e){
-				redirectAttrs.addAttribute("message", "Error trying to delete an experiment.");
-				logger.info("Error trying to delete an experiment.");
-				return "redirect:" + request.getHeader("Referer");
-			}
+	public synchronized String deleteExperiment(@RequestParam(value="id") String folder,SessionStatus sessionStatus, Model model,HttpServletRequest request, RedirectAttributes redirectAttributes) {
+		List<SimulationsManager> smList = simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
+		
+		boolean invalidDeletion = invalidUpdate(smList);
+		if(!invalidDeletion){
+				simulationsManagerRepository.deleteByFolder(folder);
+		}else{
+			redirectAttributes.addFlashAttribute("message", "Cannot delete an uncompleted simulation.");
 		}
-		redirectAttrs.addAttribute("message", "Cannot delete an uncompleted experiment .");
 		return "redirect:" + request.getHeader("Referer");
 	}
+	
+	@RequestMapping(value = "/relaunch", method = RequestMethod.GET)
+	public synchronized String relaunchExperiment (@RequestParam(value="id") String folder,SessionStatus sessionStatus, Model model,HttpServletRequest request, RedirectAttributes redirectAttributes) {
+		List<SimulationsManager> smList = simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
+		boolean invalidDeletion = invalidUpdate(smList);
+		if(!invalidDeletion){
+			for (SimulationsManager sm : smList){
+				for(InteractiveExperiment exp : sm.getExperimentsList()){
+					exp.initializeAttributes();
+					sm.refreshState();
+					ds.updateManager(sm);
+					ds.simulation(exp);
+				}
+			}
+		}else{
+			redirectAttributes.addFlashAttribute("message", "Cannot relaunch an uncompleted simulation.");
+		}
+		
+		return "redirect:" + request.getHeader("Referer");
+	}
+	
+	private boolean invalidUpdate(List<SimulationsManager> smList){
+		return smList.stream().anyMatch(s->s.getState().equals(States.RUNNING)||s.getState().equals(States.READY));
+	}
+	
 }

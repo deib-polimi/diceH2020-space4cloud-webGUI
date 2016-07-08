@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.ClassParametersMap;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.JobProfilesMap;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.PrivateCloudParameters;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.PublicCloudParametersMap;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.VMConfigurationsMap;
 
 @Service
 public class Validator {
@@ -29,15 +33,40 @@ public class Validator {
 		}
 	}
 	
-	public boolean validateWISolution(Path pathToFile){
-		Optional<Solution> sol = objectFromPath(pathToFile, Solution.class);
-		return (sol.isPresent() && sol.get().validate() && sol.get().getLstSolutions().size() == 1);
+	public boolean validateJobProfile(Path pathToFile){
+		Optional<JobProfilesMap> sol = objectFromPath(pathToFile, JobProfilesMap.class);
+		return (sol.isPresent() && sol.get().validate());
 	}
 	
-	public boolean validateOptInput(Path pathToFile){
-		
-		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
-		return (inputData.isPresent());
+	public boolean validateClassParameters(Path pathToFile){
+		Optional<ClassParametersMap> sol = objectFromPath(pathToFile, ClassParametersMap.class);
+		return (sol.isPresent() && sol.get().validate());
 	}
+	
+	public boolean validateVMConfigurations(Path pathToFile){
+		Optional<VMConfigurationsMap> sol = objectFromPath(pathToFile, VMConfigurationsMap.class);
+		return (sol.isPresent() && sol.get().validate());
+	}
+	
+	public boolean validatePrivateCloudParameters(Path pathToFile){
+		Optional<PrivateCloudParameters> sol = objectFromPath(pathToFile, PrivateCloudParameters.class);
+		return (sol.isPresent() && sol.get().validate());
+	}
+	
+	public boolean validatePublicCloudParameters(Path pathToFile){
+		Optional<PublicCloudParametersMap> sol = objectFromPath(pathToFile, PublicCloudParametersMap.class);
+		return (sol.isPresent() && sol.get().validate());
+	}
+	
+	public boolean validateInstanceDataMultiProvider(Path pathToFile){
+		Optional<InstanceDataMultiProvider> sol = objectFromPath(pathToFile, InstanceDataMultiProvider.class);
+		return (sol.isPresent() && sol.get().validate());
+	}
+	
+//	public boolean validateOptInput(Path pathToFile){
+//		
+//		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
+//		return (inputData.isPresent());
+//	}
 	
 }

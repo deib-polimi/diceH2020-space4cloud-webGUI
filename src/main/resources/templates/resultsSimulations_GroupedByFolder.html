@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" http-equiv="refresh" content="5"></meta>
+<title>Simulations</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
+<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+</head>
+<body>
+	<div id="topBar">
+   		<div id="ios-arrow-container">
+    		<div id="ios-arrow-left" title="Home">
+    			<a href="/" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:1000;"></a>
+    		</div>
+    	</div>
+    	<h3>Simulator launcher</h3>
+    	<div style="width: 100%;height: 1px;background-color:white;position: absolute;top: 20px;z-index: 0;"></div>
+    </div>
+    
+    <div th:if ="${message != null and message != ''}" class="basic-grey" > 
+   		<p class ="text" th:text = "${message}"></p>
+ 	</div>
+ 	<br/>
+    <div class = "basic-grey">
+    <h1 style="margin:-15px 0 0 0;padding:0 0 10px 0;">Experiments</h1>
+    <h3 style="padding:10px 0 0 0;"><span th:text="${cloudType}"></span> Experiments Launched</h3>
+	<div class="resultContainer">
+		<table>
+			<thead>
+				<tr>
+					<th>Num</th>
+					<th>Completed</th>
+					<th>Date</th>
+					<th>Time</th>
+					<th>State</th>
+					<th>Scenario</th>
+					<th>Input</th>
+					<th>Output</th>
+					<th colspan="2">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="cursor:pointer;" th:each="folder,status : ${folderList}" th:onclick="'javascript:rowClicked(\'' + ${folder.folder} + '\');'">
+					<td th:text="${status.index}">Num</td>
+					<td th:text="${folder.completed + '/' + folder.num}">Size</td>
+					<td th:text="${folder.date}">Date</td>
+					<td th:text="${folder.time}">Time</td>
+					<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(folder.state) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td th:text="${#strings.toString(folder.scenario)}">Type</td>
+					<td>
+						<div class="clearfix" style="margin: 0 auto;">
+							<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;">
+								<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptInputFolder?folder=${folder.folder}|}"></a>
+								<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
+							</div>
+						</div>
+					</td>
+					<td>
+						<div th:if="*{#strings.toString(folder.state)}==COMPLETED" class="linkFather">
+							<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptOutputJsons?folder=${folder.folder}|}"></a>
+							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+					<td style="padding-right:0.25em;">
+						<div class="linkFather">
+							<a class="link delete" style="z-index:10;" th:value="${'Do you really want to delete Experiment '  + status.index + '?'}" th:href="@{|/delete?id=${folder.folder}|}"></a>
+							<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+					<td style="padding-left:0.25em;">
+						<div class="linkFather">
+							<a class="link relaunch" style="z-index:10;" th:value="${'Do you really want to relaunch Experiment '  + status.index + '?'}" th:href="@{|/relaunch?id=${folder.folder}|}"></a>
+							<img height="25" th:src="${'/images/relaunch.png'}" title="relaunch" style="margin: 0 auto;display:block;" />
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+	<script>
+    function rowClicked(value) {
+        location.href = "simOfFolder?folder=" + value;
+    }
+    
+    var deleteLinks = document.getElementsByClassName('delete');
+	var delLength = deleteLinks.length;
+	for(i=0;i!=delLength;i++) {
+      deleteLinks[i].addEventListener('click', function(event) {
+          event.preventDefault();
+          window.event.cancelBubble = true;
+
+          var choice = confirm(this.getAttribute('value'));
+
+          if (choice) {
+            window.location.href = this.getAttribute('href');
+          }
+      });
+    }
+	
+	var relaunchLinks = document.getElementsByClassName('relaunch');
+	var relLength = relaunchLinks.length;
+	for(i=0;i!=relLength;i++) {
+		relaunchLinks[i].addEventListener('click', function(event) {
+          event.preventDefault();
+          window.event.cancelBubble = true;
+
+          var choice = confirm(this.getAttribute('value'));
+
+          if (choice) {
+            window.location.href = this.getAttribute('href');
+          }
+      });
+    }
+	</script>
+</body>
+</html>

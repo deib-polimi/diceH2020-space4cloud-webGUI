@@ -1,9 +1,10 @@
 package it.polimi.diceH2020.launcher.utility;
 
-import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;

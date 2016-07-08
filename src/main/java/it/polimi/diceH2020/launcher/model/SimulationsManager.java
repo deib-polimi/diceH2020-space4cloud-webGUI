@@ -1,11 +1,16 @@
 package it.polimi.diceH2020.launcher.model;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
+import it.polimi.diceH2020.launcher.utility.SimulationsUtilities;
 import lombok.Data;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,22 +28,29 @@ public class SimulationsManager {
 	private Long id;
 
 	private String date;
+	
 	private String time;
 
 	private String instanceName;
 
 	private String folder;
+	
+	private String provider;
+	
+	private Scenarios scenario; //	contains also CloudType cloudType;
 
 	@Column(length = 20000000) //...
 	private ArrayList<String[]> inputFiles;
 
-	private String type = "";
-
 	private States state;
 
 	private String resultFilePath;
+	
+	@Transient
+	private InstanceData inputData;
 
-	private CloudType cloudType;
+//	@Transient
+//	private String tabID; //for session navigation. See the controller doc for other information
 
 	@Column(length = 1000)
 	private String input;
@@ -50,7 +62,7 @@ public class SimulationsManager {
 	private List<InteractiveExperiment> experimentsList;
 
 	private Integer numCompletedSimulations;
-
+	
 	private Integer numFailedSimulations;
 
 	public SimulationsManager() {
@@ -59,56 +71,27 @@ public class SimulationsManager {
 		Date date = new Date();
 		this.date = dateFormat.format(date);
 		this.time = timeFormat.format(date);
-
 		numFailedSimulations = 0;
 		numCompletedSimulations = 0;
-
-		experimentsList = new ArrayList<>();
-		inputFiles = new ArrayList<>();
-
-		inputFileName = "";
-		input = "";
-		resultFilePath = "";
-		type = "";
-		folder = "";
-
-		cloudType = CloudType.Public;
-		setState(States.READY);
+		
+		experimentsList = new ArrayList<InteractiveExperiment>();
+		inputFiles = new ArrayList<String[]>();
+		
+		inputFileName = new String();
+		input = new String();
+		resultFilePath = new String();
+		folder = new String();
+		
+		state = States.READY;
 	}
-
+	
 	public synchronized void refreshState(){
-		int completed = 0;
-		int error = 0;
-		int running = 0;
-		int expSize = experimentsList.size();
-		for(int i=0; i<expSize;i++){
-			if(experimentsList.get(i).getState().equals(States.COMPLETED)){
-				completed++;
-			}
-			if(experimentsList.get(i).getState().equals(States.ERROR)){
-				error++;
-			}
-			if(experimentsList.get(i).getState().equals(States.RUNNING)){
-				running++;
-			}
+		
+		List<States> statesList = new ArrayList<>();
+		for(InteractiveExperiment intExp : experimentsList){
+			statesList.add(intExp.getState());
 		}
-		if(error > 0){
-			if(running == 0){ // error+completed == expSize
-				setState(States.ERROR);
-			}else{
-				setState(States.WARNING);
-			}
-		}else{
-			if(running == 0){
-				if(completed == expSize){// completed == expSize
-					setState(States.COMPLETED);
-				}else{
-					setState(States.READY);
-				}
-			}else{
-				setState(States.RUNNING);
-			}
-		}
+		state = SimulationsUtilities.getStateFromList(statesList);
 	}
 
 	public String getDecompressedInputFile(Integer pos1, Integer pos2) {
@@ -147,5 +130,69 @@ public class SimulationsManager {
 
 	public void writeFinalResults() {
 		;
+	}
+
+	public void buildExperiments() {
+		experimentsList.clear();
+		InteractiveExperiment experiment = new InteractiveExperiment(getInstanceName(), this.provider, this);
+		System.out.println(getInstanceName());
+		experimentsList.add(experiment);
+	}
+
+//	public Solution getDecompressedInputJson() {
+//		if (inputJson != null) {
+//			return inputJson;
+//		} else if (getInput() != null) {
+//			ObjectMapper mapper = new ObjectMapper();
+//			try {
+//				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), Solution.class);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				return null;
+//			}
+//		}
+//		return inputJson;
+//	}
+//
+//	public void setInputJson(Solution inputSolution) {
+//		this.inputJson = inputSolution;
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		try {
+//			setInput(Compressor.compress(mapper.writeValueAsString(inputSolution)));
+//		} catch (IOException e) {
+//			setInput("Error");
+//		}
+////		Double tt = inputSolution.getLstSolutions().get(0).getJob().getThink();
+////		this.thinkTime = tt.intValue();
+//		setInstanceName(inputSolution.getId());
+//	}
+	
+	public void setInputData(InstanceData inputData) {
+		this.inputData = inputData;
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			setInput(Compressor.compress(mapper.writeValueAsString(inputData)));
+		} catch (IOException e) {
+			setInput("Error");
+		}
+		setInstanceName(inputData.getId());
+		System.out.println("id:"+inputData.getId());
+	}
+
+	public InstanceData getDecompressedInputData() {
+		if (inputData != null) {
+			return inputData;
+		} else if (getInput() != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return inputData;
 	}
 }

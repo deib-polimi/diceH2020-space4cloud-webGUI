@@ -9,12 +9,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import reactor.bus.Event;
-import reactor.bus.EventBus;
-
 import it.polimi.diceH2020.launcher.Settings;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.service.DiceConsumer;
+import reactor.bus.Event;
+import reactor.bus.EventBus;
+
 
 public abstract class QueueHandler<T>{
 	

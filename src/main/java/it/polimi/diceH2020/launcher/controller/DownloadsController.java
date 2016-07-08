@@ -5,12 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.model.SimulationsWIManager;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
+
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
@@ -64,7 +64,7 @@ public class DownloadsController {
 
 	@RequestMapping(value="/download", method=RequestMethod.GET)
 	@ResponseBody void downloadPartialExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
-		SimulationsWIManager manager = (SimulationsWIManager)simulationsManagerRepository.findOne(id);
+		SimulationsManager manager = simulationsManagerRepository.findOne(id);
 		Workbook wb = excelWriter.createWorkbook(manager);
 		try {
 
@@ -139,17 +139,17 @@ public class DownloadsController {
 		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<String,String>();
 
-		for(int managerEntry=0;managerEntry<folderManagerList.size();managerEntry++){
-			SimulationsManager manager = folderManagerList.get(managerEntry);
+		for(SimulationsManager manager : folderManagerList){
 			ArrayList<String[]> inputFiles = manager.getInputFiles();
 			files.put(manager.getInputFileName(),manager.getInput() );
 
 			for(int i=0; i<inputFiles.size();i++){
+				System.out.println(inputFiles.get(i)[0] +" "+inputFiles.get(i)[1]);
 				files.put(inputFiles.get(i)[0],inputFiles.get(i)[2]);
+				System.out.println(files.containsKey(inputFiles.get(i)[0]));
 				files.put(inputFiles.get(i)[1],inputFiles.get(i)[3]);
 			}
-
-		}
+		} 
 		respondWithZipFile(files, response);
 	}
 

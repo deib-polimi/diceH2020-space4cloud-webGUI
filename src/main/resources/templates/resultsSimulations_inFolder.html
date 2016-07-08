@@ -18,43 +18,43 @@
     </div>
     <br />
     <div class = "basic-grey">
-    <h3>Experiments launched</h3>
+    <h1 style="margin:-15px 0 0 0;padding:0 0 10px 0;">Results</h1>
+    <h3 style="padding:10px 0 0 0;">Selected <span th:text="${simManagerList[0].cloudType +' '+ simManagerList[0].scenario }"></span> Simulation's results (grouped by providers)</h3>
 	<div class="resultContainer">
 		<table>
 			<thead>
 				<tr>
 					<th>Id</th>
-					<th>Size</th>
 					<th>Date</th>
 					<th>Time</th>
 					<th>State</th>
-					<th>Input</th>
+					<th>Provider</th>
+					<th>Output</th>
+					<th>Errors</th>
+					<th>RunTime[ms]</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr style="cursor:pointer;" th:each="manager : ${sim_manager}" th:onclick="'javascript:rowClicked(\'' + ${manager.id} + '\');'">
+				<tr th:each="manager : ${simManagerList}">
 					<td th:text="${manager.id}">ID</td>
-					<td th:text="${manager.numCompletedSimulations + '/' + manager.size}">Size</td>
 					<td th:text="${manager.date}">Date</td>
 					<td th:text="${manager.time}">Time</td>
-					<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(#strings.toString(manager.state)) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(manager.state) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+					<td th:text="${manager.provider}">Provider</td>
 					<td>
 						<div class="clearfix" style="margin: 0 auto;">
 							<div class="linkFather" style="float:left;">
-								<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptSim?id=${manager.id}|}"></a>
+								<!-- <a class="link" style="z-index:10;" th:href="@{|/downloadZipOptSim?id=${manager.id}|}"></a> -->
 								<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 							</div>
 						</div>
 					</td>
+					<td th:text="${manager.errors}">Error</td>
+					<td class="maxWidth" th:text="${manager.duration}">experimentalDuration</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 	</div>
-	<script>
-    function rowClicked(value) {
-        location.href = "resultsOpt?id=" + value;
-    }
-</script>
 </body>
 </html>
