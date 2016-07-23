@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher;
 
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 

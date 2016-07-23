@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.JobClass;
@@ -50,8 +51,8 @@ public class JsonMapper {
 		List<InstanceData> instanceDataList = new ArrayList<InstanceData>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceData instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Scenarios.PrivateNoAdmissionControl);
-			instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
+			instanceData.setScenario(Optional.of(Scenarios.PrivateNoAdmissionControl));
+			instanceData.setMapVMConfigurations(Optional.of(instanceDataMultiProvider.getMapVMConfigurations()));
 			instanceDataList.add(instanceData);
 		}
 		return instanceDataList;
@@ -62,9 +63,9 @@ public class JsonMapper {
 		
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceData instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Scenarios.PrivateAdmissionControl);
-			instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
-			instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
+			instanceData.setScenario(Optional.of(Scenarios.PrivateAdmissionControl));
+			instanceData.setMapVMConfigurations(Optional.of(instanceDataMultiProvider.getMapVMConfigurations()));
+			instanceData.setPrivateCloudParameters(Optional.of(instanceDataMultiProvider.getPrivateCloudParameters()));
 			instanceDataList.add(instanceData);
 		}
 		return instanceDataList;
@@ -74,7 +75,7 @@ public class JsonMapper {
 		List<InstanceData> instanceDataList = new ArrayList<InstanceData>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
 			InstanceData instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Scenarios.PublicAvgWorkLoad);
+			instanceData.setScenario(Optional.of(Scenarios.PublicAvgWorkLoad));
 			instanceDataList.add(instanceData);
 		}
 		return instanceDataList;
@@ -84,8 +85,8 @@ public class JsonMapper {
 		List<InstanceData> instanceDataList = new ArrayList<InstanceData>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
 			InstanceData instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Scenarios.PublicPeakWorkload);
-			instanceData.setMapTypeVMs(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider));
+			instanceData.setScenario(Optional.of(Scenarios.PublicPeakWorkload));
+			instanceData.setMapTypeVMs(Optional.of(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
 			instanceDataList.add(instanceData);
 		}
 		return instanceDataList;

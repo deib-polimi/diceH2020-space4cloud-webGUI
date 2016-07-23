@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,16 +23,16 @@ import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
+
+
 
 @Scope("prototype")
 @Component
@@ -45,14 +46,14 @@ public class Experiment {
 	private String UPLOAD_ENDPOINT;
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
-	private ObjectMapper mapper;
 	
 	@Autowired
 	private Settings settings;
-
-	
 	private DiceConsumer consumer;
 	private String port;
+	
+	@Autowired
+	private ObjectMapper mapper;
 	
 	@Autowired
 	private DiceService ds;
@@ -61,10 +62,8 @@ public class Experiment {
 	private RestCommunicationWrapper restWrapper;
 	
 	public Experiment(DiceConsumer consumer) {
-		mapper = new ObjectMapper();
-		SimpleModule module = new SimpleModule();
-		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
-		mapper.registerModule(module);
+//		SimpleModule module = new SimpleModule().addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
+//		mapper.registerModules(module,new Jdk8Module());
 		port = consumer.getPort();
 		this.consumer = consumer;
 	}
@@ -74,9 +73,10 @@ public class Experiment {
 		for(int i=0; i<simManager.getInputFiles().size();i++){
 			String nameMapFile = simManager.getInputFiles().get(i)[0];
 			String nameRSFile = simManager.getInputFiles().get(i)[1];
+			logger.info("Sending JMT replayers files");
 			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2)))return false;
 			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3)))return false;
-			System.out.println("sending:"+nameMapFile+", "+nameMapFile);
+			logger.info(nameMapFile+", "+nameRSFile + "have been sent");
 		}
 		return true;
 	}
@@ -321,12 +321,13 @@ public class Experiment {
 		return true;
 	}
 
-	private boolean saveInitSolution() {//TODO usefull?
+	private boolean saveInitSolution() {
 		
-		Solution sol;
+		Solution sol = new Solution();
 		
 		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
 		catch(Exception e){
+			logger.info("Impossible receiving remote solution. ["+e+"]");
 			notifyWsUnreachability();
 			return false;
 		}
@@ -348,13 +349,13 @@ public class Experiment {
 	private boolean sendInputData(InstanceData data) {
 		if (data != null) {
 			String res;
-			
+			logger.info("Attempt to send json with ID: \""+data.getId()+"\"");
 			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
 			catch(Exception e){ 
 				notifyWsUnreachability();
 				return false;
 			}
-			
+			logger.info("json has been sent");
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
 				logger.info("Error for experiment: " + data.getId() + " server respondend in an unexpected way: " + res);

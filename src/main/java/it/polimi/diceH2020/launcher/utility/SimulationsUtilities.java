@@ -5,6 +5,7 @@ import java.util.List;
 import it.polimi.diceH2020.launcher.States;
 
 
+
 public class SimulationsUtilities {
 	
 	public static States getStateFromList(List<States> statesList){

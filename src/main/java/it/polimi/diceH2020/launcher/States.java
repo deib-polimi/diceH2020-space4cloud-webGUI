@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher;
 
+
 public enum States {
 	READY,
 	RUNNING,

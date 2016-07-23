@@ -271,7 +271,7 @@ public class LaunchAnalysis {
 			SimulationsManager simManager = new SimulationsManager();
 			simManager.setInputData(instanceData);
 			simManager.setProvider(instanceData.getProvider());
-			simManager.setScenario(instanceData.getScenario());
+			simManager.setScenario(instanceData.getScenario().get());
 			simManager.setFolder(folder);
 			
 			simManagerList.add(simManager);	

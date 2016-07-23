@@ -26,7 +26,18 @@ public class RestCommunicationWrapper {
 	private long startTime = System.currentTimeMillis();
 	
 	public RestCommunicationWrapper(){
+		//ObjectMapper om = new ObjectMapper().registerModule(new Jdk8Module());
 		restTemplate = new RestTemplate();
+		
+//		MappingJackson2HttpMessageConverter jsonMessageConverter = new MappingJackson2HttpMessageConverter(om);
+//		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+//		messageConverters.add(jsonMessageConverter);
+//		restTemplate.setMessageConverters(messageConverters);
+		
+//		MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter(om);
+//		//messageConverter.setObjectMapper(om);
+//		restTemplateForJson.getMessageConverters().removeIf(m -> m.getClass().getName().equals(MappingJackson2HttpMessageConverter.class.getName()));
+//		restTemplateForJson.getMessageConverters().add(messageConverter);
 	}
 	
 	@Retryable(maxAttempts = maxRequests, backoff = @Backoff(delay = delayRequests,multiplier=multiplierRequests))

@@ -1,5 +1,7 @@
 package it.polimi.diceH2020.launcher;
 
+
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
@@ -13,17 +15,25 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+
 
 @EnableRetry
 @SpringBootApplication
-@ComponentScan({"it.polimi.diceH2020.*" })
+@ComponentScan({"it.polimi.diceH2020.*"})
 @EntityScan("it.polimi.diceH2020.launcher.model")
 @EnableJpaRepositories("it.polimi.diceH2020.launcher.repository")
 @EnableAsync
@@ -63,6 +73,76 @@ public class LauncherApplication {
 		registration.addUrlMappings("/console/*");
 		return registration;
 	}
+
+//	Not working
+//	@Bean
+//	public Module java8Module(){
+//		return new Jdk8Module();
+//	}
+//	@Primary
+//	@Bean
+//	public ObjectMapper java8Mapper(){
+//		return new ObjectMapper().registerModule(new Jdk8Module());
+//	}
+//	 	@Bean
+//	    @Primary
+//	    public ObjectMapper objectMapper() {
+//	        
+//	        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder(); 
+//	        builder.serializationInclusion(Include.NON_EMPTY);
+////	        builder.featuresToDisable(
+////	                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+////	                DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+////	                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+//	   //     builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+//	        builder.modulesToInstall(Jdk8Module.class);
+//	        return builder.build();
+//	    }
+	
+	@Bean
+	public MappingJackson2HttpMessageConverter jacksonMapper(){
+		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+		converter.setObjectMapper(objectMapper());
+		return converter; 
+	}
+	
+	@Primary
+	@Bean
+	public ObjectMapper objectMapper() {
+	    ObjectMapper mapper = new ObjectMapper();
+	    registerModules(mapper);
+	    return mapper;
+	}
+	
+	@Bean
+	public SimpleModule customModule(){
+		SimpleModule module = new SimpleModule();
+		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer());
+		return module;
+	}
+	
+	@Bean
+	public Jdk8Module jdk8Module() {
+	    return new Jdk8Module();
+	}
+	
+	private void registerModules(ObjectMapper mapper) {
+	    mapper.registerModule(jdk8Module());
+	    mapper.registerModule(customModule());
+	}
+	
+	@Primary
+	@Bean
+	public ObjectWriter writer(ObjectMapper mapper) {
+	    return mapper.writer();
+	}
+	
+	@Primary
+	@Bean
+	public ObjectReader reader(ObjectMapper mapper) {
+	    return mapper.reader();
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(LauncherApplication.class, args);
