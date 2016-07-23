@@ -13,6 +13,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 @Entity
 @Data
@@ -67,7 +68,7 @@ public class InteractiveExperiment {
 	}
 
 	public void setSol(Solution sol){
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 		try {
 			this.finalSolution = Compressor.compress(mapper.writeValueAsString(sol));
 		} catch ( IOException e) {
@@ -76,7 +77,7 @@ public class InteractiveExperiment {
 	}
 	
 	public Solution getSol() throws JsonParseException, JsonMappingException, IOException{
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 		return mapper.readValue(Compressor.decompress(finalSolution),Solution.class);
 		
 	}

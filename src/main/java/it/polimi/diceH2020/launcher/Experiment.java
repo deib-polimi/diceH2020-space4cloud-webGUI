@@ -70,13 +70,13 @@ public class Experiment {
 
 	public synchronized boolean initOpt(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
+
 		for(int i=0; i<simManager.getInputFiles().size();i++){
 			String nameMapFile = simManager.getInputFiles().get(i)[0];
 			String nameRSFile = simManager.getInputFiles().get(i)[1];
-			logger.info("Sending JMT replayers files");
 			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2)))return false;
 			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3)))return false;
-			logger.info(nameMapFile+", "+nameRSFile + "have been sent");
+			//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
 		}
 		return true;
 	}
@@ -114,63 +114,78 @@ public class Experiment {
 	  	e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
+
+		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
+		String baseErrorString = expInfo+"Error! ";
+		
+		logger.info(String.format("%s-> {Exp:%s  port:%s, InstanceData ID:\"%s\" provider:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getSimulationsManager().getInputData().getId(),e.getProvider()));
+		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
+		logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
+		
 		if (!initOpt(e)){
-			logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" has been canceled"+"-> initialization of files");
+			logger.info(baseErrorString+" Problem with JMT replayers files");
 			return false;
 		}
+		logger.info(expInfo+"JMT replayers files have been correctly sent");
 		//int num = e.getIter();
-		String baseErrorString = "Error for experiment: " + e.getInstanceName() +" "+ e.getProvider();
 
 		boolean idle = checkWSIdle();
-
 		if (!idle) {
-			logger.info(baseErrorString + "-> service not idle");
+			logger.info(baseErrorString + " Service not idle");
 			return false;
 		}
 
+		logger.info(String.format("%sAttempt to send .json",expInfo));
 		boolean charged_inputdata = sendInputData(e.getInputData());
-
 		if (!charged_inputdata) return false;
+		logger.info(String.format("%s.json has been correctly sent",expInfo));
 
 		boolean charged_initsolution = generateInitialSolution();
-
 		if (!charged_initsolution) {
-			logger.info(baseErrorString + "-> generation of the initial solution");
+			logger.info(baseErrorString + " Generation of the initial solution");
 			return false;
 		}
+		logger.info(String.format("%s---------- Initial solution correctly generated",expInfo));
 
 		boolean evaluated_initsolution = evaluateInitSolution();
 		if (!evaluated_initsolution) {
-			logger.info(baseErrorString + "-> evaluating the initial solution");
+			logger.info(baseErrorString + " Evaluating the initial solution");
 			return false;
 		}
-
+		logger.info(String.format("%s---------- Initial solution correctly evaluated",expInfo));
+		
 		boolean initsolution_saved = saveInitSolution();
 		if (!initsolution_saved) {
-			logger.info(baseErrorString + "-> getting or saving initial solution");
+			logger.info(baseErrorString + " Getting or saving initial solution");
 			return false;
 		}
-
+		logger.info(String.format("%s---------- Initial solution correctly saved",expInfo));
+		
+		
+		logger.info(String.format("%s---------- Starting hill climbing", expInfo));
 		boolean finish = executeLocalSearch();
 
 		if (!finish) {
-			logger.info(baseErrorString + "-> local search");
+			logger.info(baseErrorString + " Local search");
 			return false;
 		}
 
-		boolean finalSolution_saved = saveFinalSolution(e);
+		boolean finalSolution_saved = saveFinalSolution(e, expInfo);
 		if (!finalSolution_saved) {
-			logger.info(baseErrorString + "-> getting or saving final solution");
+			logger.info(baseErrorString + " Getting or saving final solution");
 			return false;
 		}
-
+		logger.info(String.format("%s---------- Finished hill climbing", expInfo));
+		
 		try{ 
 			restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); //from FINISHED to idle
 		}catch(Exception exc){
 			notifyWsUnreachability();
 			return false;
 		}
-		logger.info("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
+		logger.info(String.format("%s---------- Finished optimization ----------", expInfo));
+
+		logger.debug("[LOCKS] Exp"+e.getId()+" on port: "+port+" completed");
 		return true;
 	}
 
@@ -302,7 +317,7 @@ public class Experiment {
 		RESULT_FOLDER = result.toAbsolutePath().toString();
 	}
 
-	private boolean saveFinalSolution(InteractiveExperiment e) {
+	private boolean saveFinalSolution(InteractiveExperiment e, String expInfo) {
 		Solution sol;
 		
 		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
@@ -316,7 +331,7 @@ public class Experiment {
 		e.setDone(true);
 		//e.setNumSolutions(e.getNumSolutions()+1);
 		//e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
-		String msg = String.format("-%s -> %s", e.getInstanceName(), sol.toStringReduced());
+		String msg = String.format("%sHill Climbing result  -> %s",expInfo, sol.toStringReduced());
 		logger.info(msg);
 		return true;
 	}
@@ -349,13 +364,11 @@ public class Experiment {
 	private boolean sendInputData(InstanceData data) {
 		if (data != null) {
 			String res;
-			logger.info("Attempt to send json with ID: \""+data.getId()+"\"");
 			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
 			catch(Exception e){ 
 				notifyWsUnreachability();
 				return false;
 			}
-			logger.info("json has been sent");
 			if (res.equals("CHARGED_INPUTDATA")) return true;
 			else {
 				logger.info("Error for experiment: " + data.getId() + " server respondend in an unexpected way: " + res);

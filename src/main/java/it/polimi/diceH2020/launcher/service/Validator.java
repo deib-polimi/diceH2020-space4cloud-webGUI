@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.ClassParametersMap;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
@@ -19,7 +20,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.VMConfigura
 @Service
 public class Validator {
 
-	private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 
 	public <T> Optional<T> objectFromPath(Path pathFile, Class<T> cls) {
 

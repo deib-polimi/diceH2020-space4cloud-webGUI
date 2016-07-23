@@ -185,7 +185,7 @@ public class LaunchAnalysis {
 				String mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
 				String rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
 				sm.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent);
-				System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
+				//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
 				
 				sm.setNumCompletedSimulations(0);
 				sm.buildExperiments();
@@ -196,7 +196,6 @@ public class LaunchAnalysis {
 			}
 		}
 		model.addAttribute("simManagersList",simManagerList);
-		//return "launchSimulation_Recap";
 		return "redirect:/";
 	}
 	

@@ -63,7 +63,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		InteractiveExperiment intExp = ev.getData();
 		boolean executedCorrectly = false;
 	
-		logger.info("[LOCKS] Exp"+intExp.getId()+" on thread"+id+"port: "+port+" has been inserted in the queue");
+		logger.info("[LOCKS] Exp"+intExp.getId()+" on thread"+id+" port"+port+" has been inserted in the queue");
 		if(experiment.launchOpt(intExp)){
 			intExp.getSimulationsManager().setNumCompletedSimulations(intExp.getSimulationsManager().getNumCompletedSimulations()+1);
 			if(intExp.isError()) intExp.setState(States.ERROR);

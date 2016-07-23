@@ -61,7 +61,7 @@ public abstract class QueueHandler<T>{
 			String channel = "channel"+ info.getConsumer().getId();
 			info.setState(States.RUNNING); 
 			eventBus.notify(channel, Event.wrap(jobsQueue.remove(nextJob)));
-			logger.info("|Q-STATUS| job sent to " + channel );
+			logger.debug("|Q-STATUS| job sent to " + channel );
 		}
 	}
 	

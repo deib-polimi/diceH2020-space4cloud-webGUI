@@ -58,11 +58,10 @@ public class FilesController {
 				j++;
 			}
 		}
-		System.out.println(scenario);
 		return "redirect:/launch/simulationSetup";
 	}
 	
-	//TODO still useful?
+	//Deprecated, method used to upload .json single parameters
 	@RequestMapping(value = "/uploadWithSeparateJson", method = RequestMethod.POST)
 	public String multipleSave2(@RequestParam("file") MultipartFile[] files, @RequestParam("scenario") String scenario, Model model, RedirectAttributes redirectAttrs) {
 		String fileName = null;
@@ -104,7 +103,6 @@ public class FilesController {
 			}
 		}
 		
-		System.out.println(scenario);
 		return "redirect:/launch/simulationSetupWithMultipleJson";
 	}
 	

@@ -10,6 +10,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -48,7 +49,7 @@ public class SimulationsManager {
 	
 	@Transient
 	private InstanceData inputData;
-
+	
 //	@Transient
 //	private String tabID; //for session navigation. See the controller doc for other information
 
@@ -81,7 +82,7 @@ public class SimulationsManager {
 		input = new String();
 		resultFilePath = new String();
 		folder = new String();
-		
+
 		state = States.READY;
 	}
 	
@@ -135,58 +136,29 @@ public class SimulationsManager {
 	public void buildExperiments() {
 		experimentsList.clear();
 		InteractiveExperiment experiment = new InteractiveExperiment(getInstanceName(), this.provider, this);
-		System.out.println(getInstanceName());
+		//System.out.println(getInstanceName());
 		experimentsList.add(experiment);
 	}
 
-//	public Solution getDecompressedInputJson() {
-//		if (inputJson != null) {
-//			return inputJson;
-//		} else if (getInput() != null) {
-//			ObjectMapper mapper = new ObjectMapper();
-//			try {
-//				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), Solution.class);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				return null;
-//			}
-//		}
-//		return inputJson;
-//	}
-//
-//	public void setInputJson(Solution inputSolution) {
-//		this.inputJson = inputSolution;
-//
-//		ObjectMapper mapper = new ObjectMapper();
-//		try {
-//			setInput(Compressor.compress(mapper.writeValueAsString(inputSolution)));
-//		} catch (IOException e) {
-//			setInput("Error");
-//		}
-////		Double tt = inputSolution.getLstSolutions().get(0).getJob().getThink();
-////		this.thinkTime = tt.intValue();
-//		setInstanceName(inputSolution.getId());
-//	}
-	
 	public void setInputData(InstanceData inputData) {
 		this.inputData = inputData;
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
+			ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 			setInput(Compressor.compress(mapper.writeValueAsString(inputData)));
 		} catch (IOException e) {
 			setInput("Error");
 		}
 		setInstanceName(inputData.getId());
-		System.out.println("id:"+inputData.getId());
+		//System.out.println("id:"+inputData.getId());
 	}
 
 	public InstanceData getDecompressedInputData() {
 		if (inputData != null) {
 			return inputData;
 		} else if (getInput() != null) {
-			ObjectMapper mapper = new ObjectMapper();
 			try {
+				ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
 			} catch (IOException e) {
 				e.printStackTrace();

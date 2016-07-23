@@ -49,12 +49,12 @@ public class DiceService{
 		intExpRepo.saveAndFlush(intExp);
 		long endTime = System.currentTimeMillis();
 		long duration = (endTime - startTime);
-		logger.info("[LOCKS] Exp"+intExp.getId()+"updated[state: "+intExp.getState()+"] in "+duration+" ");
+		logger.debug("[LOCKS] Exp"+intExp.getId()+"updated[state: "+intExp.getState()+"] in "+duration+" ");
 	}
 	
 	public synchronized void updateManager(SimulationsManager simulationsManager){
 		simManagerRepo.saveAndFlush(simulationsManager);
-		logger.info("[LOCKS] SimManager"+simulationsManager.getId()+" has been updated.");
+		logger.debug("[LOCKS] SimManager"+simulationsManager.getId()+" has been updated.");
 	}
 	
 	@PostConstruct

@@ -74,31 +74,6 @@ public class LauncherApplication {
 		return registration;
 	}
 
-//	Not working
-//	@Bean
-//	public Module java8Module(){
-//		return new Jdk8Module();
-//	}
-//	@Primary
-//	@Bean
-//	public ObjectMapper java8Mapper(){
-//		return new ObjectMapper().registerModule(new Jdk8Module());
-//	}
-//	 	@Bean
-//	    @Primary
-//	    public ObjectMapper objectMapper() {
-//	        
-//	        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder(); 
-//	        builder.serializationInclusion(Include.NON_EMPTY);
-////	        builder.featuresToDisable(
-////	                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-////	                DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-////	                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-//	   //     builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-//	        builder.modulesToInstall(Jdk8Module.class);
-//	        return builder.build();
-//	    }
-	
 	@Bean
 	public MappingJackson2HttpMessageConverter jacksonMapper(){
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
