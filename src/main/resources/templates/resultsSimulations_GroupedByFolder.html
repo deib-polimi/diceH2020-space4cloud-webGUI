@@ -28,7 +28,7 @@
 		<table>
 			<thead>
 				<tr>
-					<th>Num</th>
+					<th>Order</th>
 					<th>Completed</th>
 					<th>Date</th>
 					<th>Time</th>
@@ -41,7 +41,7 @@
 			</thead>
 			<tbody>
 				<tr style="cursor:pointer;" th:each="folder,status : ${folderList}" th:onclick="'javascript:rowClicked(\'' + ${folder.folder} + '\');'">
-					<td th:text="${status.index}">Num</td>
+					<td th:text="${status.index + 1}">Num</td>
 					<td th:text="${folder.completed + '/' + folder.num}">Size</td>
 					<td th:text="${folder.date}">Date</td>
 					<td th:text="${folder.time}">Time</td>
@@ -63,13 +63,13 @@
 					</td>
 					<td style="padding-right:0.25em;">
 						<div class="linkFather">
-							<a class="link delete" style="z-index:10;" th:value="${'Do you really want to delete Experiment '  + status.index + '?'}" th:href="@{|/delete?id=${folder.folder}|}"></a>
+							<a class="link delete" style="z-index:10;" th:value="${'Do you really want to delete Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/delete?id=${folder.folder}|}"></a>
 							<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>
 					<td style="padding-left:0.25em;">
 						<div class="linkFather">
-							<a class="link relaunch" style="z-index:10;" th:value="${'Do you really want to relaunch Experiment '  + status.index + '?'}" th:href="@{|/relaunch?id=${folder.folder}|}"></a>
+							<a class="link relaunch" style="z-index:10;" th:value="${'Do you really want to relaunch Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/relaunch?id=${folder.folder}|}"></a>
 							<img height="25" th:src="${'/images/relaunch.png'}" title="relaunch" style="margin: 0 auto;display:block;" />
 						</div>
 					</td>

@@ -118,7 +118,7 @@ public class Experiment {
 		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
 		String baseErrorString = expInfo+"Error! ";
 		
-		logger.info(String.format("%s-> {Exp:%s  port:%s, InstanceData ID:\"%s\" provider:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getSimulationsManager().getInputData().getId(),e.getProvider()));
+		logger.info(String.format("%s-> {Exp:%s  port:%s, InstanceData ID:\"%s\" provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getSimulationsManager().getInputData().getId(),e.getProvider(),e.getSimulationsManager().getScenario().toString()));
 		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
 		logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
 		

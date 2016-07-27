@@ -18,8 +18,8 @@ public interface SimulationsManagerRepository extends JpaRepository<SimulationsM
 		@Query("SELECT MIN(id) from SimulationsManager where scenario = ?1 or scenario = ?2 GROUP BY folder ") //?1
 		public List<Long> findPublicSimManGroupedByFolders(Scenarios s1,Scenarios s2);
 		
-		@Query("SELECT MIN(id) from SimulationsManager where scenario = ?1 or scenario = ?2 GROUP BY folder ") //?1
-		public List<Long> findPrivateSimManGroupedByFolders(Scenarios s1,Scenarios s2);
+		@Query("SELECT MIN(id) from SimulationsManager where scenario = ?1 or scenario = ?2  or scenario = ?3 GROUP BY folder ") //?1
+		public List<Long> findPrivateSimManGroupedByFolders(Scenarios s1,Scenarios s2,Scenarios s3);
 		
 		public int countByFolder(String folder);
 		

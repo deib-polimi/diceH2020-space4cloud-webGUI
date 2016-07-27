@@ -59,7 +59,7 @@ public class MainFlowController {
     	return "home";
     }	
 	
-	//TODO still useful?
+	//TODO deprecated
 	@RequestMapping(value="/launch2", method=RequestMethod.GET)
     public String launchWithMultipleJson(@RequestParam("scenario") String scenario,SessionStatus sessionStatus, Model model){
 		if(model.containsAttribute("sim_manager")){
@@ -77,8 +77,11 @@ public class MainFlowController {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
+		List<Scenarios> privateScenariosModels = new ArrayList<Scenarios>();
+		privateScenariosModels.add(Scenarios.PrivateAdmissionControl);
+		privateScenariosModels.add(Scenarios.PrivateAdmissionControlWithPhysicalAssignment);
 		model.addAttribute("scenario", Scenarios.valueOf(scenario));
-		//model.addAttribute("activeJson", FileService.activeJson(Scenarios.valueOf(scenario)));
+		model.addAttribute("Scenarios",  privateScenariosModels);
 		
     	return "launchSimulation_FileUpload";
     }
@@ -93,7 +96,7 @@ public class MainFlowController {
 
 	@RequestMapping(value="/resPri", method=RequestMethod.GET)
 	public String listPri(Model model){
-		List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl));
+		List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl,Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Private");
 		return "resultsSimulations_GroupedByFolder";

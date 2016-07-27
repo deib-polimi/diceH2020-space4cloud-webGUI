@@ -29,6 +29,19 @@
 	<h1>Select <span th:text="${scenario.getCloudType()}"></span> Cloud <span th:text="${scenario.getDescription()}"></span> files</h1>
   
 	<form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/upload}" class="basic-grey">
+		
+		<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+			<label> <span>Select Model:</span> 
+				<select name="scenario" required="required" style="display:block;">
+					<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}" th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
+	  			</select>
+  			</label> 
+		</div>
+		
+  		<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment'}" >
+  			<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
+  		</div>
+  		
 		<div style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		 json file:
 		</div>
@@ -49,7 +62,7 @@
 	    	<span>Select reduce info file :</span>
 	    	<input type="file" name="file" class="input" accept=".txt" required="required" />
     	</label> 
-		<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
+		
 		<div style="width:100%;">
 			<input type="submit" class="button" value="Submit" style="margin:20px auto;display:block;" />
 		</div>

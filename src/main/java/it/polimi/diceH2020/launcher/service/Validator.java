@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.ClassParametersMap;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.JobProfilesMap;
@@ -64,10 +65,10 @@ public class Validator {
 		return (sol.isPresent() && sol.get().validate());
 	}
 	
-//	public boolean validateOptInput(Path pathToFile){
-//		
-//		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
-//		return (inputData.isPresent());
-//	}
+	public boolean validateInstanceData(Path pathToFile){
+		
+		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
+		return (inputData.isPresent());
+	}
 	
 }

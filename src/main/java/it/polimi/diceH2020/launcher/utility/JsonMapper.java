@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+
 import java.util.Optional;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
@@ -30,6 +32,9 @@ public class JsonMapper {
 			case PrivateAdmissionControl:
 				instanceDataList = buildInstanceDataPrPeak(instanceDataMultiProvider);
 				break;
+			case PrivateAdmissionControlWithPhysicalAssignment:
+				instanceDataList = buildInstanceDataPrPeakWithPhysicalAssignment(instanceDataMultiProvider);
+				break;
 			case PrivateNoAdmissionControl:
 				instanceDataList = buildInstanceDataPrAvg(instanceDataMultiProvider);
 				break;
@@ -40,7 +45,7 @@ public class JsonMapper {
 				instanceDataList = buildInstanceDataPuAvg(instanceDataMultiProvider);
 				break;
 			default:
-				new Exception("Error with scenario enumaration");
+				new Exception("Error with the selected scenario");
 				break;
 		}
 		
@@ -71,6 +76,19 @@ public class JsonMapper {
 		return instanceDataList;
 	}
 	
+	private static List<InstanceData> buildInstanceDataPrPeakWithPhysicalAssignment(InstanceDataMultiProvider instanceDataMultiProvider){
+		List<InstanceData> instanceDataList = new ArrayList<InstanceData>();
+		
+		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
+			InstanceData instanceData = buildPartialInput(instanceDataMultiProvider,provider);
+			instanceData.setScenario(Optional.of(Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
+			instanceData.setMapVMConfigurations(Optional.of(instanceDataMultiProvider.getMapVMConfigurations()));
+			instanceData.setPrivateCloudParameters(Optional.of(instanceDataMultiProvider.getPrivateCloudParameters()));
+			instanceDataList.add(instanceData);
+		}
+		return instanceDataList;
+	}
+	
 	private static List<InstanceData> buildInstanceDataPuAvg(InstanceDataMultiProvider instanceDataMultiProvider){
 		List<InstanceData> instanceDataList = new ArrayList<InstanceData>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
@@ -89,6 +107,7 @@ public class JsonMapper {
 			instanceData.setMapTypeVMs(Optional.of(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
 			instanceDataList.add(instanceData);
 		}
+		
 		return instanceDataList;
 	}
 	

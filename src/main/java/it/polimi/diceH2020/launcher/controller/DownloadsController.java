@@ -105,13 +105,13 @@ public class DownloadsController {
 		response.setContentType("text/plain;charset=utf-8");
 
 		if(num==2){
-			System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 1));
+			//System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 1));
 			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[1]);
 			response.getWriter().write(manager.getDecompressedInputFile(0, 3));
 			response.getWriter().flush();
 			response.getWriter().close();
 		}else{
-			System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 0));
+			//System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 0));
 			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[0]);
 			response.getWriter().write(manager.getDecompressedInputFile(0, 2));
 			response.getWriter().flush();
@@ -144,9 +144,9 @@ public class DownloadsController {
 			files.put(manager.getInputFileName(),manager.getInput() );
 
 			for(int i=0; i<inputFiles.size();i++){
-				System.out.println(inputFiles.get(i)[0] +" "+inputFiles.get(i)[1]);
+				//System.out.println(inputFiles.get(i)[0] +" "+inputFiles.get(i)[1]);
 				files.put(inputFiles.get(i)[0],inputFiles.get(i)[2]);
-				System.out.println(files.containsKey(inputFiles.get(i)[0]));
+				//System.out.println(files.containsKey(inputFiles.get(i)[0]));
 				files.put(inputFiles.get(i)[1],inputFiles.get(i)[3]);
 			}
 		} 
@@ -165,7 +165,7 @@ public class DownloadsController {
 				if(intExpList.get(i)!=null){
 					if(intExpList.get(i).getState().equals(States.COMPLETED)){
 						files.put(intExpList.get(i).getInstanceName()+".json",intExpList.get(i).getFinalSolution() );
-						System.out.println("Created "+intExpList.get(i).getInstanceName()+".json");
+						//System.out.println("Created "+intExpList.get(i).getInstanceName()+".json");
 					}
 				}
 			}

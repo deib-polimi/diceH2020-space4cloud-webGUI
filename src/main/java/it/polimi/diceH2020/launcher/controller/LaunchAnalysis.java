@@ -59,7 +59,7 @@ public class LaunchAnalysis {
 		return "error";
 	}
 
-	// TODO still useful??
+	// TODO deprecated
 	@RequestMapping(value = "/simulationSetupWithMultipleJson", method = RequestMethod.GET)
 	public String showSimulationsManagerForm2(SessionStatus sessionStatus, Model model,
 			@ModelAttribute("classParametersPath") String classParametersPath,
@@ -96,6 +96,7 @@ public class LaunchAnalysis {
 			VMConfigurationsMap vmConfigurationsMap = null;
 
 			switch (scenario) {
+			case PrivateAdmissionControlWithPhysicalAssignment:
 			case PrivateAdmissionControl:
 				if (!validator.validateClassParameters(Paths.get(privateCloudParametersPath))) {
 					model.addAttribute("message",
@@ -134,7 +135,8 @@ public class LaunchAnalysis {
 				break;
 			default:
 				new Exception("Error with scenario files");
-				break;
+				model.addAttribute("message", "Not existing scenario selected!");
+				return "error";
 			}
 
 			InstanceDataMultiProvider inputData = new InstanceDataMultiProvider("id", jobProfilesMap,
@@ -181,6 +183,58 @@ public class LaunchAnalysis {
 		
 		for(SimulationsManager sm : simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataMultiProviderPath).getFileName().toString());
+			try {
+				String mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+				String rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+				sm.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent);
+				//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
+				
+				sm.setNumCompletedSimulations(0);
+				sm.buildExperiments();
+				ds.simulation(sm);
+			} catch (IOException e) {
+				model.addAttribute("message","Error with txt files!");
+				return "launchSimulation_FileUpload";
+			}
+		}
+		model.addAttribute("simManagersList",simManagerList);
+		return "redirect:/";
+	}
+	
+	
+	@RequestMapping(value = "/simulationSetupSingleInputData", method = RequestMethod.GET)
+	public String showSimulationsManagerFormSingleData(SessionStatus sessionStatus, Model model,
+			@ModelAttribute("instanceData") String instanceDataPath,
+			@ModelAttribute("pathFile1") String mapFile, @ModelAttribute("pathFile2") String rsFile,
+			@ModelAttribute("scenario") String scenarioString) {
+
+		Scenarios scenario = Scenarios.valueOf(scenarioString);
+		model.addAttribute("scenario", scenario);
+
+		if (instanceDataPath == null) {
+			model.addAttribute("message", "Select a Json file!");
+			return "launchSimulation_FileUpload";
+		}
+
+		if (!validator.validateInstanceData(Paths.get(instanceDataPath))) {
+			model.addAttribute("message", "The uploaded Json isn't valid!");
+			return "launchSimulation_FileUpload";
+		}
+
+		InstanceData instanceData = validator.objectFromPath(Paths.get(instanceDataPath), InstanceData.class).get();
+		
+		String check = scenarioValidation(instanceData, scenario);
+		if(!check.equals("ok")) {
+			model.addAttribute("message", check);
+			return "launchSimulation_FileUpload";
+		}
+		
+		List<InstanceData> inputList = new ArrayList<>();
+		inputList.add(instanceData);
+		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
+		
+		for(SimulationsManager sm : simManagerList){
+			sm.setInputFileName(Paths.get(instanceDataPath).getFileName().toString());
 			try {
 				String mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
 				String rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
@@ -250,6 +304,71 @@ public class LaunchAnalysis {
 					returnString = "Public Cloud Parameters uploaded in Json aren't valid!";
 					return returnString;
 				}
+				break;
+
+			case PublicAvgWorkLoad:
+				break;
+				
+			default:
+				new Exception("Error with scenario files");
+				break;
+		}
+		return "ok";
+	}
+	
+	
+	private String scenarioValidation(InstanceData instanceData, Scenarios scenario){
+		String returnString = new String();
+		if(instanceData.getLstClass()==null || instanceData.getMapProfiles() == null){
+			returnString = "Json is missing some required parameters(MapJobProfiles or MapClassParameters)!";
+			return returnString;
+		}
+		
+		switch (scenario) {
+			case PrivateAdmissionControl:
+				if(!instanceData.getPrivateCloudParameters().isPresent()||!instanceData.getMapVMConfigurations().isPresent()){
+					returnString = "Json is missing some required parameters(PrivateCloudParameters or MapVMConfigurations)!";
+					return returnString;
+				}
+				if(instanceData.getPrivateCloudParameters().get()==null||instanceData.getMapVMConfigurations().get()==null){
+					returnString = "Json is missing some required parameters(PrivateCloudParameters or MapVMConfigurations)!";
+					return returnString;
+				}
+				if (!instanceData.getPrivateCloudParameters().get().validate()) {
+					returnString = "Private Cloud Parameters uploaded in Json aren't valid!";
+					return returnString;
+				}
+				if (!instanceData.getMapVMConfigurations().get().validate()) {
+					returnString = "VM Configurations uploaded in Json aren't valid!";
+					return returnString;
+				}
+				break;
+
+			case PrivateNoAdmissionControl:
+				if(!instanceData.getMapVMConfigurations().isPresent()){
+					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
+					return returnString;
+				}
+				if(instanceData.getMapVMConfigurations().get()==null){
+					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
+					return returnString;
+				}
+				if (!instanceData.getMapVMConfigurations().get().validate()) {
+					returnString = "VM Configurations uploaded in Json aren't valid!";
+					return returnString;
+				}
+				break;
+
+			case PublicPeakWorkload:
+				if(!instanceData.getMapTypeVMs().isPresent()){
+					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
+					return returnString;
+				}
+				if(instanceData.getMapTypeVMs().get()==null){
+					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
+					return returnString;
+				}
+				//TODO validation 
 				break;
 
 			case PublicAvgWorkLoad:

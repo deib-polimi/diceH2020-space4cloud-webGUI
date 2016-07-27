@@ -35,12 +35,14 @@ public class FilesController {
 	}
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file") MultipartFile[] files, @RequestParam("scenario") String scenario, Model model, RedirectAttributes redirectAttrs) {
+	public String multipleSave(@RequestParam("file") MultipartFile[] files, @RequestParam("scenario") String useCase, Model model, RedirectAttributes redirectAttrs) {
 		String fileName = null;
 		int j = 1;
+		boolean singleInputData = false;
+		Scenarios scenario = Scenarios.valueOf(useCase);
 		
-		redirectAttrs.addAttribute("scenario", Scenarios.valueOf(scenario));
-		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		redirectAttrs.addAttribute("scenario", scenario);
+		model.addAttribute("scenario", scenario);
 		
 		for (int i = 0; i < files.length; i++) {
 			fileName = files[i].getOriginalFilename().replaceAll("/", "");
@@ -51,6 +53,11 @@ public class FilesController {
 				    	redirectAttrs.addAttribute("instanceDataMultiProvider", f.toPath().toString());
 				    	continue;
 				    }
+				    else if(validator.validateInstanceData(f.toPath())){
+				    		redirectAttrs.addAttribute("instanceData", f.toPath().toString());
+				    		singleInputData = true;
+					    	continue;
+				    	 }
 					model.addAttribute("message", "You have submitted an invalid json!");
 					return "launchSimulation_FileUpload";
 			} else {
@@ -58,6 +65,7 @@ public class FilesController {
 				j++;
 			}
 		}
+		if(singleInputData) return "redirect:/launch/simulationSetupSingleInputData";
 		return "redirect:/launch/simulationSetup";
 	}
 	
