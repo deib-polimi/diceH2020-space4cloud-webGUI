@@ -68,7 +68,7 @@ public class LauncherApplication {
 	}
 
 	@Bean
-	public ServletRegistrationBean h2servletRegistration() {
+	public ServletRegistrationBean h2servletRegistration(){
 		ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
 		registration.addUrlMappings("/console/*");
 		return registration;

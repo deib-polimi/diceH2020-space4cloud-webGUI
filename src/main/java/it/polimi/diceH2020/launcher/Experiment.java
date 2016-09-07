@@ -68,14 +68,14 @@ public class Experiment {
 		this.consumer = consumer;
 	}
 
-	public synchronized boolean initOpt(InteractiveExperiment intExp){
+	public synchronized boolean initialize(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
 
 		for(int i=0; i<simManager.getInputFiles().size();i++){
 			String nameMapFile = simManager.getInputFiles().get(i)[0];
 			String nameRSFile = simManager.getInputFiles().get(i)[1];
-			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2)))return false;
-			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3)))return false;
+			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2))) return false;
+			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3))) return false;
 			//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
 		}
 		return true;
@@ -109,7 +109,7 @@ public class Experiment {
 		return false;
 	}
 
-	public synchronized boolean launchOpt(InteractiveExperiment e) {
+	public synchronized boolean launch(InteractiveExperiment e) {
 		e.setState(States.RUNNING);
 	  	e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
@@ -118,17 +118,12 @@ public class Experiment {
 		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
 		String baseErrorString = expInfo+"Error! ";
 		
+		
+		
 		logger.info(String.format("%s-> {Exp:%s  port:%s, InstanceData ID:\"%s\" provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getSimulationsManager().getInputData().getId(),e.getProvider(),e.getSimulationsManager().getScenario().toString()));
 		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
-		logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
 		
-		if (!initOpt(e)){
-			logger.info(baseErrorString+" Problem with JMT replayers files");
-			return false;
-		}
-		logger.info(expInfo+"JMT replayers files have been correctly sent");
-		//int num = e.getIter();
-
+		
 		boolean idle = checkWSIdle();
 		if (!idle) {
 			logger.info(baseErrorString + " Service not idle");
@@ -139,6 +134,16 @@ public class Experiment {
 		boolean charged_inputdata = sendInputData(e.getInputData());
 		if (!charged_inputdata) return false;
 		logger.info(String.format("%s.json has been correctly sent",expInfo));
+		
+		
+		logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
+		
+		if (!initialize(e)){
+			logger.info(baseErrorString+" Problem with JMT replayers files");
+			return false;
+		}
+		logger.info(expInfo+"JMT replayers files have been correctly sent");
+		//int num = e.getIter();
 
 		boolean charged_initsolution = generateInitialSolution();
 		if (!charged_initsolution) {

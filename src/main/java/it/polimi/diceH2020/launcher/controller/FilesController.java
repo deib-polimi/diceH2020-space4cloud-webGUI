@@ -4,6 +4,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,17 +40,27 @@ public class FilesController {
 	}
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file") MultipartFile[] files, @RequestParam("scenario") String useCase, Model model, RedirectAttributes redirectAttrs) {
+	public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase, Model model, RedirectAttributes redirectAttrs) {
 		String fileName = null;
-		int j = 1;
 		boolean singleInputData = false;
 		Scenarios scenario = Scenarios.valueOf(useCase);
+		ArrayList<String> tmpValues = new ArrayList<String>();
 		
 		redirectAttrs.addAttribute("scenario", scenario);
 		model.addAttribute("scenario", scenario);
 		
+		if(files == null || files.length == 0){
+			model.addAttribute("message", "Wrong files!");
+			return "launchSimulation_FileUpload";
+		}
+		
+		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
+			model.addAttribute("message", "Duplicated files!");
+			return "launchSimulation_FileUpload";
+		}
+		
 		for (int i = 0; i < files.length; i++) {
-			fileName = files[i].getOriginalFilename().replaceAll("/", "");
+			fileName = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("/") + 1);
 			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
@@ -53,65 +68,23 @@ public class FilesController {
 				    	redirectAttrs.addAttribute("instanceDataMultiProvider", f.toPath().toString());
 				    	continue;
 				    }
-				    else if(validator.validateInstanceData(f.toPath())){
+				    else if(validator.validateInstanceData(f.toPath())){ //for retrocompatibility
 				    		redirectAttrs.addAttribute("instanceData", f.toPath().toString());
 				    		singleInputData = true;
 					    	continue;
-				    	 }
+				    }
 					model.addAttribute("message", "You have submitted an invalid json!");
 					return "launchSimulation_FileUpload";
 			} else {
-				redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
-				j++;
+				if(fileName.contains(".txt")){
+					tmpValues.add(f.toPath().toString());
+				}
 			}
 		}
+		
+		redirectAttrs.addAttribute("pathList", tmpValues);
 		if(singleInputData) return "redirect:/launch/simulationSetupSingleInputData";
 		return "redirect:/launch/simulationSetup";
-	}
-	
-	//Deprecated, method used to upload .json single parameters
-	@RequestMapping(value = "/uploadWithSeparateJson", method = RequestMethod.POST)
-	public String multipleSave2(@RequestParam("file") MultipartFile[] files, @RequestParam("scenario") String scenario, Model model, RedirectAttributes redirectAttrs) {
-		String fileName = null;
-		int j = 1;
-		
-		redirectAttrs.addAttribute("scenario", Scenarios.valueOf(scenario));
-		model.addAttribute("scenario", Scenarios.valueOf(scenario));
-		
-		for (int i = 0; i < files.length; i++) {
-			fileName = files[i].getOriginalFilename().replaceAll("/", "");
-			File f = saveFile(files[i], fileName);
-			if (f == null) return "error";
-			if (fileName.contains(".json")) {
-				    if(validator.validateClassParameters(f.toPath())){
-				    	redirectAttrs.addAttribute("classParametersPath", f.toPath().toString());
-				    	continue;
-				    }
-				    if(validator.validateJobProfile(f.toPath())){
-				    	redirectAttrs.addAttribute("jobProfilePath", f.toPath().toString());
-				    	continue;
-				    }
-				    if(validator.validatePrivateCloudParameters(f.toPath())){
-				    	redirectAttrs.addAttribute("privateCloudParametersPath", f.toPath().toString());
-				    	continue;
-				    }
-				    if(validator.validatePublicCloudParameters(f.toPath())){
-				    	redirectAttrs.addAttribute("publicCloudParametersPath", f.toPath().toString());
-				    	continue;
-				    }
-				    if(validator.validateVMConfigurations(f.toPath())){
-				    	redirectAttrs.addAttribute("vmConfigurationsPath", f.toPath().toString());
-				    	continue;
-				    }
-					model.addAttribute("message", fileName+" isn't valid!");
-					return "launchSimulation_FileUpload";
-			} else {
-				redirectAttrs.addAttribute("pathFile"+j, f.toPath().toString());
-				j++;
-			}
-		}
-		
-		return "redirect:/launch/simulationSetupWithMultipleJson";
 	}
 	
 	private File saveFile(MultipartFile file, String fileName) {
@@ -128,4 +101,13 @@ public class FilesController {
 			return null;
 		}
 	}
+	
+	public static <T> boolean hasDuplicate(Iterable<T> all) {
+	    Set<T> set = new HashSet<T>();
+	    // Set#add returns false if the set does not change, which
+	    // indicates that a duplicate element has been added.
+	    for (T each: all) if (!set.add(each)) return true;
+	    return false;
+	}
+	
 }

@@ -1,5 +1,6 @@
 package it.polimi.diceH2020.launcher.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -31,6 +32,7 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.JsonMapper;
+import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 
 @SessionAttributes("sim_manager") // it will persist in each browser tab,
 									// resolved with
@@ -43,6 +45,9 @@ public class LaunchAnalysis {
 
 	@Autowired
 	private DiceService ds;
+	
+	@Autowired
+	private DeletionPolicy policy;
 
 	@ModelAttribute("sim_manager")
 	public SimulationsManager createSim_manager() {
@@ -154,12 +159,13 @@ public class LaunchAnalysis {
 	@RequestMapping(value = "/simulationSetup", method = RequestMethod.GET)
 	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model,
 			@ModelAttribute("instanceDataMultiProvider") String instanceDataMultiProviderPath,
-			@ModelAttribute("pathFile1") String mapFile, @ModelAttribute("pathFile2") String rsFile,
+			@ModelAttribute("pathList") ArrayList<String> pathList,
 			@ModelAttribute("scenario") String scenarioString) {
 
 		Scenarios scenario = Scenarios.valueOf(scenarioString);
 		model.addAttribute("scenario", scenario);
-
+		
+		if(pathList.size() == 0) return "error";
 		if (instanceDataMultiProviderPath == null) {
 			model.addAttribute("message", "Select a Json file!");
 			return "launchSimulation_FileUpload";
@@ -180,22 +186,75 @@ public class LaunchAnalysis {
 		
 		List<InstanceData> inputList = JsonMapper.getInstanceDataList(instanceDataMultiProvider, scenario);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
-		
+		File tmpFile = null;
 		for(SimulationsManager sm : simManagerList){
+			ArrayList<String> tmpList = new ArrayList<String>();
+			pathList.forEach(e->{tmpList.add(e);});
 			sm.setInputFileName(Paths.get(instanceDataMultiProviderPath).getFileName().toString());
-			try {
-				String mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-				String rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-				sm.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent);
-				//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
+			
+			/*
+			 * TODO If possible, to reduce the number of file to be sent to the WS,
+			 * force users to rename replayers file in a way the is univoque the bound among
+			 * a .txt file and its class  
+			 */
+			int j =0;
+			while(tmpList.size()!=0){
+				String mapFile = new String();
+				String rsFile = new String();
+				String mapFileName=new String();
+				String rsFileName=new String();
+				String mapFileContent=new String();
+				String rsFileContent=new String();
+				tmpFile = new File(tmpList.get(j));
+				policy.markForDeletion(tmpFile);
+				if(tmpList.get(j).contains("Map")){
+					mapFile = tmpList.get(j);
+					mapFileName = Paths.get(mapFile).getFileName().toString();
+					try {
+						mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+					} catch (IOException e) {
+						return "error";
+					}
+					String mirrorName = mapFile.replace("Map", "RS");
+					int indexRS = tmpList.indexOf(mirrorName);
+					if(indexRS!=-1){
+						File tmpMirrorFile = new File(mirrorName);
+						policy.markForDeletion(tmpMirrorFile);
+						rsFile = tmpList.get(indexRS);
+						rsFileName = Paths.get(rsFile).getFileName().toString();
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
+						policy.delete(tmpMirrorFile);
+						tmpList.remove(indexRS);
+						
+					}//else{rsFileContent = "" rsFileName=""
+					policy.delete(tmpFile);
+					tmpList.remove(j);
+				}else 
+					if(tmpList.get(j).contains("RS")){
+						//and mapFileContent = "" name=""
+						rsFile = tmpList.get(j);
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
+						policy.delete(tmpFile);
+						tmpList.remove(j);
+					}else{
+						model.addAttribute("message", "You've submitted an invalid file");
+						return "error";
+					}
 				
-				sm.setNumCompletedSimulations(0);
-				sm.buildExperiments();
-				ds.simulation(sm);
-			} catch (IOException e) {
-				model.addAttribute("message","Error with txt files!");
-				return "launchSimulation_FileUpload";
+				sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
 			}
+			
+			sm.setNumCompletedSimulations(0);
+			sm.buildExperiments();
+			ds.simulation(sm);
 		}
 		model.addAttribute("simManagersList",simManagerList);
 		return "redirect:/";
@@ -205,7 +264,7 @@ public class LaunchAnalysis {
 	@RequestMapping(value = "/simulationSetupSingleInputData", method = RequestMethod.GET)
 	public String showSimulationsManagerFormSingleData(SessionStatus sessionStatus, Model model,
 			@ModelAttribute("instanceData") String instanceDataPath,
-			@ModelAttribute("pathFile1") String mapFile, @ModelAttribute("pathFile2") String rsFile,
+			@ModelAttribute("pathList") ArrayList<String> pathList,
 			@ModelAttribute("scenario") String scenarioString) {
 
 		Scenarios scenario = Scenarios.valueOf(scenarioString);
@@ -233,21 +292,69 @@ public class LaunchAnalysis {
 		inputList.add(instanceData);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 		
+		File tmpFile = null;
+			ArrayList<String> tmpList = new ArrayList<String>();
+			pathList.forEach(e->{tmpList.add(e);});
 		for(SimulationsManager sm : simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataPath).getFileName().toString());
-			try {
-				String mapContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-				String rsContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-				sm.addInputFiles(mapFile.split("/")[1],rsFile.split("/")[1],mapContent,rsContent);
-				//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
+			//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
+			int j =0;
+			while(tmpList.size()!=0){
+				String mapFile = new String();
+				String rsFile = new String();
+				String mapFileName=new String();
+				String rsFileName=new String();
+				String mapFileContent=new String();
+				String rsFileContent=new String();
+				tmpFile = new File(tmpList.get(j));
+				policy.markForDeletion(tmpFile);
+				if(tmpList.get(j).contains("Map")){
+					mapFile = tmpList.get(j);
+					mapFileName = Paths.get(mapFile).getFileName().toString();
+					try {
+						mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile)));
+					} catch (IOException e) {
+						return "error";
+					}
+					String mirrorName = mapFile.replace("Map", "RS");
+					int indexRS = tmpList.indexOf(mirrorName);
+					if(indexRS!=-1){
+						File tmpMirrorFile = new File(mirrorName);
+						policy.markForDeletion(tmpMirrorFile);
+						rsFile = tmpList.get(indexRS);
+						rsFileName = Paths.get(rsFile).getFileName().toString();
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
+						policy.delete(tmpMirrorFile);
+						tmpList.remove(indexRS);
+						
+					}//else{rsFileContent = "" rsFileName=""
+					policy.delete(tmpFile);
+					tmpList.remove(j);
+				}else 
+					if(tmpList.get(j).contains("RS")){
+						//and mapFileContent = "" name=""
+						rsFile = tmpList.get(j);
+						try {
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
+						} catch (IOException e) {
+							return "error";
+						}
+						policy.delete(tmpFile);
+						tmpList.remove(j);
+					}else{
+						model.addAttribute("message", "You've submitted an invalid file");
+						return "error";
+					}
 				
-				sm.setNumCompletedSimulations(0);
-				sm.buildExperiments();
-				ds.simulation(sm);
-			} catch (IOException e) {
-				model.addAttribute("message","Error with txt files!");
-				return "launchSimulation_FileUpload";
+				sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
 			}
+			sm.setNumCompletedSimulations(0);
+			sm.buildExperiments();
+			ds.simulation(sm);
 		}
 		model.addAttribute("simManagersList",simManagerList);
 		return "redirect:/";
