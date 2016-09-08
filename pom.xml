@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>it.polimi.diceH2020</groupId>
-	<artifactId>SPACE4Cloud-webGUI</artifactId>
+	<artifactId>D-SPACE4Cloud-webGUI</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
-	<name>SPACE4Cloud Web GUI</name>
-	<description>Launcher for SPACE4CloudWS</description>
+
+	<name>D-SPACE4Cloud Web GUI</name>
+	<description>Launcher for D-SPACE4Cloud</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -31,37 +31,35 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>it.polimi.diceH2020</groupId>
 			<artifactId>SPACE4Cloud-shared</artifactId>
 			<version>0.2.7-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-		
-		
-    	
-    	<dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.6</version>
@@ -96,7 +94,7 @@
 			<artifactId>spring-boot-starter-jersey</artifactId>
 		</dependency>
 		<!--  for retry -->
-	 	<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
@@ -115,12 +113,11 @@
 			<version>2.1.8</version>
 		</dependency>
 		<dependency>
-		  <groupId>com.fasterxml.jackson.datatype</groupId>
-		  <artifactId>jackson-datatype-jdk8</artifactId>
-		</dependency>   
-		
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -129,6 +126,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
 
 </project>
