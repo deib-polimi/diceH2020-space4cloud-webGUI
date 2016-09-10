@@ -52,7 +52,7 @@ public class FileUtility {
 	public boolean delete(List<File> pFiles) {
 		return pFiles.stream().map(this::delete).allMatch(r -> r);
 	}
-
+	
 	public @Nonnull File createTempZip(@Nonnull Map<String, String> inputFiles) throws IOException {
 		File folder = Files.createTempDirectory(LOCAL_DYNAMIC_FOLDER.toPath(), null).toFile();
 		policy.markForDeletion(folder);

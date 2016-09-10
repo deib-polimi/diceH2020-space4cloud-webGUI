@@ -131,6 +131,7 @@ public class JsonMapper {
 		partialInput.setLstClass(lstClasses);
 		partialInput.setMapProfiles(map);
 		partialInput.setProvider(provider);
+		partialInput.setMapJobMLProfiles(input.getMapJobMLProfiles());
 		
 		return partialInput;
 	}
@@ -167,17 +168,17 @@ public class JsonMapper {
 	    		key.setJob(jobIDs.getKey());
 	    		key.setTypeVM(typeVMs.getKey());
 	    		
-	    		p.setNM(typeVMs.getValue().getNM());
-	    		p.setNR(typeVMs.getValue().getNR());
-	    		p.setCM(typeVMs.getValue().getCM());
-	    		p.setCR(typeVMs.getValue().getCR());
+	    		p.setNm(typeVMs.getValue().getNm());
+	    		p.setNr(typeVMs.getValue().getNr());
+	    		p.setCm(typeVMs.getValue().getCm());
+	    		p.setCr(typeVMs.getValue().getCr());
 	    		p.setMavg(typeVMs.getValue().getMavg());
 	    		p.setMmax(typeVMs.getValue().getMmax());
 	    		p.setRavg(typeVMs.getValue().getRavg());
 	    		p.setRmax(typeVMs.getValue().getRmax());
-	    		p.setSH1max(typeVMs.getValue().getSH1max());
-	    		p.setSHtypavg(typeVMs.getValue().getSHtypavg());
-	    		p.setSHtypmax(typeVMs.getValue().getSHtypmax());
+	    		p.setSh1max(typeVMs.getValue().getSh1max());
+	    		p.setShtypavg(typeVMs.getValue().getShtypavg());
+	    		p.setShtypmax(typeVMs.getValue().getShtypmax());
 	    		
 	    		map.put(key, p);
 	    	}

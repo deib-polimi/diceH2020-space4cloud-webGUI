@@ -53,7 +53,7 @@ public class SimulationsManager {
 //	@Transient
 //	private String tabID; //for session navigation. See the controller doc for other information
 
-	@Column(length = 1000)
+	@Column(length = 10000)
 	private String input;
 
 	private String inputFileName;

@@ -140,7 +140,6 @@ public class LaunchAnalysis {
 				}
 			}
 		}
-		
 		deleteUploadedFiles(pathList);
 		
 		for(SimulationsManager sm : simManagerList){
