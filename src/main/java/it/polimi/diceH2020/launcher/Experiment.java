@@ -120,7 +120,7 @@ public class Experiment {
 		
 		
 		
-		logger.info(String.format("%s-> {Exp:%s  port:%s, InstanceData ID:\"%s\" provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getSimulationsManager().getInputData().getId(),e.getProvider(),e.getSimulationsManager().getScenario().toString()));
+		logger.info(String.format("%s-> {Exp:%s  port:%s,  provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getProvider(),e.getSimulationsManager().getScenario().toString()));
 		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
 		
 		
