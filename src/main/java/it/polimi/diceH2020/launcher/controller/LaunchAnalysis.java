@@ -9,8 +9,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 
+import javax.naming.OperationNotSupportedException;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,20 +23,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.ClassParametersMap;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.Profile;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.JobProfilesMap;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.PrivateCloudParameters;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.PublicCloudParametersMap;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.VMConfigurationsMap;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
+import it.polimi.diceH2020.launcher.utility.FileUtility;
 import it.polimi.diceH2020.launcher.utility.JsonMapper;
-import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
 
 @SessionAttributes("sim_manager") // it will persist in each browser tab,
 									// resolved with
@@ -47,112 +49,17 @@ public class LaunchAnalysis {
 	private DiceService ds;
 	
 	@Autowired
-	private DeletionPolicy policy;
+	FileUtility fileUtility;
+	
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@ModelAttribute("sim_manager")
 	public SimulationsManager createSim_manager() {
 		return new SimulationsManager();
 	}
 
-//	@ModelAttribute("sim_class")
-//	public InteractiveExperiment getSimClass() {
-//		return new InteractiveExperiment();
-//	}
-
 	@RequestMapping(value = "/error", method = RequestMethod.GET)
 	public String showSimulationsManagerForm() {
-		return "error";
-	}
-
-	// TODO deprecated
-	@RequestMapping(value = "/simulationSetupWithMultipleJson", method = RequestMethod.GET)
-	public String showSimulationsManagerForm2(SessionStatus sessionStatus, Model model,
-			@ModelAttribute("classParametersPath") String classParametersPath,
-			@ModelAttribute("jobProfilePath") String jobProfilePath,
-			@ModelAttribute("privateCloudParametersPath") String privateCloudParametersPath,
-			@ModelAttribute("publicCloudParametersPath") String publicCloudParametersPath,
-			@ModelAttribute("vmConfigurationsPath") String vmConfigurationsPath,
-			@ModelAttribute("pathFile1") String mapFile, @ModelAttribute("pathFile2") String rsFile,
-			@ModelAttribute("scenario") String scenarioString) {
-
-		Scenarios scenario = Scenarios.valueOf(scenarioString);
-		model.addAttribute("scenario", scenario);
-
-		if (classParametersPath != null && jobProfilePath != null) {
-
-			if (!validator.validateClassParameters(Paths.get(classParametersPath))) {
-				model.addAttribute("message",
-						"Class Parameter uploaded Json wasn't valid (you've inserted another type of valid json )!");
-				return "launchSimulation_FileUpload";
-			}
-
-			if (!validator.validateClassParameters(Paths.get(jobProfilePath))) {
-				model.addAttribute("message",
-						"Job Profile uploaded Json wasn't valid (you've inserted another type of valid json )!");
-				return "launchSimulation_FileUpload";
-			}
-
-			ClassParametersMap classParametersMap = validator
-					.objectFromPath(Paths.get(classParametersPath), ClassParametersMap.class).get();
-			JobProfilesMap jobProfilesMap = validator.objectFromPath(Paths.get(jobProfilePath), JobProfilesMap.class)
-					.get();
-			PublicCloudParametersMap publicCloudParametersMap = null;
-			PrivateCloudParameters privateCloudParametersMap = null;
-			VMConfigurationsMap vmConfigurationsMap = null;
-
-			switch (scenario) {
-			case PrivateAdmissionControlWithPhysicalAssignment:
-			case PrivateAdmissionControl:
-				if (!validator.validateClassParameters(Paths.get(privateCloudParametersPath))) {
-					model.addAttribute("message",
-							"Private Cloud Parameters uploaded Json wasn't valid (you've inserted another type of valid json )!");
-					return "launchSimulation_FileUpload";
-				}
-				if (!validator.validateClassParameters(Paths.get(vmConfigurationsPath))) {
-					model.addAttribute("message",
-							"VM Configurations uploaded Json wasn't valid (you've inserted another type of valid json )!");
-					return "launchSimulation_FileUpload";
-				}
-				privateCloudParametersMap = validator
-						.objectFromPath(Paths.get(privateCloudParametersPath), PrivateCloudParameters.class).get();
-				vmConfigurationsMap = validator
-						.objectFromPath(Paths.get(vmConfigurationsPath), VMConfigurationsMap.class).get();
-				break;
-			case PrivateNoAdmissionControl:
-				if (!validator.validateClassParameters(Paths.get(vmConfigurationsPath))) {
-					model.addAttribute("message",
-							"VM Configurations uploaded Json wasn't valid (you've inserted another type of valid json )!");
-					return "launchSimulation_FileUpload";
-				}
-				vmConfigurationsMap = validator
-						.objectFromPath(Paths.get(vmConfigurationsPath), VMConfigurationsMap.class).get();
-				break;
-			case PublicPeakWorkload:
-				if (!validator.validateClassParameters(Paths.get(publicCloudParametersPath))) {
-					model.addAttribute("message",
-							"Public Cloud Parameters uploaded Json wasn't valid (you've inserted another type of valid json )!");
-					return "launchSimulation_FileUpload";
-				}
-				publicCloudParametersMap = validator
-						.objectFromPath(Paths.get(publicCloudParametersPath), PublicCloudParametersMap.class).get();
-				break;
-			case PublicAvgWorkLoad:
-				break;
-			default:
-				new Exception("Error with scenario files");
-				model.addAttribute("message", "Not existing scenario selected!");
-				return "error";
-			}
-
-			InstanceDataMultiProvider inputData = new InstanceDataMultiProvider("id", jobProfilesMap,
-					classParametersMap, publicCloudParametersMap, privateCloudParametersMap, vmConfigurationsMap);
-			if (!inputData.validate()) {
-				model.addAttribute("message", "Json aren't consistent!");
-				return "launchSimulation_FileUpload";
-			}
-
-			return "runSimulations";
-		}
 		return "error";
 	}
 
@@ -160,205 +67,178 @@ public class LaunchAnalysis {
 	public String showSimulationsManagerForm(SessionStatus sessionStatus, Model model,
 			@ModelAttribute("instanceDataMultiProvider") String instanceDataMultiProviderPath,
 			@ModelAttribute("pathList") ArrayList<String> pathList,
-			@ModelAttribute("scenario") String scenarioString) {
+			@ModelAttribute("scenario") String scenarioString, RedirectAttributes redirectAttrs) {
 
 		Scenarios scenario = Scenarios.valueOf(scenarioString);
 		model.addAttribute("scenario", scenario);
+		redirectAttrs.addAttribute("scenario", scenario);
 		
-		if(pathList.size() == 0) return "error";
+		if(pathList.size() == 0){
+			redirectAttrs.addAttribute("message", "You haven't submitted any file!");
+			return "redirect:/launchRetry";
+		}
 		if (instanceDataMultiProviderPath == null) {
-			model.addAttribute("message", "Select a Json file!");
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", "Select a Json file!");
+			return "redirect:/launchRetry";
 		}
 
 		if (!validator.validateInstanceDataMultiProvider(Paths.get(instanceDataMultiProviderPath))) {
-			model.addAttribute("message", "The uploaded Json isn't valid!");
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", "The uploaded Json isn't valid!");
+			return "redirect:/launchRetry";
 		}
 
 		InstanceDataMultiProvider instanceDataMultiProvider = validator.objectFromPath(Paths.get(instanceDataMultiProviderPath), InstanceDataMultiProvider.class).get();
 		
 		String check = scenarioValidation(instanceDataMultiProvider, scenario);
 		if(!check.equals("ok")) {
-			model.addAttribute("message", check);
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", check);
+			return "redirect:/launchRetry";
 		}
 		
 		List<InstanceData> inputList = JsonMapper.getInstanceDataList(instanceDataMultiProvider, scenario);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
-		File tmpFile = null;
 		for(SimulationsManager sm : simManagerList){
 			ArrayList<String> tmpList = new ArrayList<String>();
 			pathList.forEach(e->{tmpList.add(e);});
 			sm.setInputFileName(Paths.get(instanceDataMultiProviderPath).getFileName().toString());
+			InstanceData input = sm.getInputData();
 			
-			/*
-			 * TODO If possible, to reduce the number of file to be sent to the WS,
-			 * force users to rename replayers file in a way the is univoque the bound among
-			 * a .txt file and its class  
-			 */
-			int j =0;
-			while(tmpList.size()!=0){
-				String mapFile = new String();
-				String rsFile = new String();
+			for(Entry<TypeVMJobClassKey, Profile> entry : input.getMapProfiles().entrySet()){
 				String mapFileName=new String();
 				String rsFileName=new String();
 				String mapFileContent=new String();
 				String rsFileContent=new String();
-				tmpFile = new File(tmpList.get(j));
-				policy.markForDeletion(tmpFile);
-				if(tmpList.get(j).contains("Map")){
-					mapFile = tmpList.get(j);
-					mapFileName = Paths.get(mapFile).getFileName().toString();
-					try {
-						mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-					} catch (IOException e) {
-						return "error";
-					}
-					String mirrorName = mapFile.replace("Map", "RS");
-					int indexRS = tmpList.indexOf(mirrorName);
-					if(indexRS!=-1){
-						File tmpMirrorFile = new File(mirrorName);
-						policy.markForDeletion(tmpMirrorFile);
-						rsFile = tmpList.get(indexRS);
-						rsFileName = Paths.get(rsFile).getFileName().toString();
-						try {
-							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-						} catch (IOException e) {
-							return "error";
-						}
-						policy.delete(tmpMirrorFile);
-						tmpList.remove(indexRS);
-						
-					}//else{rsFileContent = "" rsFileName=""
-					policy.delete(tmpFile);
-					tmpList.remove(j);
-				}else 
-					if(tmpList.get(j).contains("RS")){
-						//and mapFileContent = "" name=""
-						rsFile = tmpList.get(j);
-						try {
-							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-						} catch (IOException e) {
-							return "error";
-						}
-						policy.delete(tmpFile);
-						tmpList.remove(j);
-					}else{
-						model.addAttribute("message", "You've submitted an invalid file");
-						return "error";
-					}
 				
-				sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+				String fileNotFound = new String();
+				try {
+					mapFileName = getReplayersFileName("Map",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
+					fileNotFound = mapFileName;
+					File mapFile = fileUtility.provideFile(mapFileName);
+					mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
+					
+					rsFileName = getReplayersFileName("RS",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
+					fileNotFound = rsFileName;
+					File rsFile = fileUtility.provideFile(rsFileName);
+					rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
+					
+					if(mapFileContent.length()==0 || rsFileContent.length() == 0){
+						throw new OperationNotSupportedException("One or more replayers submitted files are empty");
+					}
+					sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+					sm.setNumCompletedSimulations(0);
+					sm.buildExperiments();
+				} catch (IOException e1) {
+					logger.info("File \""+fileNotFound+"\" is missing.");
+					deleteUploadedFiles(pathList);
+					redirectAttrs.addAttribute("message","File \""+fileNotFound+"\" is missing.");
+					return "redirect:/launchRetry";
+				} catch (OperationNotSupportedException e1) {
+					logger.info(e1.getMessage());
+					deleteUploadedFiles(pathList);
+					redirectAttrs.addAttribute("message", e1.getMessage());
+					return "redirect:/launchRetry";
+				}
 			}
-			
-			sm.setNumCompletedSimulations(0);
-			sm.buildExperiments();
+		}
+		
+		deleteUploadedFiles(pathList);
+		
+		for(SimulationsManager sm : simManagerList){
 			ds.simulation(sm);
 		}
 		model.addAttribute("simManagersList",simManagerList);
 		return "redirect:/";
 	}
 	
-	
+	//TODO quando verrà tolto il json vecchio sistemare qui
 	@RequestMapping(value = "/simulationSetupSingleInputData", method = RequestMethod.GET)
 	public String showSimulationsManagerFormSingleData(SessionStatus sessionStatus, Model model,
 			@ModelAttribute("instanceData") String instanceDataPath,
 			@ModelAttribute("pathList") ArrayList<String> pathList,
-			@ModelAttribute("scenario") String scenarioString) {
+			@ModelAttribute("scenario") String scenarioString, RedirectAttributes redirectAttrs) {
 
 		Scenarios scenario = Scenarios.valueOf(scenarioString);
 		model.addAttribute("scenario", scenario);
-
+		redirectAttrs.addAttribute("scenario", scenario);
 		if (instanceDataPath == null) {
-			model.addAttribute("message", "Select a Json file!");
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", "Select a Json file!");
+			return "redirect:/launchRetry";
 		}
 
 		if (!validator.validateInstanceData(Paths.get(instanceDataPath))) {
-			model.addAttribute("message", "The uploaded Json isn't valid!");
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", "The uploaded Json isn't valid!");
+			return "redirect:/launchRetry";
 		}
 
 		InstanceData instanceData = validator.objectFromPath(Paths.get(instanceDataPath), InstanceData.class).get();
 		
 		String check = scenarioValidation(instanceData, scenario);
 		if(!check.equals("ok")) {
-			model.addAttribute("message", check);
-			return "launchSimulation_FileUpload";
+			redirectAttrs.addAttribute("message", check);
+			return "redirect:/launchRetry";
 		}
 		
 		List<InstanceData> inputList = new ArrayList<>();
 		inputList.add(instanceData);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 		
-		File tmpFile = null;
-			ArrayList<String> tmpList = new ArrayList<String>();
-			pathList.forEach(e->{tmpList.add(e);});
+		ArrayList<String> tmpList = new ArrayList<String>();
+		pathList.forEach(e->{tmpList.add(e);});
 		for(SimulationsManager sm : simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataPath).getFileName().toString());
-			//System.out.println("Sim manager inputs:"+sm.getInputFiles().get(0)[0]+","+sm.getInputFiles().get(0)[1]);
-			int j =0;
-			while(tmpList.size()!=0){
-				String mapFile = new String();
-				String rsFile = new String();
+			
+			InstanceData input = sm.getInputData();
+			for(Entry<TypeVMJobClassKey, Profile> entry : input.getMapProfiles().entrySet()){
 				String mapFileName=new String();
 				String rsFileName=new String();
 				String mapFileContent=new String();
 				String rsFileContent=new String();
-				tmpFile = new File(tmpList.get(j));
-				policy.markForDeletion(tmpFile);
-				if(tmpList.get(j).contains("Map")){
-					mapFile = tmpList.get(j);
-					mapFileName = Paths.get(mapFile).getFileName().toString();
-					try {
-						mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile)));
-					} catch (IOException e) {
-						return "error";
+				String fileNotFound= new String();
+				try {
+					mapFileName = getReplayersFileName("Map",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
+					fileNotFound = mapFileName;
+					File mapFile = fileUtility.provideFile(mapFileName);
+					mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
+					
+					rsFileName = getReplayersFileName("RS",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
+					fileNotFound = rsFileName;
+					File rsFile = fileUtility.provideFile(rsFileName);
+					rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
+					
+					if(mapFileContent.length()==0 || rsFileContent.length() == 0){
+						throw new OperationNotSupportedException("One or more replayers submitted files are empty");
 					}
-					String mirrorName = mapFile.replace("Map", "RS");
-					int indexRS = tmpList.indexOf(mirrorName);
-					if(indexRS!=-1){
-						File tmpMirrorFile = new File(mirrorName);
-						policy.markForDeletion(tmpMirrorFile);
-						rsFile = tmpList.get(indexRS);
-						rsFileName = Paths.get(rsFile).getFileName().toString();
-						try {
-							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-						} catch (IOException e) {
-							return "error";
-						}
-						policy.delete(tmpMirrorFile);
-						tmpList.remove(indexRS);
-						
-					}//else{rsFileContent = "" rsFileName=""
-					policy.delete(tmpFile);
-					tmpList.remove(j);
-				}else 
-					if(tmpList.get(j).contains("RS")){
-						//and mapFileContent = "" name=""
-						rsFile = tmpList.get(j);
-						try {
-							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile)));
-						} catch (IOException e) {
-							return "error";
-						}
-						policy.delete(tmpFile);
-						tmpList.remove(j);
-					}else{
-						model.addAttribute("message", "You've submitted an invalid file");
-						return "error";
-					}
-				
-				sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+					sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+					sm.setNumCompletedSimulations(0);
+					sm.buildExperiments();
+					
+				} catch (IOException e1) {
+					logger.info("File \""+fileNotFound+"\" is missing.");
+					deleteUploadedFiles(pathList);
+					redirectAttrs.addAttribute("message", "File \""+fileNotFound+"\" is missing.");
+					return "redirect:/launchRetry";
+				} catch (OperationNotSupportedException e1) {
+					logger.info(e1.getMessage());
+					deleteUploadedFiles(pathList);
+					redirectAttrs.addAttribute("message", e1.getMessage());
+					return "redirect:/launchRetry";
+				}
 			}
-			sm.setNumCompletedSimulations(0);
-			sm.buildExperiments();
+		}
+		
+		deleteUploadedFiles(pathList);
+		
+		for(SimulationsManager sm : simManagerList){
 			ds.simulation(sm);
 		}
 		model.addAttribute("simManagersList",simManagerList);
 		return "redirect:/";
 	}
+	
+	private String getReplayersFileName(String typeOfFile,String idA, String vmType, String idC ){ //TODO move to shared
+		return idA+typeOfFile+"J"+vmType + idC + ".txt";
+	}
+	
 	
 	private String scenarioValidation(InstanceDataMultiProvider instanceDataMultiProvider, Scenarios scenario){
 		String returnString = new String();
@@ -516,6 +396,18 @@ public class LaunchAnalysis {
 		BigDecimal bd = new BigDecimal(unrounded);
 		BigDecimal rounded = bd.setScale(precision, roundingMode);
 		return rounded.doubleValue();
+	}
+	
+	private void deleteUploadedFiles(List<String> pathList){
+		List<File> filesToBeEreased = new ArrayList<>();
+		for(String  path :pathList){
+			try {
+				filesToBeEreased.add(fileUtility.provideFile(path));
+			} catch (IOException e) {
+				continue;
+			}
+		}
+		fileUtility.delete(filesToBeEreased);
 	}
 	
 	private String generateUniqueString() {

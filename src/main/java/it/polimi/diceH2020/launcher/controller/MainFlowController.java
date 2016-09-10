@@ -86,6 +86,20 @@ public class MainFlowController {
     	return "launchSimulation_FileUpload";
     }
 	
+	@RequestMapping(value="/launchRetry", method=RequestMethod.GET)
+    public String launch(@RequestParam("scenario") String scenario, @RequestParam("message") String message,SessionStatus sessionStatus, Model model){
+		if(model.containsAttribute("sim_manager")){
+			sessionStatus.isComplete();
+		}
+		List<Scenarios> privateScenariosModels = new ArrayList<Scenarios>();
+		privateScenariosModels.add(Scenarios.PrivateAdmissionControl);
+		privateScenariosModels.add(Scenarios.PrivateAdmissionControlWithPhysicalAssignment);
+		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		model.addAttribute("Scenarios",  privateScenariosModels);
+		model.addAttribute("message", message);
+    	return "launchSimulation_FileUpload";
+    }
+	
 	@RequestMapping(value="/resPub", method=RequestMethod.GET)
 	public String listPub(Model model) {
 			List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,Scenarios.PublicPeakWorkload));
