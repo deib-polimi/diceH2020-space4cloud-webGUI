@@ -1,18 +1,30 @@
+/*
+Copyright 2016 Jacopo Rigoli
+Copyright 2016 Michele Ciavotta
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package it.polimi.diceH2020.launcher;
 
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-
-import javax.annotation.PostConstruct;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
+import it.polimi.diceH2020.launcher.model.SimulationsManager;
+import it.polimi.diceH2020.launcher.service.DiceConsumer;
+import it.polimi.diceH2020.launcher.service.DiceService;
+import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -21,18 +33,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
-import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
-import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.service.DiceConsumer;
-import it.polimi.diceH2020.launcher.service.DiceService;
-import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
-
-
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 @Scope("prototype")
 @Component
@@ -46,21 +52,21 @@ public class Experiment {
 	private String UPLOAD_ENDPOINT;
 
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
-	
+
 	@Autowired
 	private Settings settings;
 	private DiceConsumer consumer;
 	private String port;
-	
+
 	@Autowired
 	private ObjectMapper mapper;
-	
+
 	@Autowired
 	private DiceService ds;
-	
+
 	@Autowired
 	private RestCommunicationWrapper restWrapper;
-	
+
 	public Experiment(DiceConsumer consumer) {
 //		SimpleModule module = new SimpleModule().addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
 //		mapper.registerModules(module,new Jdk8Module());
@@ -83,18 +89,18 @@ public class Experiment {
 
 	private boolean evaluateInitSolution() {
 		String res;
-		
+
 		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		if (res.equals("EVALUATING_INIT")) {
-			res = "EVALUATING_INIT"; 
+			res = "EVALUATING_INIT";
 			while (res.equals("EVALUATING_INIT")) {
 				try { Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-				
+
 				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
 				catch(Exception e){
 					notifyWsUnreachability();
@@ -105,25 +111,25 @@ public class Experiment {
 		if (res.equals("EVALUATED_INITSOLUTION")){
 			return true;
 		}
-		notifyWsErrorState(res); 
+		notifyWsErrorState(res);
 		return false;
 	}
 
 	public synchronized boolean launch(InteractiveExperiment e) {
 		e.setState(States.RUNNING);
-	  	e.getSimulationsManager().refreshState();
+		e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
 		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 
 		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
 		String baseErrorString = expInfo+"Error! ";
-		
-		
-		
+
+
+
 		logger.info(String.format("%s-> {Exp:%s  port:%s,  provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getProvider(),e.getSimulationsManager().getScenario().toString()));
 		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
-		
-		
+
+
 		boolean idle = checkWSIdle();
 		if (!idle) {
 			logger.info(baseErrorString + " Service not idle");
@@ -134,10 +140,10 @@ public class Experiment {
 		boolean charged_inputdata = sendInputData(e.getInputData());
 		if (!charged_inputdata) return false;
 		logger.info(String.format("%s.json has been correctly sent",expInfo));
-		
-		
+
+
 		logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
-		
+
 		if (!initialize(e)){
 			logger.info(baseErrorString+" Problem with JMT replayers files");
 			return false;
@@ -158,15 +164,15 @@ public class Experiment {
 			return false;
 		}
 		logger.info(String.format("%s---------- Initial solution correctly evaluated",expInfo));
-		
+
 		boolean initsolution_saved = saveInitSolution();
 		if (!initsolution_saved) {
 			logger.info(baseErrorString + " Getting or saving initial solution");
 			return false;
 		}
 		logger.info(String.format("%s---------- Initial solution correctly saved",expInfo));
-		
-		
+
+
 		logger.info(String.format("%s---------- Starting hill climbing", expInfo));
 		boolean finish = executeLocalSearch();
 
@@ -181,8 +187,8 @@ public class Experiment {
 			return false;
 		}
 		logger.info(String.format("%s---------- Finished hill climbing", expInfo));
-		
-		try{ 
+
+		try{
 			restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); //from FINISHED to idle
 		}catch(Exception exc){
 			notifyWsUnreachability();
@@ -198,7 +204,7 @@ public class Experiment {
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
 		map.add("name", filename);
 		map.add("filename", filename);
-		
+
 		try {
 			ByteArrayResource contentsAsResource = new ByteArrayResource(content.getBytes("UTF-8"))  {
 				@Override
@@ -207,13 +213,13 @@ public class Experiment {
 				}
 			};
 			map.add("file", contentsAsResource);
-			
+
 			try{ restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class); }
 			catch(Exception e){
 				notifyWsUnreachability();
 				return false;
 			}
-			
+
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return false;
@@ -234,13 +240,13 @@ public class Experiment {
 	private boolean checkWSIdle(int iter) {
 		if (iter > 50) { return false; }
 		String res;
-		
+
 		try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		if (res.equals("IDLE")) return true;
 		else {
 			try {
@@ -255,18 +261,18 @@ public class Experiment {
 
 	private boolean executeLocalSearch() {
 		String res;
-		
+
 		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		if (res.equals("RUNNING_LS")) {
 			res = "RUNNING_LS";
 			while (res.equals("RUNNING_LS")) {
 				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-				
+
 				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
 				catch(Exception e){
 					notifyWsUnreachability();
@@ -283,18 +289,18 @@ public class Experiment {
 
 	private boolean generateInitialSolution() {
 		String res;
-		
+
 		try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class); }
 		catch(Exception e){
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		if (res.equals("RUNNING_INIT")){
 			res = "RUNNING_INIT";
 			while (res.equals("RUNNING_INIT")){
 				try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-				
+
 				try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
 				catch(Exception e){
 					notifyWsUnreachability();
@@ -304,7 +310,7 @@ public class Experiment {
 			if (res.equals("CHARGED_INITSOLUTION")){
 				return true;
 			}
-		} 
+		}
 		notifyWsErrorState(res);
 		return false;
 	}
@@ -324,13 +330,13 @@ public class Experiment {
 
 	private boolean saveFinalSolution(InteractiveExperiment e, String expInfo) {
 		Solution sol;
-		
+
 		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
 		catch(Exception exc){
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		e.setSol(sol);
 		e.setExperimentalDuration(sol.getOptimizationTime());
 		e.setDone(true);
@@ -342,16 +348,16 @@ public class Experiment {
 	}
 
 	private boolean saveInitSolution() {
-		
+
 		Solution sol = new Solution();
-		
+
 		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
 		catch(Exception e){
 			logger.info("Impossible receiving remote solution. ["+e+"]");
 			notifyWsUnreachability();
 			return false;
 		}
-		
+
 		String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-MINLP.json";
 		String solSerialized;
 		try {
@@ -370,7 +376,7 @@ public class Experiment {
 		if (data != null) {
 			String res;
 			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
-			catch(Exception e){ 
+			catch(Exception e){
 				notifyWsUnreachability();
 				return false;
 			}
@@ -385,19 +391,19 @@ public class Experiment {
 			return false;
 		}
 	}
-	
+
 	private void notifyWsUnreachability(){
 		ds.setChannelState(consumer,States.INTERRUPTED);
 		logger.info("WS unreachable. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 	}
-	
+
 	private void notifyWsErrorState(String res){
 		if(res.equals("ERROR")){
 			ds.setChannelState(consumer,States.ERROR);
 			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 		}
 	}
-	
+
 	void wipeResultDir() throws IOException {
 		Path result = Paths.get(settings.getResultDir());
 		if (Files.exists(result)) {

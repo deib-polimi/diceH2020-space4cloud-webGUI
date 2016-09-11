@@ -1,57 +1,72 @@
 <!DOCTYPE html>
+<!--
+Copyright 2016 Jacopo Rigoli
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>Simulations</title>
-<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
-	href="../css/common.css" />
-<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
-	href="../css/simulations.css" />
+	<meta charset="UTF-8" />
+	<title>Simulations</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
+		  href="../css/common.css" />
+	<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
+		  href="../css/simulations.css" />
 </head>
 <body>
-	<div id="topBar">
-		<div id="ios-arrow-container">
-			<div id="ios-arrow-left" title="Home">
-				<a href="/"
-					style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;">
-				</a>
-			</div>
-		</div>
-		<h3>Simulator launcher</h3>
-		<div
-			style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;">
+<div id="topBar">
+	<div id="ios-arrow-container">
+		<div id="ios-arrow-left" title="Home">
+			<a href="/"
+			   style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;">
+			</a>
 		</div>
 	</div>
-	
-	<div th:if ="${message} != null" class="basic-grey" > 
-   		<p class ="text" th:text = "${message}"></p>
- 	</div>
-	<h1>Select <span th:text="${scenario.getCloudType()}"></span> Cloud <span th:text="${scenario.getDescription()}"></span> files</h1>
-  
-	<form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/upload}" class="basic-grey">
-		<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
-			<label> <span>Select Model:</span> 
-				<select name="scenario" required="required" style="display:block;">
-					<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}" th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
-	  			</select>
-  			</label> 
-		</div>
-		
-  		<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment'}" >
-  			<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
-  		</div>
-  		
-		<div style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
-		 txt files:
-		</div>
-    	<label> 
-			<span>Select a folder:</span> 
-			<input id="folder" type="file" name="file[]" class="input"  webkitdirectory="" directory="" multiple="" mozdirectory="" required="required"/>
+	<h3>Simulator launcher</h3>
+	<div
+			style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;">
+	</div>
+</div>
+
+<div th:if ="${message} != null" class="basic-grey" >
+	<p class ="text" th:text = "${message}"></p>
+</div>
+<h1>Select <span th:text="${scenario.getCloudType()}"></span> Cloud <span th:text="${scenario.getDescription()}"></span> files</h1>
+
+<form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/upload}" class="basic-grey">
+	<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+		<label> <span>Select Model:</span>
+			<select name="scenario" required="required" style="display:block;">
+				<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}" th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
+			</select>
 		</label>
-		
-		<div style="width:100%;">
-			<input type="submit" class="button" value="Submit" style="margin:20px auto;display:block;" />
-		</div>
-	</form>
+	</div>
+
+	<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment'}" >
+		<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
+	</div>
+
+	<div style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+		txt files:
+	</div>
+	<label>
+		<span>Select a folder:</span>
+		<input id="folder" type="file" name="file[]" class="input"  webkitdirectory="" directory="" multiple="" mozdirectory="" required="required"/>
+	</label>
+
+	<div style="width:100%;">
+		<input type="submit" class="button" value="Submit" style="margin:20px auto;display:block;" />
+	</div>
+</form>
 </body>
 </html>

@@ -1,137 +1,152 @@
 <!DOCTYPE html>
+<!--
+Copyright 2016 Jacopo Rigoli
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8"></meta>
-<title>Simulations</title>
-<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
-	href="../../css/simulations.css" />
-<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
-	href="../../css/common.css" />
-<link rel="stylesheet" type="text/css" th:href="@{/css/loader.css}"
-	href="../../css/loader.css" />
-<script th:src="@{/js/jquery2.1.1.js}" src="@{/js/jquery2.1.1.js}"></script>
-<script type="text/javascript">
-	var warnings="";
-	if(typeof(Storage) !== "undefined") {//browser support sessionStorage and sessionStorage    	
+	<meta charset="UTF-8"></meta>
+	<title>Simulations</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
+		  href="../../css/simulations.css" />
+	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
+		  href="../../css/common.css" />
+	<link rel="stylesheet" type="text/css" th:href="@{/css/loader.css}"
+		  href="../../css/loader.css" />
+	<script th:src="@{/js/jquery2.1.1.js}" src="@{/js/jquery2.1.1.js}"></script>
+	<script type="text/javascript">
+		var warnings="";
+		if(typeof(Storage) !== "undefined") {//browser support sessionStorage and sessionStorage
 			var rand = Math.floor((Math.random() * 100000) + 1);
 			sessionStorage.clear();
 			localStorage.clear();
 			sessionStorage.setItem("tabID","tabID"+rand);
-	} else {
-       	 	// No Web Storage support
-       	 	warnings+="Your browser doesn't support Web Storage. <br/> Be sure you aren't filling these forms in multiple tabs!";     	 	
-    }
-</script>
+		} else {
+			// No Web Storage support
+			warnings+="Your browser doesn't support Web Storage. <br/> Be sure you aren't filling these forms in multiple tabs!";
+		}
+	</script>
 </head>
 <body>
-	<div id="topBar">
-		<div id="ios-arrow-container">
-			<div id="ios-arrow-left" title="Home">
-				<a href="/"
-					style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;"></a>
-			</div>
+<div id="topBar">
+	<div id="ios-arrow-container">
+		<div id="ios-arrow-left" title="Home">
+			<a href="/"
+			   style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1000;"></a>
 		</div>
-		<h3>Simulator launcher</h3>
-		<div
+	</div>
+	<h3>Simulator launcher</h3>
+	<div
 			style="width: 100%; height: 1px; background-color: white; position: absolute; top: 20px; z-index: 0;"></div>
-	</div>
+</div>
 
-	<div id="warningsDiv">
-		<img th:src="@{/images/warning.png}" src="../../images/warning.png" />
-		<p id="warnings"></p>
-	</div>
-	<div id="pageContent">
-		<br />
-		<h1>Simulation Set up</h1>
-		<form id="simForm" action="/launch/wi/simulations"
-			th:action="@{/launch/wi/simulations}" th:object="${sim_manager}"
-			method="post">
-			<table class="basic-grey">
-				<tr>
-					<td>Provider:</td>
-					<td><select th:field= "*{provider}">
-							<option value="Amazon">Amazon</option>
-							<option value="Cineca">Cineca</option>
-					</select></td>
-				</tr>
-				<tr>
-					<td>Number of physical Node available in the cluster:</td>
-					<td>
-						<input type="text" th:field="*{nodeNum}" th:value="*{nodeNum}?: '250'"/>
-					</td>
-					<td th:if="${#fields.hasErrors('nodeNum')}" class="form_error"
-						th:errors="*{nodeNum}">Number of physical Node available in the cluster Error</td>
-				</tr>
-				<tr>
-					<td>CPU Capacity of each physical Node:</td>
-					<td>
-						<input type="text" th:field="*{capacityCPU}" th:value="*{capacityCPU}?: '4'"/>
-					</td>
-					<td th:if="${#fields.hasErrors('capacityCPU')}" class="form_error"
-						th:errors="*{capacityCPU}">CPU Capacity of each physical Node Error</td>
-				</tr>
-				<tr>
-					<td>RAM Capacity of each physical Node:</td>
-					<td>
-						<input type="text" th:field="*{capacityRAM}" th:value="*{capacityRAM}?: '4'"/>
-					</td>
-					<td th:if="${#fields.hasErrors('capacityRAM')}" class="form_error"
-						th:errors="*{capacityRAM}">RAM Capacity of each physical Node Error</td>
-				</tr>
-			</table>
-			<h1>Classes Common Parameters</h1>
-            <table class="basic-grey">
-                <tr colspan="3"><td colspan="3" style="text-align:center;font-style:italic;font-weight:800;">Common Parameters </td></tr><!-- blank space -->
-                <tr>
-                	<td style="font-style:italic;text-align:center;" colspan="3">NB: Insert a value only if the field is constant in all the classes.</td>
-                </tr>
-                <tr>
-					<td>Deadline[ms]:</td>
-					<td><input id="deadline" name="deadline" type="text"
-						th:field="*{deadline}" th:value="*{deadline}?: '1'" /></td>
-					<td th:if="${#fields.hasErrors('deadline')}" class="form_error"
-						th:errors="*{deadline}">Min Number of concurrent Users Error</td>
-				</tr>
-                <tr>
-					<td>Min number of concurrent users:</td>
-					<td><input id="minUsers" name="minUsers" type="text"
-						th:field="*{minNumUsers}" th:value="*{minNumUsers}?: '1'" /></td>
-					<td th:if="${#fields.hasErrors('minNumUsers')}" class="form_error"
-						th:errors="*{minNumUsers}">Min Number of concurrent Users Error</td>
-				</tr>
-				<tr>
-					<td>Max number of concurrent users:</td>
-					<td><input id="maxUsers" name="maxUsers" type="text"
-						th:field="*{maxNumUsers}" th:value="*{maxNumUsers}?: '1'" /></td>
-					<td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error"
-						th:errors="*{maxNumUsers}">Max Number of concurrent Users Error</td>
-				</tr>
-				<tr>
-					<td>Think Time[ms]:</td>
-					<td><input id="thinkTime" name="thinkTime" type="text"
-						th:field="*{thinkTime}" th:value="*{thinkTime}?: '10000'" /></td>
-					<td th:if="${#fields.hasErrors('thinkTime')}" class="form_error"
-						th:errors="*{thinkTime}">Reduce Time Error</td>
-				</tr>
-				<!-- <tr>
-					<td>Class penalty:</td>
-					<td><input id="maxUsers" name="maxUsers" type="text"
-						th:field="*{maxNumUsers}" th:value="*{maxNumUsers}?: '1'" /></td>
-					<td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error"
-						th:errors="*{maxNumUsers}">Max Number of concurrent Users Error</td>
-				</tr> -->
-            </table>
-            <input id="tabID" type="hidden" th:field="*{tabID}"/>
-            <button type="submit" style="margin-top:50px;">Submit</button>
-        </form>
-     	<script type="text/javascript">
-     		if(warnings!=""){
-     			document.getElementById("warnings").innerHTML=warnings; 
-     			document.getElementById("warningsDiv").style.display="table";
-     		}
-     		document.getElementById("tabID").value=sessionStorage.getItem("tabID");
-     	</script>
-	</div>
+<div id="warningsDiv">
+	<img th:src="@{/images/warning.png}" src="../../images/warning.png" />
+	<p id="warnings"></p>
+</div>
+<div id="pageContent">
+	<br />
+	<h1>Simulation Set up</h1>
+	<form id="simForm" action="/launch/wi/simulations"
+		  th:action="@{/launch/wi/simulations}" th:object="${sim_manager}"
+		  method="post">
+		<table class="basic-grey">
+			<tr>
+				<td>Provider:</td>
+				<td><select th:field= "*{provider}">
+					<option value="Amazon">Amazon</option>
+					<option value="Cineca">Cineca</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td>Number of physical Node available in the cluster:</td>
+				<td>
+					<input type="text" th:field="*{nodeNum}" th:value="*{nodeNum}?: '250'"/>
+				</td>
+				<td th:if="${#fields.hasErrors('nodeNum')}" class="form_error"
+					th:errors="*{nodeNum}">Number of physical Node available in the cluster Error</td>
+			</tr>
+			<tr>
+				<td>CPU Capacity of each physical Node:</td>
+				<td>
+					<input type="text" th:field="*{capacityCPU}" th:value="*{capacityCPU}?: '4'"/>
+				</td>
+				<td th:if="${#fields.hasErrors('capacityCPU')}" class="form_error"
+					th:errors="*{capacityCPU}">CPU Capacity of each physical Node Error</td>
+			</tr>
+			<tr>
+				<td>RAM Capacity of each physical Node:</td>
+				<td>
+					<input type="text" th:field="*{capacityRAM}" th:value="*{capacityRAM}?: '4'"/>
+				</td>
+				<td th:if="${#fields.hasErrors('capacityRAM')}" class="form_error"
+					th:errors="*{capacityRAM}">RAM Capacity of each physical Node Error</td>
+			</tr>
+		</table>
+		<h1>Classes Common Parameters</h1>
+		<table class="basic-grey">
+			<tr colspan="3"><td colspan="3" style="text-align:center;font-style:italic;font-weight:800;">Common Parameters </td></tr><!-- blank space -->
+			<tr>
+				<td style="font-style:italic;text-align:center;" colspan="3">NB: Insert a value only if the field is constant in all the classes.</td>
+			</tr>
+			<tr>
+				<td>Deadline[ms]:</td>
+				<td><input id="deadline" name="deadline" type="text"
+						   th:field="*{deadline}" th:value="*{deadline}?: '1'" /></td>
+				<td th:if="${#fields.hasErrors('deadline')}" class="form_error"
+					th:errors="*{deadline}">Min Number of concurrent Users Error</td>
+			</tr>
+			<tr>
+				<td>Min number of concurrent users:</td>
+				<td><input id="minUsers" name="minUsers" type="text"
+						   th:field="*{minNumUsers}" th:value="*{minNumUsers}?: '1'" /></td>
+				<td th:if="${#fields.hasErrors('minNumUsers')}" class="form_error"
+					th:errors="*{minNumUsers}">Min Number of concurrent Users Error</td>
+			</tr>
+			<tr>
+				<td>Max number of concurrent users:</td>
+				<td><input id="maxUsers" name="maxUsers" type="text"
+						   th:field="*{maxNumUsers}" th:value="*{maxNumUsers}?: '1'" /></td>
+				<td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error"
+					th:errors="*{maxNumUsers}">Max Number of concurrent Users Error</td>
+			</tr>
+			<tr>
+				<td>Think Time[ms]:</td>
+				<td><input id="thinkTime" name="thinkTime" type="text"
+						   th:field="*{thinkTime}" th:value="*{thinkTime}?: '10000'" /></td>
+				<td th:if="${#fields.hasErrors('thinkTime')}" class="form_error"
+					th:errors="*{thinkTime}">Reduce Time Error</td>
+			</tr>
+			<!-- <tr>
+                <td>Class penalty:</td>
+                <td><input id="maxUsers" name="maxUsers" type="text"
+                    th:field="*{maxNumUsers}" th:value="*{maxNumUsers}?: '1'" /></td>
+                <td th:if="${#fields.hasErrors('maxNumUsers')}" class="form_error"
+                    th:errors="*{maxNumUsers}">Max Number of concurrent Users Error</td>
+            </tr> -->
+		</table>
+		<input id="tabID" type="hidden" th:field="*{tabID}"/>
+		<button type="submit" style="margin-top:50px;">Submit</button>
+	</form>
+	<script type="text/javascript">
+		if(warnings!=""){
+			document.getElementById("warnings").innerHTML=warnings;
+			document.getElementById("warningsDiv").style.display="table";
+		}
+		document.getElementById("tabID").value=sessionStorage.getItem("tabID");
+	</script>
+</div>
 </body>
 
 </html>

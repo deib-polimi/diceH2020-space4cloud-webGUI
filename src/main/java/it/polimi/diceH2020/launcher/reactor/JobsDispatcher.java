@@ -1,15 +1,19 @@
+/*
+Copyright 2016 Jacopo Rigoli
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package it.polimi.diceH2020.launcher.reactor;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.launcher.Settings;
@@ -17,49 +21,58 @@ import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
-	
+
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(JobsDispatcher.class.getName());
-	
+
 	@Autowired
 	private RestCommunicationWrapper restWrapper;
-	
+
 	@Autowired
 	private Settings settings;
-	
+
 	private AtomicInteger numPrivateConcurrentExp = new AtomicInteger(0);
 	private int maxNumPrivateConcurrentExp;
-	
+
 	public int getQueueSize(){
 		return jobsQueue.size();
 	}
-	
+
 	@PostConstruct
 	private void setupEnvironment(){
 		maxNumPrivateConcurrentExp = settings.getPrivateConcurrentExperiments() ;
 	}
-	
+
 	public void notifyReadyChannel(DiceConsumer consumer){
 		notifyChannelStatus(consumer,States.COMPLETED);
 		//System.out.println(channelsInfoList.stream().filter(channelInfo -> channelInfo.getConsumer().equals(consumer)).findFirst().get().getConsumer().getId() + " is ready");
 		sendJobsToFreeChannels();
 	}
-	
+
 	public void notifyErrorChannel(DiceConsumer consumer){
 		notifyChannelStatus(consumer,States.ERROR);
 	}
-	
+
 	public void notifyInterruptedChannel(DiceConsumer consumer){
 		notifyChannelStatus(consumer,States.INTERRUPTED);
 	}
-	
+
 	public void notifyRunningChannel(DiceConsumer consumer){
 		notifyChannelStatus(consumer,States.RUNNING);
 	}
-	
-	
+
+
 	@Scheduled(fixedDelay = 600000, initialDelay = 5000)
 	public void checkWSAvailability(){
 		String res, message;
@@ -85,7 +98,7 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 		logger.info("Cron Job executed. Queue length: "+getQueueSize()+" "+message.substring(0,message.length()-1));
 		sendJobsToFreeChannels();
 	}
-	
+
 	public Map<String,String> getWsStatus(){
 		Map<String,String> status = new HashMap<String,String>();
 		for(ChannelInfo channel : channelsInfoList){
@@ -93,11 +106,11 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 		}
 		return status;
 	}
-	
+
 	public int getNumPrivateExperiments(){
 		return numPrivateConcurrentExp.get();
 	}
-	
+
 	@Override
 	protected int getJobToSend(){
 		for(int nextJob=0; nextJob<jobsQueue.size();nextJob++){
@@ -112,12 +125,12 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 		}
 		return -1;
 	}
-	
+
 	public void signalPrivateExperimentEnd(){
 		numPrivateConcurrentExp.decrementAndGet();
 	}
-	
-	public synchronized void dequeue(){ 
+
+	public synchronized void dequeue(){
 //		 for (Iterator<InteractiveExperiment> iterator = jobsQueue.iterator(); iterator.hasNext();) {
 //			 	InteractiveExperiment exp = iterator.next();
 //				if(exp.isDone()){
@@ -125,5 +138,5 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 //		 		}
 //		 }
 	}
-	
+
 }

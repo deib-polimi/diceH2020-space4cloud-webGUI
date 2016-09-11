@@ -1,6 +1,26 @@
+/*
+Copyright 2016 Jacopo Rigoli
+Copyright 2016 Michele Ciavotta
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package it.polimi.diceH2020.launcher;
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.apache.catalina.connector.Connector;
@@ -23,13 +43,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 
 @EnableRetry
 @SpringBootApplication
@@ -78,44 +91,44 @@ public class LauncherApplication {
 	public MappingJackson2HttpMessageConverter jacksonMapper(){
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 		converter.setObjectMapper(objectMapper());
-		return converter; 
+		return converter;
 	}
-	
+
 	@Primary
 	@Bean
 	public ObjectMapper objectMapper() {
-	    ObjectMapper mapper = new ObjectMapper();
-	    registerModules(mapper);
-	    return mapper;
+		ObjectMapper mapper = new ObjectMapper();
+		registerModules(mapper);
+		return mapper;
 	}
-	
+
 	@Bean
 	public SimpleModule customModule(){
 		SimpleModule module = new SimpleModule();
 		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer());
 		return module;
 	}
-	
+
 	@Bean
 	public Jdk8Module jdk8Module() {
-	    return new Jdk8Module();
+		return new Jdk8Module();
 	}
-	
+
 	private void registerModules(ObjectMapper mapper) {
-	    mapper.registerModule(jdk8Module());
-	    mapper.registerModule(customModule());
+		mapper.registerModule(jdk8Module());
+		mapper.registerModule(customModule());
 	}
-	
+
 	@Primary
 	@Bean
 	public ObjectWriter writer(ObjectMapper mapper) {
-	    return mapper.writer();
+		return mapper.writer();
 	}
-	
+
 	@Primary
 	@Bean
 	public ObjectReader reader(ObjectMapper mapper) {
-	    return mapper.reader();
+		return mapper.reader();
 	}
 
 

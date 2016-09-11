@@ -1,5 +1,23 @@
+/*
+Copyright 2016 Jacopo Rigoli
+Copyright 2016 Michele Ciavotta
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package it.polimi.diceH2020.launcher.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.States;
@@ -8,10 +26,6 @@ import it.polimi.diceH2020.launcher.utility.SimulationsUtilities;
 import lombok.Data;
 
 import javax.persistence.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,15 +43,15 @@ public class SimulationsManager {
 	private Long id;
 
 	private String date;
-	
+
 	private String time;
 
 	private String instanceName;
 
 	private String folder;
-	
+
 	private String provider;
-	
+
 	private Scenarios scenario; //	contains also CloudType cloudType;
 
 	@Column(length = 20000000) //...
@@ -46,10 +60,10 @@ public class SimulationsManager {
 	private States state;
 
 	private String resultFilePath;
-	
+
 	@Transient
 	private InstanceData inputData;
-	
+
 //	@Transient
 //	private String tabID; //for session navigation. See the controller doc for other information
 
@@ -63,7 +77,7 @@ public class SimulationsManager {
 	private List<InteractiveExperiment> experimentsList;
 
 	private Integer numCompletedSimulations;
-	
+
 	private Integer numFailedSimulations;
 
 	public SimulationsManager() {
@@ -74,10 +88,10 @@ public class SimulationsManager {
 		this.time = timeFormat.format(date);
 		numFailedSimulations = 0;
 		numCompletedSimulations = 0;
-		
+
 		experimentsList = new ArrayList<InteractiveExperiment>();
 		inputFiles = new ArrayList<String[]>();
-		
+
 		inputFileName = new String();
 		input = new String();
 		resultFilePath = new String();
@@ -85,9 +99,9 @@ public class SimulationsManager {
 
 		state = States.READY;
 	}
-	
+
 	public synchronized void refreshState(){
-		
+
 		List<States> statesList = new ArrayList<>();
 		for(InteractiveExperiment intExp : experimentsList){
 			statesList.add(intExp.getState());

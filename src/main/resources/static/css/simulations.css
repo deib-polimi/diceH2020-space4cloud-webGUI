@@ -1,16 +1,32 @@
 @CHARSET "UTF-8";
+/*
+Copyright 2016 Michele Ciavotta
+Copyright 2016 Jacopo Rigoli
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 * {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  box-sizing: border-box;
- /* outline: none;*/
-  font-weight: 100;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	box-sizing: border-box;
+	/* outline: none;*/
+	font-weight: 100;
 }
 body {
- /*font-family: "Segoe UI", "Microsoft YaHei";*/
- font-family: raleway, sans-serif;
- font-weight: 100;
+	/*font-family: "Segoe UI", "Microsoft YaHei";*/
+	font-family: raleway, sans-serif;
+	font-weight: 100;
 }
 h1{
 	padding: 50px 0;
@@ -18,18 +34,18 @@ h1{
 	font-weight: 100;
 }
 button {
-    padding: 10px;
-    border-radius: 20px;
-    color: white;
-    background-color: #32465f;
-    margin: 10px auto;
-    display: block;
-/*    box-shadow: 0 0 5px black;*/
+	padding: 10px;
+	border-radius: 20px;
+	color: white;
+	background-color: #32465f;
+	margin: 10px auto;
+	display: block;
+	/*    box-shadow: 0 0 5px black;*/
 }
 button:hover{
 	cursor: pointer;
 	background-color: #4D6583;
-/*	box-shadow: none;*/
+	/*	box-shadow: none;*/
 }
 table{
 	margin: 0 auto;
@@ -41,9 +57,9 @@ table{
 }
 input{
 	border-radius: 4px;
-    border: 1px solid #EEEAEA;
-    width: 50px;
-    padding: 4px;
+	border: 1px solid #EEEAEA;
+	width: 50px;
+	padding: 4px;
 }
 #warnings{
 	display: table;
@@ -57,17 +73,17 @@ input{
 	display:none;
 	margin: 10px auto 10px auto;
 	color: #9F6000;
-    background-color: #FEEFB3;
-    border: 1px solid;
-    padding:5px;
+	background-color: #FEEFB3;
+	border: 1px solid;
+	padding:5px;
 }
 #errorsDiv{
 	display:table;
 	margin: -10px auto 10px auto;
 	color: #cd1034;
-    background-color: #fd7370;
-    border: 1px solid;
-    padding:5px;
+	background-color: #fd7370;
+	border: 1px solid;
+	padding:5px;
 }
 #warningsDiv img, #errorsDiv img{
 	float: left;
@@ -76,31 +92,31 @@ input{
 }
 
 .resultContainer {
-	    overflow-x: scroll;
-		min-height: 150px;
+	overflow-x: scroll;
+	min-height: 150px;
 }
 .resultContainer th{
-  background-color: #32465f;
-   /* font-weight: bold*/
-    color: #fff;
-  white-space: pre-wrap;
+	background-color: #32465f;
+	/* font-weight: bold*/
+	color: #fff;
+	white-space: pre-wrap;
 }
 .resultContainer td,.resultContainer th {
-    padding: 0.75em 1em;
-    width: 1px;/* avoid width increment */
-    /*text-align: left;*/
+	padding: 0.75em 1em;
+	width: 1px;/* avoid width increment */
+	/*text-align: left;*/
 }
 .resultContainer thead {
-    box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
-    z-index: 100;
-    width: 100%;
+	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
+	z-index: 100;
+	width: 100%;
 }
-.resultContainer table{    
+.resultContainer table{
 	border-collapse: collapse;
-    margin-bottom: 3em;
-    width: 100%;
-    background: #fff;
-    margin-top:1em;
+	margin-bottom: 3em;
+	width: 100%;
+	background: #fff;
+	margin-top:1em;
 }
 .resultContainer thead{
 	box-shadow: 0 0.25em 0.1em -0.1em rgba(0,0,0,.125);
@@ -109,11 +125,11 @@ input{
 	background-color: #2ea879;
 }
 .resultContainer tbody tr:nth-child(2n-1) {
-    background-color: #f5f5f5;
-    transition: all .125s ease-in-out;
+	background-color: #f5f5f5;
+	transition: all .125s ease-in-out;
 }
 .resultContainer tbody tr:hover {
-    background-color: rgba(129,208,177,.3);
+	background-color: rgba(129,208,177,.3);
 }
 .resultContainer .linkFather a:hover + img{
 	opacity:0.5;
@@ -125,19 +141,19 @@ input{
 	margin:0!important;
 	padding:0!important;
 }
-#wsStatusButton{	
+#wsStatusButton{
 	padding: 10px 25px 10px 25px;
 	display: table;
 	background: #014495;/*rgb(109,131,161);*/
-    border: solid 0 #e3edf4;
-    border-bottom: 2px solid rgba(54,88,135,1);
+	border: solid 0 #e3edf4;
+	border-bottom: 2px solid rgba(54,88,135,1);
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	color: white;
 	margin: 50px auto;
 }
-#wsStatusButton:hover{	
+#wsStatusButton:hover{
 	background: #4371B1;
 	cursor: pointer;
 }
@@ -150,5 +166,5 @@ input{
 .resultContainer .maxWidth{
 	width: 155px;
 	max-width: 155px;
-    overflow-x: scroll;
+	overflow-x: scroll;
 }

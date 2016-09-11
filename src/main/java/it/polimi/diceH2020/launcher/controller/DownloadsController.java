@@ -1,7 +1,22 @@
+/*
+Copyright 2016 Jacopo Rigoli
+Copyright 2016 Eugenio Gianniti
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package it.polimi.diceH2020.launcher.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
@@ -10,7 +25,6 @@ import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
-
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
@@ -149,7 +163,7 @@ public class DownloadsController {
 				//System.out.println(files.containsKey(inputFiles.get(i)[0]));
 				files.put(inputFiles.get(i)[1],inputFiles.get(i)[3]);
 			}
-		} 
+		}
 		respondWithZipFile(files, response);
 	}
 
