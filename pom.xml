@@ -8,8 +8,19 @@
 	<version>0.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+	<organization>
+		<name>Politecnico di Milano</name>
+	</organization>
+
 	<name>D-SPACE4Cloud Web GUI</name>
 	<description>Launcher for D-SPACE4Cloud</description>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -117,6 +128,17 @@
 			<artifactId>jackson-datatype-jdk8</artifactId>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>deib-polimi-releases</id>
+			<url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/releases</url>
+		</repository>
+		<repository>
+			<id>deib-polimi-snapshots</id>
+			<url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/snapshots</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
