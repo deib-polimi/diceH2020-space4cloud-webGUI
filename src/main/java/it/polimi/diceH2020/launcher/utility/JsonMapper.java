@@ -178,6 +178,7 @@ public class JsonMapper {
 				p.setSh1max(typeVMs.getValue().getSh1max());
 				p.setShtypavg(typeVMs.getValue().getShtypavg());
 				p.setShtypmax(typeVMs.getValue().getShtypmax());
+				p.setDatasize(typeVMs.getValue().getDatasize());
 
 				map.put(key, p);
 			}
