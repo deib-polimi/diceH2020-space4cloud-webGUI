@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Random;
 
@@ -94,13 +95,21 @@ public class LaunchAnalysis {
 			redirectAttrs.addAttribute("message", "Select a Json file!");
 			return "redirect:/launchRetry";
 		}
-
-		if (!validator.validateInstanceDataMultiProvider(Paths.get(instanceDataMultiProviderPath))) {
-			redirectAttrs.addAttribute("message", "The uploaded Json isn't valid!");
+		
+		
+		Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(Paths.get(instanceDataMultiProviderPath));
+		
+		if(idmp.isPresent()){
+			if(!idmp.get().validate()){
+				model.addAttribute("message", idmp.get().getValidationError());
+				return "redirect:/launchRetry";
+			}
+		}else{
+			model.addAttribute("message", "Error with InstanceDataMultiProvider");
 			return "redirect:/launchRetry";
 		}
 
-		InstanceDataMultiProvider instanceDataMultiProvider = validator.objectFromPath(Paths.get(instanceDataMultiProviderPath), InstanceDataMultiProvider.class).get();
+		InstanceDataMultiProvider instanceDataMultiProvider = idmp.get();
 
 		String check = scenarioValidation(instanceDataMultiProvider, scenario);
 		if(!check.equals("ok")) {
@@ -281,6 +290,10 @@ public class LaunchAnalysis {
 
 			case PrivateNoAdmissionControl:
 				if(instanceDataMultiProvider.getMapVMConfigurations()==null){
+					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
+					return returnString;
+				}
+				if(instanceDataMultiProvider.getMapVMConfigurations().getMapVMConfigurations()==null){
 					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
 					return returnString;
 				}

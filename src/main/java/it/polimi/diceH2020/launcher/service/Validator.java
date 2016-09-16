@@ -69,10 +69,11 @@ public class Validator {
 		return (sol.isPresent() && sol.get().validate());
 	}
 
-	public boolean validateInstanceDataMultiProvider(Path pathToFile){
+	public Optional<InstanceDataMultiProvider> readInstanceDataMultiProvider(Path pathToFile){
 		Optional<InstanceDataMultiProvider> sol = objectFromPath(pathToFile, InstanceDataMultiProvider.class);
-		return (sol.isPresent() && sol.get().validate());
+		return sol;
 	}
+	
 
 	public boolean validateInstanceData(Path pathToFile){
 		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);

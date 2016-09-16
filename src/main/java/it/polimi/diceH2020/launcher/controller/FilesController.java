@@ -16,6 +16,7 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.controller;
 
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,9 +80,15 @@ public class FilesController {
 			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
-				if(validator.validateInstanceDataMultiProvider(f.toPath())){
-					redirectAttrs.addAttribute("instanceDataMultiProvider", f.toPath().toString());
-					continue;
+				Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(f.toPath());
+				if(idmp.isPresent()){
+					if(idmp.get().validate()){
+						redirectAttrs.addAttribute("instanceDataMultiProvider", f.toPath().toString());
+						continue;
+					}else{
+						model.addAttribute("message", idmp.get().getValidationError());
+						return "launchSimulation_FileUpload";
+					}
 				}
 				else if(validator.validateInstanceData(f.toPath())){ //for retrocompatibility
 					redirectAttrs.addAttribute("instanceData", f.toPath().toString());

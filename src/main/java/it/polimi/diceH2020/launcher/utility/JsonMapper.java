@@ -167,18 +167,18 @@ public class JsonMapper {
 				key.setJob(jobIDs.getKey());
 				key.setTypeVM(typeVMs.getKey());
 
-				p.setNm(typeVMs.getValue().getNm());
-				p.setNr(typeVMs.getValue().getNr());
-				p.setCm(typeVMs.getValue().getCm());
-				p.setCr(typeVMs.getValue().getCr());
-				p.setMavg(typeVMs.getValue().getMavg());
-				p.setMmax(typeVMs.getValue().getMmax());
-				p.setRavg(typeVMs.getValue().getRavg());
-				p.setRmax(typeVMs.getValue().getRmax());
-				p.setSh1max(typeVMs.getValue().getSh1max());
-				p.setShtypavg(typeVMs.getValue().getShtypavg());
-				p.setShtypmax(typeVMs.getValue().getShtypmax());
-				p.setDatasize(typeVMs.getValue().getDatasize());
+				p.put("nm",typeVMs.getValue().getNm());
+				p.put("nr",typeVMs.getValue().getNr());
+				p.put("cm",typeVMs.getValue().getCm());
+				p.put("cr",typeVMs.getValue().getCr());
+				p.put("mavg",typeVMs.getValue().getMavg());
+				p.put("mmax",typeVMs.getValue().getMmax());
+				p.put("ravg",typeVMs.getValue().getRavg());
+				p.put("rmax",typeVMs.getValue().getRmax());
+				p.put("sh1max",typeVMs.getValue().getSh1max());
+				p.put("shtypavg",typeVMs.getValue().getShtypavg());
+				p.put("shtypmax",typeVMs.getValue().getShtypmax());
+				p.put("datasize",typeVMs.getValue().getDatasize());
 
 				map.put(key, p);
 			}
