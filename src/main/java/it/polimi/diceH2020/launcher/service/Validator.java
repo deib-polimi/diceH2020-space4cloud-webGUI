@@ -18,7 +18,6 @@ package it.polimi.diceH2020.launcher.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.*;
 import org.springframework.stereotype.Service;
 
@@ -72,12 +71,6 @@ public class Validator {
 	public Optional<InstanceDataMultiProvider> readInstanceDataMultiProvider(Path pathToFile){
 		Optional<InstanceDataMultiProvider> sol = objectFromPath(pathToFile, InstanceDataMultiProvider.class);
 		return sol;
-	}
-	
-
-	public boolean validateInstanceData(Path pathToFile){
-		Optional<InstanceData> inputData = objectFromPath(pathToFile, InstanceData.class);
-		return (inputData.isPresent());
 	}
 
 }

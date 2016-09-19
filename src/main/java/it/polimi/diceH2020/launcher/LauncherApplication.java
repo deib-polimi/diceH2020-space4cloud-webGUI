@@ -19,9 +19,7 @@ package it.polimi.diceH2020.launcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
@@ -103,20 +101,12 @@ public class LauncherApplication {
 	}
 
 	@Bean
-	public SimpleModule customModule(){
-		SimpleModule module = new SimpleModule();
-		module.addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer());
-		return module;
-	}
-
-	@Bean
 	public Jdk8Module jdk8Module() {
 		return new Jdk8Module();
 	}
 
 	private void registerModules(ObjectMapper mapper) {
 		mapper.registerModule(jdk8Module());
-		mapper.registerModule(customModule());
 	}
 
 	@Primary

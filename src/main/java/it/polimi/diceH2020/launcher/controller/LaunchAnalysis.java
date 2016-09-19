@@ -188,11 +188,6 @@ public class LaunchAnalysis {
 			return "redirect:/launchRetry";
 		}
 
-		if (!validator.validateInstanceData(Paths.get(instanceDataPath))) {
-			redirectAttrs.addAttribute("message", "The uploaded Json isn't valid!");
-			return "redirect:/launchRetry";
-		}
-
 		InstanceDataMultiProvider instanceData = validator.objectFromPath(Paths.get(instanceDataPath), InstanceDataMultiProvider.class).get();
 
 		String check = scenarioValidation(instanceData, scenario);
