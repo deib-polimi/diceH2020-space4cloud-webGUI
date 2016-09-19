@@ -90,11 +90,6 @@ public class FilesController {
 						return "launchSimulation_FileUpload";
 					}
 				}
-				else if(validator.validateInstanceData(f.toPath())){ //for retrocompatibility
-					redirectAttrs.addAttribute("instanceData", f.toPath().toString());
-					singleInputData = true;
-					continue;
-				}
 				model.addAttribute("message", "You have submitted an invalid json!");
 				return "launchSimulation_FileUpload";
 			} else {
