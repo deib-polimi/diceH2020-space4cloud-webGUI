@@ -15,16 +15,15 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.controller;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.Profile;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.TypeVMJobClassKey;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.JobProfile;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
-import it.polimi.diceH2020.launcher.utility.JsonMapper;
+import it.polimi.diceH2020.launcher.utility.JsonSplitter;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -96,7 +96,6 @@ public class LaunchAnalysis {
 			return "redirect:/launchRetry";
 		}
 		
-		
 		Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(Paths.get(instanceDataMultiProviderPath));
 		
 		if(idmp.isPresent()){
@@ -117,48 +116,52 @@ public class LaunchAnalysis {
 			return "redirect:/launchRetry";
 		}
 
-		List<InstanceData> inputList = JsonMapper.getInstanceDataList(instanceDataMultiProvider, scenario);
+		List<InstanceDataMultiProvider> inputList = JsonSplitter.splitInstanceDataMultiProvider(instanceDataMultiProvider, scenario);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 		for(SimulationsManager sm : simManagerList){
 			ArrayList<String> tmpList = new ArrayList<String>();
 			pathList.forEach(e->{tmpList.add(e);});
 			sm.setInputFileName(Paths.get(instanceDataMultiProviderPath).getFileName().toString());
-			InstanceData input = sm.getInputData();
-
-			for(Entry<TypeVMJobClassKey, Profile> entry : input.getMapProfiles().entrySet()){
-				String mapFileName=new String();
-				String rsFileName=new String();
-				String mapFileContent=new String();
-				String rsFileContent=new String();
-
-				String fileNotFound = new String();
-				try {
-					mapFileName = getReplayersFileName("Map",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
-					fileNotFound = mapFileName;
-					File mapFile = fileUtility.provideFile(mapFileName);
-					mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
-
-					rsFileName = getReplayersFileName("RS",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
-					fileNotFound = rsFileName;
-					File rsFile = fileUtility.provideFile(rsFileName);
-					rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
-
-					if(mapFileContent.length()==0 || rsFileContent.length() == 0){
-						throw new OperationNotSupportedException("One or more replayers submitted files are empty");
+			InstanceDataMultiProvider input = sm.getInputData();
+			
+			for (Entry<String, Map<String, Map<String, JobProfile>>> jobIDs : input.getMapJobProfiles().getMapJobProfile().entrySet()) {
+				for (Entry<String, Map<String, JobProfile>> provider : jobIDs.getValue().entrySet()) {
+					for (Entry<String, JobProfile> typeVMs : provider.getValue().entrySet()) {
+						String mapFileName=new String();
+						String rsFileName=new String();
+						String mapFileContent=new String();
+						String rsFileContent=new String();
+		
+						String fileNotFound = new String();
+						try {
+							mapFileName = getReplayersFileName("Map",input.getId(), jobIDs.getKey(), typeVMs.getKey());
+							fileNotFound = mapFileName;
+							File mapFile = fileUtility.provideFile(mapFileName);
+							mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
+		
+							rsFileName = getReplayersFileName("RS",input.getId(), jobIDs.getKey(), typeVMs.getKey());
+							fileNotFound = rsFileName;
+							File rsFile = fileUtility.provideFile(rsFileName);
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
+		
+							if(mapFileContent.length()==0 || rsFileContent.length() == 0){
+								throw new OperationNotSupportedException("One or more replayers submitted files are empty");
+							}
+							sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+							sm.setNumCompletedSimulations(0);
+							sm.buildExperiments();
+						} catch (IOException e1) {
+							logger.info("File \""+fileNotFound+"\" is missing.");
+							deleteUploadedFiles(pathList);
+							redirectAttrs.addAttribute("message","File \""+fileNotFound+"\" is missing.");
+							return "redirect:/launchRetry";
+						} catch (OperationNotSupportedException e1) {
+							logger.info(e1.getMessage());
+							deleteUploadedFiles(pathList);
+							redirectAttrs.addAttribute("message", e1.getMessage());
+							return "redirect:/launchRetry";
+						}
 					}
-					sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
-					sm.setNumCompletedSimulations(0);
-					sm.buildExperiments();
-				} catch (IOException e1) {
-					logger.info("File \""+fileNotFound+"\" is missing.");
-					deleteUploadedFiles(pathList);
-					redirectAttrs.addAttribute("message","File \""+fileNotFound+"\" is missing.");
-					return "redirect:/launchRetry";
-				} catch (OperationNotSupportedException e1) {
-					logger.info(e1.getMessage());
-					deleteUploadedFiles(pathList);
-					redirectAttrs.addAttribute("message", e1.getMessage());
-					return "redirect:/launchRetry";
 				}
 			}
 		}
@@ -171,7 +174,6 @@ public class LaunchAnalysis {
 		return "redirect:/";
 	}
 
-	//TODO quando verrà tolto il json vecchio sistemare qui
 	@RequestMapping(value = "/simulationSetupSingleInputData", method = RequestMethod.GET)
 	public String showSimulationsManagerFormSingleData(SessionStatus sessionStatus, Model model,
 													   @ModelAttribute("instanceData") String instanceDataPath,
@@ -191,7 +193,7 @@ public class LaunchAnalysis {
 			return "redirect:/launchRetry";
 		}
 
-		InstanceData instanceData = validator.objectFromPath(Paths.get(instanceDataPath), InstanceData.class).get();
+		InstanceDataMultiProvider instanceData = validator.objectFromPath(Paths.get(instanceDataPath), InstanceDataMultiProvider.class).get();
 
 		String check = scenarioValidation(instanceData, scenario);
 		if(!check.equals("ok")) {
@@ -199,7 +201,7 @@ public class LaunchAnalysis {
 			return "redirect:/launchRetry";
 		}
 
-		List<InstanceData> inputList = new ArrayList<>();
+		List<InstanceDataMultiProvider> inputList = new ArrayList<>();
 		inputList.add(instanceData);
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 
@@ -208,41 +210,46 @@ public class LaunchAnalysis {
 		for(SimulationsManager sm : simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataPath).getFileName().toString());
 
-			InstanceData input = sm.getInputData();
-			for(Entry<TypeVMJobClassKey, Profile> entry : input.getMapProfiles().entrySet()){
-				String mapFileName=new String();
-				String rsFileName=new String();
-				String mapFileContent=new String();
-				String rsFileContent=new String();
-				String fileNotFound= new String();
-				try {
-					mapFileName = getReplayersFileName("Map",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
-					fileNotFound = mapFileName;
-					File mapFile = fileUtility.provideFile(mapFileName);
-					mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
-
-					rsFileName = getReplayersFileName("RS",input.getId(), entry.getKey().getJob(), entry.getKey().getTypeVM());
-					fileNotFound = rsFileName;
-					File rsFile = fileUtility.provideFile(rsFileName);
-					rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
-
-					if(mapFileContent.length()==0 || rsFileContent.length() == 0){
-						throw new OperationNotSupportedException("One or more replayers submitted files are empty");
+			InstanceDataMultiProvider input = sm.getInputData();
+			for (Entry<String, Map<String, Map<String, JobProfile>>> jobIDs : input.getMapJobProfiles().getMapJobProfile().entrySet()) {
+				for (Entry<String, Map<String, JobProfile>> provider : jobIDs.getValue().entrySet()) {
+					for (Entry<String, JobProfile> typeVMs : provider.getValue().entrySet()) {
+			
+						String mapFileName=new String();
+						String rsFileName=new String();
+						String mapFileContent=new String();
+						String rsFileContent=new String();
+						String fileNotFound= new String();
+						try {
+							mapFileName = getReplayersFileName("Map",input.getId(), jobIDs.getKey(), typeVMs.getKey());
+							fileNotFound = mapFileName;
+							File mapFile = fileUtility.provideFile(mapFileName);
+							mapFileContent = new String(Files.readAllBytes(Paths.get(mapFile.getCanonicalPath())));
+		
+							rsFileName = getReplayersFileName("RS",input.getId(), jobIDs.getKey(), typeVMs.getKey());
+							fileNotFound = rsFileName;
+							File rsFile = fileUtility.provideFile(rsFileName);
+							rsFileContent = new String(Files.readAllBytes(Paths.get(rsFile.getCanonicalPath())));
+		
+							if(mapFileContent.length()==0 || rsFileContent.length() == 0){
+								throw new OperationNotSupportedException("One or more replayers submitted files are empty");
+							}
+							sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
+							sm.setNumCompletedSimulations(0);
+							sm.buildExperiments();
+		
+						} catch (IOException e1) {
+							logger.info("File \""+fileNotFound+"\" is missing.");
+							deleteUploadedFiles(pathList);
+							redirectAttrs.addAttribute("message", "File \""+fileNotFound+"\" is missing.");
+							return "redirect:/launchRetry";
+						} catch (OperationNotSupportedException e1) {
+							logger.info(e1.getMessage());
+							deleteUploadedFiles(pathList);
+							redirectAttrs.addAttribute("message", e1.getMessage());
+							return "redirect:/launchRetry";
+						}
 					}
-					sm.addInputFiles(mapFileName,rsFileName,mapFileContent,rsFileContent);
-					sm.setNumCompletedSimulations(0);
-					sm.buildExperiments();
-
-				} catch (IOException e1) {
-					logger.info("File \""+fileNotFound+"\" is missing.");
-					deleteUploadedFiles(pathList);
-					redirectAttrs.addAttribute("message", "File \""+fileNotFound+"\" is missing.");
-					return "redirect:/launchRetry";
-				} catch (OperationNotSupportedException e1) {
-					logger.info(e1.getMessage());
-					deleteUploadedFiles(pathList);
-					redirectAttrs.addAttribute("message", e1.getMessage());
-					return "redirect:/launchRetry";
 				}
 			}
 		}
@@ -308,7 +315,7 @@ public class LaunchAnalysis {
 				break;
 
 			case PublicPeakWorkload:
-				if(instanceDataMultiProvider.getMapPublicCloudParameters()==null){
+				if(instanceDataMultiProvider.getMapPublicCloudParameters()==null || instanceDataMultiProvider.getMapPublicCloudParameters().getMapPublicCloudParameters()==null){
 					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
 					return returnString;
 				}
@@ -328,79 +335,13 @@ public class LaunchAnalysis {
 		return "ok";
 	}
 
-
-	private String scenarioValidation(InstanceData instanceData, Scenarios scenario){
-		String returnString = new String();
-		if(instanceData.getLstClass()==null || instanceData.getMapProfiles() == null){
-			returnString = "Json is missing some required parameters(MapJobProfiles or MapClassParameters)!";
-			return returnString;
-		}
-
-		switch (scenario) {
-			case PrivateAdmissionControl:
-				if(!instanceData.getPrivateCloudParameters().isPresent()||!instanceData.getMapVMConfigurations().isPresent()){
-					returnString = "Json is missing some required parameters(PrivateCloudParameters or MapVMConfigurations)!";
-					return returnString;
-				}
-				if(instanceData.getPrivateCloudParameters().get()==null||instanceData.getMapVMConfigurations().get()==null){
-					returnString = "Json is missing some required parameters(PrivateCloudParameters or MapVMConfigurations)!";
-					return returnString;
-				}
-				if (!instanceData.getPrivateCloudParameters().get().validate()) {
-					returnString = "Private Cloud Parameters uploaded in Json aren't valid!";
-					return returnString;
-				}
-				if (!instanceData.getMapVMConfigurations().get().validate()) {
-					returnString = "VM Configurations uploaded in Json aren't valid!";
-					return returnString;
-				}
-				break;
-
-			case PrivateNoAdmissionControl:
-				if(!instanceData.getMapVMConfigurations().isPresent()){
-					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
-					return returnString;
-				}
-				if(instanceData.getMapVMConfigurations().get()==null){
-					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
-					return returnString;
-				}
-				if (!instanceData.getMapVMConfigurations().get().validate()) {
-					returnString = "VM Configurations uploaded in Json aren't valid!";
-					return returnString;
-				}
-				break;
-
-			case PublicPeakWorkload:
-				if(!instanceData.getMapTypeVMs().isPresent()){
-					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
-					return returnString;
-				}
-				if(instanceData.getMapTypeVMs().get()==null){
-					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
-					return returnString;
-				}
-				//TODO validation 
-				break;
-
-			case PublicAvgWorkLoad:
-				break;
-
-			default:
-				new Exception("Error with scenario files");
-				break;
-		}
-		return "ok";
-	}
-
-	private List<SimulationsManager> initializeSimManagers(List<InstanceData> inputList){
+	private List<SimulationsManager> initializeSimManagers(List<InstanceDataMultiProvider> inputList){
 		List<SimulationsManager> simManagerList = new ArrayList<SimulationsManager>();
 		String folder = generateUniqueString();
 
-		for(InstanceData instanceData : inputList){
+		for(InstanceDataMultiProvider instanceData : inputList){
 			SimulationsManager simManager = new SimulationsManager();
 			simManager.setInputData(instanceData);
-			simManager.setProvider(instanceData.getProvider());
 			simManager.setScenario(instanceData.getScenario().get());
 			simManager.setFolder(folder);
 

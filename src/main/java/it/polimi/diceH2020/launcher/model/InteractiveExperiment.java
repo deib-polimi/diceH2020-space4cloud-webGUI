@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
@@ -76,7 +76,7 @@ public class InteractiveExperiment {
 
 	public InteractiveExperiment(){}
 
-	public InstanceData getInputData(){
+	public InstanceDataMultiProvider getInputData(){
 		return this.simulationsManager.getDecompressedInputData();
 	}
 

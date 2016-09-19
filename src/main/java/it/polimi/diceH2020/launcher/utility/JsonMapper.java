@@ -166,19 +166,10 @@ public class JsonMapper {
 
 				key.setJob(jobIDs.getKey());
 				key.setTypeVM(typeVMs.getKey());
-
-				p.put("nm",typeVMs.getValue().getNm());
-				p.put("nr",typeVMs.getValue().getNr());
-				p.put("cm",typeVMs.getValue().getCm());
-				p.put("cr",typeVMs.getValue().getCr());
-				p.put("mavg",typeVMs.getValue().getMavg());
-				p.put("mmax",typeVMs.getValue().getMmax());
-				p.put("ravg",typeVMs.getValue().getRavg());
-				p.put("rmax",typeVMs.getValue().getRmax());
-				p.put("sh1max",typeVMs.getValue().getSh1max());
-				p.put("shtypavg",typeVMs.getValue().getShtypavg());
-				p.put("shtypmax",typeVMs.getValue().getShtypmax());
-				p.put("datasize",typeVMs.getValue().getDatasize());
+				
+				for(Map.Entry<String, Double> profileFeature : typeVMs.getValue().getProfileMap().entrySet()){
+					p.put(profileFeature.getKey(), profileFeature.getValue());
+				}
 
 				map.put(key, p);
 			}

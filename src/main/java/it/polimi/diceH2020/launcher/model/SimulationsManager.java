@@ -18,7 +18,7 @@ package it.polimi.diceH2020.launcher.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
@@ -62,7 +62,7 @@ public class SimulationsManager {
 	private String resultFilePath;
 
 	@Transient
-	private InstanceData inputData;
+	private InstanceDataMultiProvider inputData;
 
 //	@Transient
 //	private String tabID; //for session navigation. See the controller doc for other information
@@ -154,7 +154,7 @@ public class SimulationsManager {
 		experimentsList.add(experiment);
 	}
 
-	public void setInputData(InstanceData inputData) {
+	public void setInputData(InstanceDataMultiProvider inputData) {
 		this.inputData = inputData;
 
 		try {
@@ -167,13 +167,13 @@ public class SimulationsManager {
 		//System.out.println("id:"+inputData.getId());
 	}
 
-	public InstanceData getDecompressedInputData() {
+	public InstanceDataMultiProvider getDecompressedInputData() {
 		if (inputData != null) {
 			return inputData;
 		} else if (getInput() != null) {
 			try {
 				ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceData.class);
+				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceDataMultiProvider.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;

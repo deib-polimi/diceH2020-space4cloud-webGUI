@@ -18,7 +18,7 @@ package it.polimi.diceH2020.launcher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputData.InstanceData;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
@@ -372,7 +372,7 @@ public class Experiment {
 		}
 	}
 
-	private boolean sendInputData(InstanceData data) {
+	private boolean sendInputData(InstanceDataMultiProvider data) {
 		if (data != null) {
 			String res;
 			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
