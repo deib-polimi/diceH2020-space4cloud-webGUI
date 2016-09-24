@@ -17,6 +17,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
@@ -158,7 +159,7 @@ public class SimulationsManager {
 		this.inputData = inputData;
 
 		try {
-			ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
+			ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);;
 			setInput(Compressor.compress(mapper.writeValueAsString(inputData)));
 		} catch (IOException e) {
 			setInput("Error");
@@ -172,7 +173,7 @@ public class SimulationsManager {
 			return inputData;
 		} else if (getInput() != null) {
 			try {
-				ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
+				ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);;
 				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceDataMultiProvider.class);
 			} catch (IOException e) {
 				e.printStackTrace();

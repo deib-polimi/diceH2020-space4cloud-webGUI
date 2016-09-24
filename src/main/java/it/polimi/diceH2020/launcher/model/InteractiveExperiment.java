@@ -20,6 +20,7 @@ package it.polimi.diceH2020.launcher.model;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
@@ -81,7 +82,7 @@ public class InteractiveExperiment {
 	}
 
 	public void setSol(Solution sol){
-		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
+		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);
 		try {
 			this.finalSolution = Compressor.compress(mapper.writeValueAsString(sol));
 		} catch ( IOException e) {
@@ -90,7 +91,7 @@ public class InteractiveExperiment {
 	}
 
 	public Solution getSol() throws JsonParseException, JsonMappingException, IOException{
-		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
+		ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);;
 		return mapper.readValue(Compressor.decompress(finalSolution),Solution.class);
 	}
 
