@@ -17,6 +17,9 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
@@ -40,8 +43,10 @@ import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class DownloadsController {
@@ -91,6 +96,71 @@ public class DownloadsController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Inputs/Folder/(1 JSON, n TXT)
+	 * Results/Folder/SimManager(for each provider)/(1 JSON)
+	 * 
+	 */
+	@RequestMapping(value="/downloadAll", method=RequestMethod.GET)
+	@ResponseBody void downloadAll(@RequestParam(value="type") String type,HttpServletResponse response){
+		List<SimulationsManager> smList = new ArrayList<>();
+		
+		switch(CloudType.valueOf(type)){
+			case Private:
+				smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl,Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
+				break;
+			case Public:
+				smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,Scenarios.PublicPeakWorkload));
+				break;
+			default:
+				return;
+		}
+		downloadSM(smList,response);
+	}
+	
+	/**
+	 * Inputs/Folder/(1 JSON, n TXT)
+	 * Results/Folder/SimManager(for each provider)/(1 JSON)
+	 * 
+	 */
+	@RequestMapping(value="/downloadSelected", method=RequestMethod.GET)
+	@ResponseBody void downloadSelected(@RequestParam(value="ids[]") String ids,HttpServletResponse response){
+		List<SimulationsManager> smList = new ArrayList<>();
+		String[] parts = ids.split(",");
+		for(String folderID : parts){
+			smList.addAll(simulationsManagerRepository.findByFolderOrderByIdAsc(folderID));
+		}
+		
+		downloadSM(smList,response);
+	}
+	
+	private void downloadSM(List<SimulationsManager> smList,HttpServletResponse response){
+		Map<String,String> files = new HashMap<>();
+		Set<String> folderList = new HashSet<String>(); //not a query, in this way is more modular (i.e. check-box instead of all)
+		
+		for(SimulationsManager manager : smList){
+			String folder = manager.getFolder();
+			List<InteractiveExperiment> intExpList = manager.getExperimentsList();
+			for(int i=0; i<intExpList.size();i++){
+				if(intExpList.get(i)!=null){
+					if(intExpList.get(i).getState().equals(States.COMPLETED)){
+						folderList.add(folder);
+						files.put("results"+File.separatorChar+folder+File.separatorChar+manager.getId()+File.separatorChar+intExpList.get(i).getInstanceName()+".json",intExpList.get(i).getFinalSolution() );
+						//System.out.println("Created "+intExpList.get(i).getInstanceName()+".json");
+					}
+				}
+			}
+			ArrayList<String[]> inputFiles = manager.getInputFiles();
+			files.put("input"+File.separatorChar+folder+File.separatorChar+manager.getInputFileName(),manager.getInput() );
+
+			for(int i=0; i<inputFiles.size();i++){
+				files.put("input"+File.separatorChar+folder+File.separatorChar+inputFiles.get(i)[0],inputFiles.get(i)[2]);
+				files.put("input"+File.separatorChar+folder+File.separatorChar+inputFiles.get(i)[1],inputFiles.get(i)[3]);
+			}
+		}
+		respondWithZipFile(files, response);
 	}
 
 	@RequestMapping(value="/downloadJson", method=RequestMethod.GET)

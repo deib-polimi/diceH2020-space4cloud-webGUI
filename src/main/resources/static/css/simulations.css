@@ -168,3 +168,13 @@ input{
 	max-width: 155px;
 	overflow-x: scroll;
 }
+.downloadIcon:hover{
+	border:1px solid #959495;
+	border-radius: 100px;
+}
+.downloadIcon img{
+	display:block;
+}
+.downloadIcon{
+	display: table;
+}

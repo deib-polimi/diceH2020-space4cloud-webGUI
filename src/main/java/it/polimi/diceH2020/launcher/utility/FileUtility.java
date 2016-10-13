@@ -76,6 +76,7 @@ public class FileUtility {
 		List<File> tempFiles = new LinkedList<>();
 		for (Map.Entry<String, String> entry : inputFiles.entrySet()) {
 			File tmp = new File(folder, entry.getKey());
+			tmp.getParentFile().mkdirs();
 			tempFiles.add(tmp);
 			Files.write(tmp.toPath(),
 					Compressor.decompress(entry.getValue()).getBytes(),
