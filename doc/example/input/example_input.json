@@ -1,0 +1,66 @@
+{
+  "id": "example",
+  "mapJobProfile": {
+    "WC": {
+      "inHouse": {
+        "large": {
+          "cm": 8,
+          "cr": 8,
+          "mavg": 30279,
+          "mmax": 89420,
+          "nm": 15,
+          "nr": 20,
+          "ravg": 1408,
+          "rmax": 4367,
+          "sh1max": 0,
+          "shtypmax": 2873,
+          "shtypavg": 829
+        },
+        "medium": {
+          "cm": 4,
+          "cr": 4,
+          "mavg": 21682,
+          "mmax": 63076,
+          "nm": 15,
+          "nr": 20,
+          "ravg": 2631,
+          "rmax": 8322,
+          "sh1max": 0,
+          "shtypmax": 8571,
+          "shtypavg": 1988
+        }
+      }
+    }
+  },
+  "mapClassParameters": {
+    "WC": {
+      "penalty": 13,
+      "think": 10000,
+      "m": 1,
+      "v": 1,
+      "hlow": 8,
+      "hup": 10,
+      "d": 600000
+    }
+  },
+  "privateCloudParameters": {
+    "n": 10,
+    "e": 1.492,
+    "v": 12,
+    "m": 64
+  },
+  "mapVMConfigurations": {
+    "large": {
+      "core": 4,
+      "memory": 4,
+      "provider": "inHouse",
+      "cost":0.45
+    },
+    "medium": {
+      "core": 2,
+      "memory": 2,
+      "provider": "inHouse",
+      "cost":0.256
+    }
+  }
+}
