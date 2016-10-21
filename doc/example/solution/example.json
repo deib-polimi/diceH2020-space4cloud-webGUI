@@ -1,0 +1,74 @@
+{
+  "cost": 1.792,
+  "evaluated": true,
+  "gamma": 1500,
+  "id": "example",
+  "lstPhases": [
+    {
+      "duration": 66402,
+      "id": "INIT_SOLUTION"
+    },
+    {
+      "duration": 821352,
+      "id": "OPTIMIZATION"
+    }
+  ],
+  "lstSolutions": [
+    {
+      "alfa": 1300.0,
+      "beta": 130.0,
+      "changed": true,
+      "cost": 1.792,
+      "deltaBar": 0.256,
+      "duration": 532005.4200542,
+      "error": false,
+      "feasible": true,
+      "job": {
+        "d": 600000.0,
+        "hlow": 10,
+        "hup": 10,
+        "id": "WC",
+        "job_penalty": 13.0,
+        "m": 1.0,
+        "think": 10000.0,
+        "v": 1.0
+      },
+      "numCores": 2.0,
+      "numOnDemandVM": 7,
+      "numReservedVM": 0,
+      "numSpotVM": 0,
+      "numberContainers": 14,
+      "numberUsers": 10,
+      "numberVM": 7,
+      "parentID": "example",
+      "pos": 0,
+      "profile": {
+        "cm": 4,
+        "cr": 4,
+        "mavg": 21682.0,
+        "mmax": 63076.0,
+        "nm": 15,
+        "nr": 20,
+        "ravg": 2631.0,
+        "rmax": 8322.0,
+        "sh1max": 0.0,
+        "shtypavg": 1988.0,
+        "shtypmax": 8571.0
+      },
+      "rhoBar": 0.0,
+      "sigmaBar": 0.0,
+      "typeVMselected": {
+        "eta": 0.0,
+        "id": "medium",
+        "r": 0
+      }
+    }
+  ],
+  "privateCloudParameters": {
+    "e": 1.492,
+    "m": 64.0,
+    "n": 10,
+    "v": 12.0
+  },
+  "provider": null
+}
