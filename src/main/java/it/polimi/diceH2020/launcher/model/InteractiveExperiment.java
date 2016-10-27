@@ -47,7 +47,7 @@ public class InteractiveExperiment {
 
 	private String provider;
 
-	@Column(length = 1000)
+	@Column(length = 100000)
 
 	private String finalSolution;
 
