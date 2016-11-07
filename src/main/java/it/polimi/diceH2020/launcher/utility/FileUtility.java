@@ -27,10 +27,14 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -38,6 +42,7 @@ import java.util.zip.ZipOutputStream;
 public class FileUtility {
 
 	private static final File LOCAL_DYNAMIC_FOLDER = new File("TempWorkingDir");
+	private static final File LOCAL_INPUT_FOLDER = new File("Input");
 	private static Logger logger = Logger.getLogger(FileUtility.class.getName());
 
 	@Autowired
@@ -79,7 +84,7 @@ public class FileUtility {
 			tmp.getParentFile().mkdirs();
 			tempFiles.add(tmp);
 			Files.write(tmp.toPath(),
-					Compressor.decompress(entry.getValue()).getBytes(),
+					(entry.getValue()).getBytes(),
 					StandardOpenOption.CREATE_NEW);
 		}
 
@@ -128,5 +133,40 @@ public class FileUtility {
 				.replace(LOCAL_DYNAMIC_FOLDER.toString(), "");
 		return new ZipEntry(cleanPath);
 	}
-
+	
+	public String createInputSubFolder() throws Exception{
+		return createNewFolder(LOCAL_INPUT_FOLDER.getCanonicalPath().toString());
+	}
+	
+	private synchronized String createNewFolder(String inputAbsolutePath) throws Exception{
+		String newFolderName = generateUniqueString();
+		String newFolderAbsolutePath = inputAbsolutePath+File.separator+newFolderName;
+		File destFolder = new File(newFolderAbsolutePath);
+		if(!destFolder.exists()){
+			destFolder.mkdirs();
+			return newFolderAbsolutePath+File.separator;
+		}
+		for(int i=1;i<1000;i++){
+			destFolder = new File(newFolderAbsolutePath+String.valueOf(i));
+			if(!destFolder.exists()){
+				destFolder.mkdirs();
+				return newFolderAbsolutePath+String.valueOf(i)+File.separator;
+			}
+		}
+		throw new Exception();
+	}
+	
+	public String generateUniqueString() {
+		//String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+		Date dNow = new Date( );
+		SimpleDateFormat ft = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
+		Random random = new Random();
+		String id = ft.format(dNow)+random.nextInt(99999);
+		return id;
+	}
+	
+	public void copyFile(String srcPath, String destPath) throws IOException{
+		Files.copy(Paths.get(srcPath), Paths.get(destPath));
+	}
+	
 }

@@ -55,8 +55,8 @@ public class SimulationsManager {
 
 	private Scenarios scenario; //	contains also CloudType cloudType;
 
-	@Column(length = 20000000) //...
-	private ArrayList<String[]> inputFiles;
+	@Column(length = 20000) 
+	private ArrayList<String> inputFolders;
 
 	private States state;
 
@@ -91,7 +91,7 @@ public class SimulationsManager {
 		numCompletedSimulations = 0;
 
 		experimentsList = new ArrayList<InteractiveExperiment>();
-		inputFiles = new ArrayList<String[]>();
+		inputFolders = new ArrayList<String>();
 
 		inputFileName = new String();
 		input = new String();
@@ -108,32 +108,6 @@ public class SimulationsManager {
 			statesList.add(intExp.getState());
 		}
 		state = SimulationsUtilities.getStateFromList(statesList);
-	}
-
-	public String getDecompressedInputFile(Integer pos1, Integer pos2) {
-		try {
-			return Compressor.decompress(inputFiles.get(pos1)[pos2]);
-		} catch (IOException e) {
-			return "";
-		}
-	}
-
-	public void addInputFiles(String mapName, String rsName, String mapContent, String rsContent) {
-		String[] tmpList = new String[4];
-		tmpList[0] = mapName;
-		tmpList[1] = rsName;
-		try {
-			tmpList[2] = Compressor.compress(mapContent);
-		} catch (IOException e) {
-			e.printStackTrace();
-			tmpList[2] = "";
-		}
-		try {
-			tmpList[3] = Compressor.compress(rsContent);
-		} catch (IOException e) {
-			tmpList[3] = "";
-		}
-		this.inputFiles.add(tmpList);
 	}
 
 	public int getSize(){
@@ -182,4 +156,9 @@ public class SimulationsManager {
 		}
 		return inputData;
 	}
+
+	public void addInputFolder(String txtFolder) {
+		inputFolders.add(txtFolder);
+	}
+	
 }

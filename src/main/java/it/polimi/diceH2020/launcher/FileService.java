@@ -20,10 +20,12 @@ import com.codepoetics.protonpack.StreamUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -77,4 +79,43 @@ public class FileService {
 			return null;
 		}
 	}
+	
+	public static ArrayList<String[]> getTxT(ArrayList<String> folders) throws IOException{
+		ArrayList<String[]> txtList = new ArrayList<>();
+		for(String folder: folders){
+			for(String file:listFile(folder,  ".txt")){
+				String[] txtInfo = new String[2];
+				txtInfo[0] = Paths.get(file).getFileName().toString();
+				txtInfo[1] = new String(Files.readAllBytes(Paths.get(folder+File.separator+file)));
+				txtList.add(txtInfo);
+			}
+		}
+		
+		return txtList;
+	}
+	
+	
+	public static String[] listFile(String folder, String ext) {
+
+		GenericExtFilter filter = new GenericExtFilter(ext);
+		File dirInput = new File(folder);
+
+		String[] list = dirInput.list(filter);
+
+		return list;
+	}
+	
+	public static class GenericExtFilter implements FilenameFilter {
+
+		private String ext;
+
+		public GenericExtFilter(String ext) {
+			this.ext = ext;
+		}
+
+		public boolean accept(File dir, String name) {
+			return (name.endsWith(ext));
+		}
+	}
+	
 }

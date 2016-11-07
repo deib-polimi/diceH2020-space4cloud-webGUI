@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 
 @Scope("prototype")
 @Component
@@ -68,20 +69,21 @@ public class Experiment {
 	private RestCommunicationWrapper restWrapper;
 
 	public Experiment(DiceConsumer consumer) {
-//		SimpleModule module = new SimpleModule().addKeyDeserializer(TypeVMJobClassKey.class, TypeVMJobClassKey.getDeserializer()); //setting KeyDeserializer for module, it's the API used for deserializing JSON
-//		mapper.registerModules(module,new Jdk8Module());
 		port = consumer.getPort();
 		this.consumer = consumer;
 	}
 
 	public synchronized boolean initialize(InteractiveExperiment intExp){
 		SimulationsManager simManager = intExp.getSimulationsManager();
-
-		for(int i=0; i<simManager.getInputFiles().size();i++){
-			String nameMapFile = simManager.getInputFiles().get(i)[0];
-			String nameRSFile = simManager.getInputFiles().get(i)[1];
-			if(!send(nameMapFile, simManager.getDecompressedInputFile(i,2))) return false;
-			if(!send(nameRSFile, simManager.getDecompressedInputFile(i,3))) return false;
+		ArrayList<String[]> txtList;
+		try {
+			txtList = FileService.getTxT(simManager.getInputFolders());
+		} catch (IOException e) {
+			logger.error("Impossible launching SimulationsManager"+simManager.getId()+"![Replayers file are not present]");
+			return false;
+		}
+		for(String[] txtInfo : txtList ){
+			if(!send(txtInfo[0], txtInfo[1])) return false;
 			//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
 		}
 		return true;

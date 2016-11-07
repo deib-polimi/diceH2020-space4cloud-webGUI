@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
@@ -64,7 +65,7 @@ public class DownloadsController {
 
 	@Autowired
 	private FileUtility fileUtility;
-
+	
 //	@RequestMapping(value="/download", method=RequestMethod.GET)
 //	@ResponseBody void downloadExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
 //		SimulationsManager manager = simulationsManagerRepository.findOne(id);
@@ -152,12 +153,17 @@ public class DownloadsController {
 					}
 				}
 			}
-			ArrayList<String[]> inputFiles = manager.getInputFiles();
+			ArrayList<String[]> inputFiles = new ArrayList<>();
+			try {
+				inputFiles = FileService.getTxT(manager.getInputFolders());
+			} catch (IOException e) {
+				logger.error("Cannot download input files. Missing TXT file.", e);
+				return;
+			}
 			files.put("input"+File.separatorChar+folder+File.separatorChar+manager.getInputFileName(),manager.getInput() );
 
 			for(int i=0; i<inputFiles.size();i++){
-				files.put("input"+File.separatorChar+folder+File.separatorChar+inputFiles.get(i)[0],inputFiles.get(i)[2]);
-				files.put("input"+File.separatorChar+folder+File.separatorChar+inputFiles.get(i)[1],inputFiles.get(i)[3]);
+				files.put("input"+File.separatorChar+folder+File.separatorChar+inputFiles.get(i)[0],inputFiles.get(i)[1]);
 			}
 		}
 		respondWithZipFile(files, response);
@@ -183,37 +189,23 @@ public class DownloadsController {
 		response.getWriter().close();
 	}
 
-	@RequestMapping(value="/downloadTxt", method=RequestMethod.GET)
-	@ResponseBody void downloadTxt(@RequestParam(value="id") Long id, @RequestParam(value="txt") int num,HttpServletResponse response) throws JsonProcessingException, IOException {
-		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		response.setContentType("text/plain;charset=utf-8");
-
-		if(num==2){
-			//System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 1));
-			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[1]);
-			response.getWriter().write(manager.getDecompressedInputFile(0, 3));
-			response.getWriter().flush();
-			response.getWriter().close();
-		}else{
-			//System.out.println("Downloading: "+manager.getDecompressedInputFile(0, 0));
-			response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInputFiles().get(0)[0]);
-			response.getWriter().write(manager.getDecompressedInputFile(0, 2));
-			response.getWriter().flush();
-			response.getWriter().close();
-		}
-	}
 
 	@RequestMapping(value="/downloadZipOptSim", method=RequestMethod.GET)
 	@ResponseBody void downloadZipOptSimManInputs(@RequestParam(value="id") Long id,HttpServletResponse response) {
 		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		ArrayList<String[]> inputFiles = manager.getInputFiles();
+		ArrayList<String[]> inputFiles = new ArrayList<>();
+		try {
+			inputFiles = FileService.getTxT(manager.getInputFolders());
+		} catch (IOException e) {
+			logger.error("Cannot download input files. Missing TXT file.", e);
+			return;
+		}
 
 		Map<String, String> files = new HashMap<String,String>();
 		files.put(manager.getInputFileName(),manager.getInput() );
 
 		for(int i=0; i<inputFiles.size();i++){
-			files.put(inputFiles.get(i)[0],inputFiles.get(i)[2]);
-			files.put(inputFiles.get(i)[1],inputFiles.get(i)[3]);
+			files.put(inputFiles.get(i)[0],inputFiles.get(i)[1]);
 		}
 		respondWithZipFile(files, response);
 	}
@@ -224,14 +216,19 @@ public class DownloadsController {
 		Map<String, String> files = new HashMap<String,String>();
 
 		for(SimulationsManager manager : folderManagerList){
-			ArrayList<String[]> inputFiles = manager.getInputFiles();
+			ArrayList<String[]> inputFiles = new ArrayList<>();
+			try {
+				inputFiles = FileService.getTxT(manager.getInputFolders());
+			} catch (IOException e) {
+				logger.error("Cannot download input files. Missing TXT file.", e);
+				return;
+			}
 			files.put(manager.getInputFileName(),manager.getInput() );
 
 			for(int i=0; i<inputFiles.size();i++){
 				//System.out.println(inputFiles.get(i)[0] +" "+inputFiles.get(i)[1]);
-				files.put(inputFiles.get(i)[0],inputFiles.get(i)[2]);
+				files.put(inputFiles.get(i)[0],inputFiles.get(i)[1]);
 				//System.out.println(files.containsKey(inputFiles.get(i)[0]));
-				files.put(inputFiles.get(i)[1],inputFiles.get(i)[3]);
 			}
 		}
 		respondWithZipFile(files, response);
@@ -278,5 +275,4 @@ public class DownloadsController {
 			}
 		}
 	}
-
 }
