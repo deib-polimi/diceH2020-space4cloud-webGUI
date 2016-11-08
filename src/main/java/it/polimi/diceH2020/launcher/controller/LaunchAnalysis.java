@@ -21,6 +21,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
+import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import it.polimi.diceH2020.launcher.utility.JsonSplitter;
 
@@ -35,6 +36,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -161,8 +163,16 @@ public class LaunchAnalysis {
 							
 							String fileContent=new String();
 							try {
-								fileUtility.copyFile(srcPath, txtFolder+src.getName());
 								fileContent = new String(Files.readAllBytes(Paths.get(srcPath)));
+								FileOutputStream fooStream = new FileOutputStream(src, false); // true to append
+								                                                                 // false to overwrite.
+								byte[] myBytes = Compressor.compress(fileContent).getBytes();
+								fooStream.write(myBytes);
+								fooStream.close();
+								
+								fileUtility.copyFile(srcPath, txtFolder+src.getName());
+								
+								
 							} catch (IOException e) {
 								deleteUploadedFiles(pathList);
 								deleteUploadedFiles(txtFoldersList);

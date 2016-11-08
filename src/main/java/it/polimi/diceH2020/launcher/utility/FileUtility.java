@@ -84,8 +84,9 @@ public class FileUtility {
 			tmp.getParentFile().mkdirs();
 			tempFiles.add(tmp);
 			Files.write(tmp.toPath(),
-					(entry.getValue()).getBytes(),
+					Compressor.decompress(entry.getValue()).getBytes(),
 					StandardOpenOption.CREATE_NEW);
+			
 		}
 
 		String fileName = String.format("%s.zip", folder.getName());

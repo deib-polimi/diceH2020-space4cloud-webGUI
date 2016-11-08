@@ -25,6 +25,8 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
+import it.polimi.diceH2020.launcher.utility.Compressor;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -78,13 +80,13 @@ public class Experiment {
 		ArrayList<String[]> txtList;
 		try {
 			txtList = FileService.getTxT(simManager.getInputFolders());
+			for(String[] txtInfo : txtList ){
+				if(!send(txtInfo[0], Compressor.decompress(txtInfo[1]))) return false;
+				//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
+			}
 		} catch (IOException e) {
 			logger.error("Impossible launching SimulationsManager"+simManager.getId()+"![Replayers file are not present]");
 			return false;
-		}
-		for(String[] txtInfo : txtList ){
-			if(!send(txtInfo[0], txtInfo[1])) return false;
-			//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
 		}
 		return true;
 	}
