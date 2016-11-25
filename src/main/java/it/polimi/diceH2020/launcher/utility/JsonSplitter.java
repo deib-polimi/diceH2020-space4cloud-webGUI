@@ -42,6 +42,9 @@ public class JsonSplitter {
 			case PublicAvgWorkLoad:
 				instanceDataList = buildInstanceDataPuAvg(instanceDataMultiProvider);
 				break;
+			case StormPublicAvgWorkLoad:
+				instanceDataList = buildInstanceDataStormPuAvg(instanceDataMultiProvider);
+				break;
 			default:
 				new Exception("Error with the selected scenario");
 				break;
@@ -66,7 +69,7 @@ public class JsonSplitter {
 
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceDataMultiProvider idmp = buildPartialInput(instanceDataMultiProvider,provider);
-			idmp.setScenario(Optional.of(Scenarios.PrivateAdmissionControl)); 
+			idmp.setScenario(Optional.of(Scenarios.PrivateAdmissionControl));
 			idmp.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
 			idmp.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
 			instanceDataMultiProviderList.add(idmp);
@@ -97,11 +100,21 @@ public class JsonSplitter {
 		return instanceDataList;
 	}
 
+	private static List<InstanceDataMultiProvider> buildInstanceDataStormPuAvg(InstanceDataMultiProvider instanceDataMultiProvider){
+		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
+		for(String provider : instanceDataMultiProvider.getProvidersList()){
+			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
+			instanceData.setScenario(Optional.of(Scenarios.StormPublicAvgWorkLoad));
+			instanceDataList.add(instanceData);
+		}
+		return instanceDataList;
+	}
+
 	private static List<InstanceDataMultiProvider> buildInstanceDataPuPeak(InstanceDataMultiProvider instanceDataMultiProvider){
 		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<InstanceDataMultiProvider>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.PublicPeakWorkload)); 
+			instanceData.setScenario(Optional.of(Scenarios.PublicPeakWorkload));
 			instanceData.setMapPublicCloudParameters(new PublicCloudParametersMap(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
 			instanceDataList.add(instanceData);
 		}
@@ -133,7 +146,7 @@ public class JsonSplitter {
 		Map<String, Map<String, Map<String, JobProfile>>> map = new HashMap<String, Map<String, Map<String, JobProfile>>>(input.getMapJobProfile());
 		Set<String> providerToBeRemoved = input.getProviders();
 		providerToBeRemoved.remove(provider);
-		
+
 		for (Entry<String, Map<String, Map<String, JobProfile>>> entry : map.entrySet()) {
 			entry.getValue().keySet().removeAll(providerToBeRemoved);
 		}
@@ -141,15 +154,15 @@ public class JsonSplitter {
 	}
 
 	private static Map<String, Map<String,Map<String,PublicCloudParameters>>> fromMapPublicCloudParametersToMapTypeVMs(PublicCloudParametersMap input, String provider){
-		
+
 		Map<String, Map<String,Map<String,PublicCloudParameters>>> map = new HashMap<String, Map<String,Map<String,PublicCloudParameters>>>(input.getMapPublicCloudParameters());
 		Set<String> providerToBeRemoved = input.getProviders();
 		providerToBeRemoved.remove(provider);
-		
+
 		for (Entry<String, Map<String, Map<String, PublicCloudParameters>>> entry : map.entrySet()) {
 			entry.getValue().keySet().removeAll(providerToBeRemoved);
 		}
-		
+
 		return map;
 	}
 

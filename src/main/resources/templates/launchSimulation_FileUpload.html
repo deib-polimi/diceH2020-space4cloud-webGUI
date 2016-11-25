@@ -52,7 +52,19 @@ limitations under the License.
 		</label>
 	</div>
 
-	<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment'}" >
+	<div th:if ="${#strings.toString(scenario) == 'PublicAvgWorkLoad' or #strings.toString(scenario) == 'StormPublicAvgWorkLoad'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+		<label> <span>Select Technology:</span>
+			<select name="scenario" required="required" style="display:block;">
+				<option th:each="currentScenario: ${PublicScenarios}" th:value="${currentScenario}"
+						th:text="${#strings.capitalize(currentScenario.getSwn())}"></option>
+			</select>
+		</label>
+	</div>
+
+	<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and
+	 #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment' and
+	 #strings.toString(scenario) != 'StormPublicAvgWorkLoad' and
+	 #strings.toString(scenario) != 'PublicAvgWorkLoad'}" >
 		<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
 	</div>
 

@@ -17,7 +17,6 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.FileService;
@@ -42,12 +41,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class DownloadsController {
@@ -65,7 +59,7 @@ public class DownloadsController {
 
 	@Autowired
 	private FileUtility fileUtility;
-	
+
 //	@RequestMapping(value="/download", method=RequestMethod.GET)
 //	@ResponseBody void downloadExcel(@RequestParam(value="id") Long id,HttpServletResponse response) {
 //		SimulationsManager manager = simulationsManagerRepository.findOne(id);
@@ -98,33 +92,33 @@ public class DownloadsController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Inputs/Folder/(1 JSON, n TXT)
 	 * Results/Folder/SimManager(for each provider)/(1 JSON)
-	 * 
+	 *
 	 */
 	@RequestMapping(value="/downloadAll", method=RequestMethod.GET)
 	@ResponseBody void downloadAll(@RequestParam(value="type") String type,HttpServletResponse response){
 		List<SimulationsManager> smList = new ArrayList<>();
-		
+
 		switch(CloudType.valueOf(type)){
 			case Private:
 				smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl,Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
 				break;
 			case Public:
-				smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,Scenarios.PublicPeakWorkload));
+				smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad, Scenarios.PublicPeakWorkload, Scenarios.StormPublicAvgWorkLoad));
 				break;
 			default:
 				return;
 		}
 		downloadSM(smList,response);
 	}
-	
+
 	/**
 	 * Inputs/Folder/(1 JSON, n TXT)
 	 * Results/Folder/SimManager(for each provider)/(1 JSON)
-	 * 
+	 *
 	 */
 	@RequestMapping(value="/downloadSelected", method=RequestMethod.GET)
 	@ResponseBody void downloadSelected(@RequestParam(value="ids[]") String ids,HttpServletResponse response){
@@ -133,14 +127,14 @@ public class DownloadsController {
 		for(String folderID : parts){
 			smList.addAll(simulationsManagerRepository.findByFolderOrderByIdAsc(folderID));
 		}
-		
+
 		downloadSM(smList,response);
 	}
-	
+
 	private void downloadSM(List<SimulationsManager> smList,HttpServletResponse response){
 		Map<String,String> files = new HashMap<>();
 		Set<String> folderList = new HashSet<String>(); //not a query, in this way is more modular (i.e. check-box instead of all)
-		
+
 		for(SimulationsManager manager : smList){
 			String folder = manager.getFolder();
 			List<InteractiveExperiment> intExpList = manager.getExperimentsList();

@@ -36,7 +36,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,15 +87,22 @@ public class MainFlowController {
 
 
 	@RequestMapping(value="/launch", method=RequestMethod.GET)
-	public String launch(@RequestParam("scenario") String scenario,SessionStatus sessionStatus, Model model){
+	public String launch(@RequestParam("scenario") String scenario, SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
-		List<Scenarios> privateScenariosModels = new ArrayList<Scenarios>();
+
+		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+
+		List<Scenarios> privateScenariosModels = new ArrayList<>();
 		privateScenariosModels.add(Scenarios.PrivateAdmissionControl);
 		privateScenariosModels.add(Scenarios.PrivateAdmissionControlWithPhysicalAssignment);
-		model.addAttribute("scenario", Scenarios.valueOf(scenario));
-		model.addAttribute("Scenarios",  privateScenariosModels);
+		model.addAttribute("Scenarios", privateScenariosModels);
+
+		List<Scenarios> publicScenariosModels = new ArrayList<>();
+		publicScenariosModels.add(Scenarios.PublicAvgWorkLoad);
+		publicScenariosModels.add(Scenarios.StormPublicAvgWorkLoad);
+		model.addAttribute("PublicScenarios", publicScenariosModels);
 
 		return "launchSimulation_FileUpload";
 	}
@@ -117,7 +123,10 @@ public class MainFlowController {
 
 	@RequestMapping(value="/resPub", method=RequestMethod.GET)
 	public String listPub(Model model) {
-		List<SimulationsManager> smList =simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,Scenarios.PublicPeakWorkload));
+		List<SimulationsManager> smList = simulationsManagerRepository
+				.findByIdInOrderByIdAsc(simulationsManagerRepository
+						.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,
+								Scenarios.PublicPeakWorkload, Scenarios.StormPublicAvgWorkLoad));
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Public");
 		return "resultsSimulations_GroupedByFolder";
@@ -234,16 +243,16 @@ public class MainFlowController {
 
 		return "redirect:" + request.getHeader("Referer");
 	}
-	
+
 	@RequestMapping(value = "/relaunchSelected", method = RequestMethod.GET)
 	public synchronized String relaunchSelected(@RequestParam(value="ids[]") String ids,SessionStatus sessionStatus, Model model,HttpServletRequest request, RedirectAttributes redirectAttributes) {
-		
+
 		List<SimulationsManager> smList = new ArrayList<>();
 		String[] parts = ids.split(",");
 		for(String folderID : parts){
 			smList.addAll(simulationsManagerRepository.findByFolderOrderByIdAsc(folderID));
 		}
-		
+
 		boolean invalidDeletion = invalidUpdate(smList);
 		if(!invalidDeletion){
 			for (SimulationsManager sm : smList){
@@ -260,7 +269,7 @@ public class MainFlowController {
 
 		return "redirect:" + request.getHeader("Referer");
 	}
-	
+
 	@RequestMapping(value = "/deleteSelected", method = RequestMethod.GET)
 	public synchronized String deleteSelected(@RequestParam(value="ids[]") String ids,SessionStatus sessionStatus, Model model,HttpServletRequest request, RedirectAttributes redirectAttributes) {
 		List<SimulationsManager> smList = new ArrayList<>();
@@ -268,7 +277,7 @@ public class MainFlowController {
 		for(String folderID : parts){
 			smList.addAll(simulationsManagerRepository.findByFolderOrderByIdAsc(folderID));
 		}
-		
+
 		boolean invalidDeletion = invalidUpdate(smList);
 		if(!invalidDeletion){
 			for(String folderID : parts){
@@ -279,7 +288,7 @@ public class MainFlowController {
 		}
 		return "redirect:" + request.getHeader("Referer");
 	}
-	
+
 	private boolean invalidUpdate(List<SimulationsManager> smList){
 		return smList.stream().anyMatch(s->s.getState().equals(States.RUNNING)||s.getState().equals(States.READY));
 	}

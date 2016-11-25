@@ -24,7 +24,6 @@ import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import it.polimi.diceH2020.launcher.utility.JsonSplitter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,8 +43,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SessionAttributes("sim_manager") // it will persist in each browser tab,
@@ -93,9 +92,9 @@ public class LaunchAnalysis {
 			redirectAttrs.addAttribute("message", "Select a Json file!");
 			return "redirect:/launchRetry";
 		}
-		
+
 		Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(Paths.get(instanceDataMultiProviderPath));
-		
+
 		if(idmp.isPresent()){
 			if(!idmp.get().validate()){
 				deleteUploadedFiles(pathList);
@@ -118,7 +117,7 @@ public class LaunchAnalysis {
 		}
 
 		List<InstanceDataMultiProvider> inputList = JsonSplitter.splitInstanceDataMultiProvider(instanceDataMultiProvider, scenario);
-		
+
 		if(inputList.size() > 1){
 			List<String> providersList = inputList.stream().map(InstanceDataMultiProvider::getProvider).collect(Collectors.toList());
 			if(!minNumTxt(providersList,pathList)){
@@ -127,10 +126,10 @@ public class LaunchAnalysis {
 				return "redirect:/launchRetry";
 			}
 		}
-		
+
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 		List<String> txtFoldersList = new ArrayList<>();
-		
+
 		for(SimulationsManager sm: simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataMultiProviderPath).getFileName().toString());
 			InstanceDataMultiProvider input = sm.getInputData();
@@ -147,9 +146,9 @@ public class LaunchAnalysis {
 			for (Entry<String, Map<String, Map<String, JobProfile>>> jobIDs : input.getMapJobProfiles().getMapJobProfile().entrySet()) {
 				for (Entry<String, Map<String, JobProfile>> provider : jobIDs.getValue().entrySet()) {
 					for (Entry<String, JobProfile> typeVMs : provider.getValue().entrySet()) {
-						
+
 						String secondPartOfTXTName = getSecondPartOfReplayersName(jobIDs.getKey(), provider.getKey(), typeVMs.getKey());
-						
+
 						List<String> txtToBeSaved = pathList.stream().filter(s->s.contains(secondPartOfTXTName)).filter(s->s.contains(input.getId())).collect(Collectors.toList());
 						if(txtToBeSaved.isEmpty()){
 							deleteUploadedFiles(pathList);
@@ -157,22 +156,22 @@ public class LaunchAnalysis {
 							model.addAttribute("message", "Missing TXT file for Instance:"+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey());
 							return "redirect:/launchRetry";
 						}
-						
+
 						for(String srcPath:txtToBeSaved){
 							File src = new File(srcPath);
-							
+
 							String fileContent=new String();
 							try {
 								fileContent = new String(Files.readAllBytes(Paths.get(srcPath)));
 								FileOutputStream fooStream = new FileOutputStream(src, false); // true to append
-								                                                                 // false to overwrite.
+								// false to overwrite.
 								byte[] myBytes = Compressor.compress(fileContent).getBytes();
 								fooStream.write(myBytes);
 								fooStream.close();
-								
+
 								fileUtility.copyFile(srcPath, txtFolder+src.getName());
-								
-								
+
+
 							} catch (IOException e) {
 								deleteUploadedFiles(pathList);
 								deleteUploadedFiles(txtFoldersList);
@@ -233,7 +232,7 @@ public class LaunchAnalysis {
 
 		List<InstanceDataMultiProvider> inputList = new ArrayList<>();
 		inputList.add(instanceData);
-		
+
 
 		if(inputList.size() > 1){
 			List<String> providersList = inputList.stream().map(InstanceDataMultiProvider::getProvider).collect(Collectors.toList());
@@ -243,13 +242,13 @@ public class LaunchAnalysis {
 				return "redirect:/launchRetry";
 			}
 		}
-		
+
 		List<SimulationsManager> simManagerList = initializeSimManagers(inputList);
 		List<String> txtFoldersList = new ArrayList<>();
 
 		for(SimulationsManager sm : simManagerList){
 			sm.setInputFileName(Paths.get(instanceDataPath).getFileName().toString());
-			
+
 			String txtFolder = new String();
 			try{
 				txtFolder = fileUtility.createInputSubFolder();
@@ -260,15 +259,15 @@ public class LaunchAnalysis {
 				redirectAttrs.addAttribute("message", "Too many folders for TXTs with the same name have been created!");
 				return "redirect:/launchRetry";
 			}
-			
+
 			InstanceDataMultiProvider input = sm.getInputData();
 			for (Entry<String, Map<String, Map<String, JobProfile>>> jobIDs : input.getMapJobProfiles().getMapJobProfile().entrySet()) {
 				for (Entry<String, Map<String, JobProfile>> provider : jobIDs.getValue().entrySet()) {
 					for (Entry<String, JobProfile> typeVMs : provider.getValue().entrySet()) {
-						
+
 						String secondPartOfTXTName = getSecondPartOfReplayersName(jobIDs.getKey(), provider.getKey(), typeVMs.getKey());
-						
-						
+
+
 						List<String> txtToBeSaved = pathList.stream().filter(s->s.contains(secondPartOfTXTName)).filter(s->s.contains(input.getId())).collect(Collectors.toList());
 						if(txtToBeSaved.isEmpty()){
 							deleteUploadedFiles(pathList);
@@ -276,10 +275,10 @@ public class LaunchAnalysis {
 							model.addAttribute("message", "Missing TXT file for Instance:"+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey());
 							return "redirect:/launchRetry";
 						}
-						
+
 						for(String srcPath:txtToBeSaved){
 							File src = new File(srcPath);
-							
+
 							String fileContent=new String();
 							try {
 								fileUtility.copyFile(srcPath, txtFolder+src.getName());
@@ -317,7 +316,7 @@ public class LaunchAnalysis {
 	/**
 	 * Precondition TXT file name must respect this regex:
 	 * (MAP|REDUCE)[CUSTOM_INTEGER](PROVIDER)(ID)(VM_TYPE)(CLASS_ID)
-	 * 
+	 *
 	 * Custom integer used in case of DAGs
 	 * Provider mandatory in Public Cloud with InstanceDataMultiProvider
 	 * "Map",input.getId(), jobIDs.getKey(), typeVMs.getKey()
@@ -326,76 +325,56 @@ public class LaunchAnalysis {
 	public String getReplayersFileName(String typeOfFile,String idA, String idC, String provider, String vmType){ //TODO move to shared
 		return idA+typeOfFile+getSecondPartOfReplayersName(idC,provider,vmType)+".txt";
 	}
-	
+
 	private String getSecondPartOfReplayersName(String idC, String provider, String vmType){
 		return "J"+idC+provider+vmType;
 	}
 
-	private String scenarioValidation(InstanceDataMultiProvider instanceDataMultiProvider, Scenarios scenario){
-		String returnString = new String();
+	private String scenarioValidation(InstanceDataMultiProvider instanceDataMultiProvider, Scenarios scenario) {
+		String returnString = "ok";
 		if(instanceDataMultiProvider.getMapJobProfiles()==null || instanceDataMultiProvider.getMapClassParameters()==null){
 			returnString = "Json is missing some required parameters(MapJobProfiles or MapClassParameters)!";
-			return returnString;
-		}
-
-		switch (scenario) {
+		} else switch (scenario) {
 			case PrivateAdmissionControl:
-				if(instanceDataMultiProvider.getPrivateCloudParameters()==null||instanceDataMultiProvider.getMapVMConfigurations()==null){
+				if (instanceDataMultiProvider.getPrivateCloudParameters()==null||instanceDataMultiProvider.getMapVMConfigurations()==null) {
 					returnString = "Json is missing some required parameters(PrivateCloudParameters or MapVMConfigurations)!";
-					return returnString;
-				}
-				if (!instanceDataMultiProvider.getPrivateCloudParameters().validate()) {
+				} else if (!instanceDataMultiProvider.getPrivateCloudParameters().validate()) {
 					returnString = "Private Cloud Parameters uploaded in Json aren't valid!";
-					return returnString;
-				}
-				if (!instanceDataMultiProvider.getMapVMConfigurations().validate()) {
+				} else if (!instanceDataMultiProvider.getMapVMConfigurations().validate()) {
 					returnString = "VM Configurations uploaded in Json aren't valid!";
-					return returnString;
-				}
-				if(instanceDataMultiProvider.getProvidersList().size() != 1){
+				} else if (instanceDataMultiProvider.getProvidersList().size() != 1) {
 					returnString = "A private scenario cannot have multiple providers!(call you providers:\"inHouse\")";
-					return returnString;
 				}
 				break;
 
 			case PrivateNoAdmissionControl:
-				if(instanceDataMultiProvider.getMapVMConfigurations()==null){
+				if (instanceDataMultiProvider.getMapVMConfigurations()==null) {
 					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
-					return returnString;
-				}
-				if(instanceDataMultiProvider.getMapVMConfigurations().getMapVMConfigurations()==null){
+				} else if (instanceDataMultiProvider.getMapVMConfigurations().getMapVMConfigurations()==null) {
 					returnString = "Json is missing some required parameters(MapVMConfigurations)!";
-					return returnString;
-				}
-				if (!instanceDataMultiProvider.getMapVMConfigurations().validate()) {
+				} else if (!instanceDataMultiProvider.getMapVMConfigurations().validate()) {
 					returnString = "VM Configurations uploaded in Json aren't valid!";
-					return returnString;
-				}
-				if(instanceDataMultiProvider.getProvidersList().size() != 1){
+				} else if (instanceDataMultiProvider.getProvidersList().size() != 1) {
 					returnString = "A private scenario cannot have multiple providers!(call you providers:\"inHouse\")";
-					return returnString;
 				}
 				break;
 
 			case PublicPeakWorkload:
-				if(instanceDataMultiProvider.getMapPublicCloudParameters()==null || instanceDataMultiProvider.getMapPublicCloudParameters().getMapPublicCloudParameters()==null){
+				if (instanceDataMultiProvider.getMapPublicCloudParameters()==null || instanceDataMultiProvider.getMapPublicCloudParameters().getMapPublicCloudParameters()==null) {
 					returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
-					return returnString;
-				}
-				if (!instanceDataMultiProvider.getMapPublicCloudParameters().validate()) {
+				} else if (!instanceDataMultiProvider.getMapPublicCloudParameters().validate()) {
 					returnString = "Public Cloud Parameters uploaded in Json aren't valid!";
-					return returnString;
 				}
 				break;
 
 			case PublicAvgWorkLoad:
+			case StormPublicAvgWorkLoad:
 				break;
 
 			default:
 				new Exception("Error with scenario files");
-				break;
 		}
-		return "ok";
+		return returnString;
 	}
 
 	private List<SimulationsManager> initializeSimManagers(List<InstanceDataMultiProvider> inputList){
@@ -439,7 +418,7 @@ public class LaunchAnalysis {
 		fileUtility.delete(filesToBeEreased);
 	}
 
-	
+
 	/**
 	 * With multi provider different TXTs should be provided
 	 */

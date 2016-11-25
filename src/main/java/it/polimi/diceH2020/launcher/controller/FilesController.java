@@ -34,11 +34,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -57,10 +53,9 @@ public class FilesController {
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase, Model model, RedirectAttributes redirectAttrs) {
-		String fileName = null;
 		boolean singleInputData = false;
 		Scenarios scenario = Scenarios.valueOf(useCase);
-		ArrayList<String> tmpValues = new ArrayList<String>();
+		ArrayList<String> tmpValues = new ArrayList<>();
 
 		redirectAttrs.addAttribute("scenario", scenario);
 		model.addAttribute("scenario", scenario);
@@ -70,13 +65,13 @@ public class FilesController {
 			return "launchSimulation_FileUpload";
 		}
 
-		if(hasDuplicate(Arrays.stream(files).map(f-> f.getOriginalFilename()).collect(Collectors.toList()))){
+		if (hasDuplicate(Arrays.stream(files).map(MultipartFile::getOriginalFilename).collect(Collectors.toList()))) {
 			model.addAttribute("message", "Duplicated files!");
 			return "launchSimulation_FileUpload";
 		}
 
 		for (int i = 0; i < files.length; i++) {
-			fileName = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("/") + 1);
+			String fileName = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("/") + 1);
 			File f = saveFile(files[i], fileName);
 			if (f == null) return "error";
 			if (fileName.contains(".json")) {
@@ -119,7 +114,7 @@ public class FilesController {
 		}
 	}
 
-	public static <T> boolean hasDuplicate(Iterable<T> all) {
+	private static <T> boolean hasDuplicate(Iterable<T> all) {
 		Set<T> set = new HashSet<T>();
 		// Set#add returns false if the set does not change, which
 		// indicates that a duplicate element has been added.
