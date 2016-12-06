@@ -15,6 +15,7 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.service;
 
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -41,18 +42,10 @@ public class RestCommunicationWrapper {
 	private long startTime = System.currentTimeMillis();
 
 	public RestCommunicationWrapper(){
-		//ObjectMapper om = new ObjectMapper().registerModule(new Jdk8Module());
 		restTemplate = new RestTemplate();
-
-//		MappingJackson2HttpMessageConverter jsonMessageConverter = new MappingJackson2HttpMessageConverter(om);
-//		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-//		messageConverters.add(jsonMessageConverter);
-//		restTemplate.setMessageConverters(messageConverters);
-
-//		MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter(om);
-//		//messageConverter.setObjectMapper(om);
-//		restTemplateForJson.getMessageConverters().removeIf(m -> m.getClass().getName().equals(MappingJackson2HttpMessageConverter.class.getName()));
-//		restTemplateForJson.getMessageConverters().add(messageConverter);
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setBufferRequestBody(false);     //AVOID RUN OUT OF MEMORY
+		restTemplate.setRequestFactory(requestFactory);
 	}
 
 	@Retryable(maxAttempts = maxRequests, backoff = @Backoff(delay = delayRequests,multiplier=multiplierRequests))
