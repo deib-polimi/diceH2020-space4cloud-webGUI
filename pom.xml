@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>it.polimi.diceH2020</groupId>
 			<artifactId>SPACE4Cloud-shared</artifactId>
-			<version>0.2.10-SNAPSHOT</version>
+			<version>0.2.11-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
