@@ -1,4 +1,5 @@
 /*
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 Copyright 2016 Michele Ciavotta
 
@@ -18,7 +19,7 @@ package it.polimi.diceH2020.launcher.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.*;
+import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,48 +30,21 @@ import java.util.Optional;
 @Service
 public class Validator {
 
-	private ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
+    private ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 
-	public <T> Optional<T> objectFromPath(Path pathFile, Class<T> cls) {
+    private  <T> Optional<T> objectFromPath (Path pathFile, Class<T> cls) {
+        Optional<T> returnValue;
+        try {
+            String serialized = String.join ("\n", Files.readAllLines (pathFile));
+            returnValue = Optional.of(mapper.readValue(serialized, cls));
+        } catch (IOException e) {
+            returnValue = Optional.empty();
+        }
+        return returnValue;
+    }
 
-		String serialized;
-		try {
-			serialized = new String(Files.readAllBytes(pathFile));
-			T data = mapper.readValue(serialized, cls);
-			return Optional.of(data);
-		} catch (IOException e) {
-			return Optional.empty();
-		}
-	}
-
-	public boolean validateJobProfile(Path pathToFile){
-		Optional<JobProfilesMap> sol = objectFromPath(pathToFile, JobProfilesMap.class);
-		return (sol.isPresent() && sol.get().validate());
-	}
-
-	public boolean validateClassParameters(Path pathToFile){
-		Optional<ClassParametersMap> sol = objectFromPath(pathToFile, ClassParametersMap.class);
-		return (sol.isPresent() && sol.get().validate());
-	}
-
-	public boolean validateVMConfigurations(Path pathToFile){
-		Optional<VMConfigurationsMap> sol = objectFromPath(pathToFile, VMConfigurationsMap.class);
-		return (sol.isPresent() && sol.get().validate());
-	}
-
-	public boolean validatePrivateCloudParameters(Path pathToFile){
-		Optional<PrivateCloudParameters> sol = objectFromPath(pathToFile, PrivateCloudParameters.class);
-		return (sol.isPresent() && sol.get().validate());
-	}
-
-	public boolean validatePublicCloudParameters(Path pathToFile){
-		Optional<PublicCloudParametersMap> sol = objectFromPath(pathToFile, PublicCloudParametersMap.class);
-		return (sol.isPresent() && sol.get().validate());
-	}
-
-	public Optional<InstanceDataMultiProvider> readInstanceDataMultiProvider(Path pathToFile){
-		Optional<InstanceDataMultiProvider> sol = objectFromPath(pathToFile, InstanceDataMultiProvider.class);
-		return sol;
-	}
+    public Optional<InstanceDataMultiProvider> readInstanceDataMultiProvider (Path pathToFile) {
+        return objectFromPath (pathToFile, InstanceDataMultiProvider.class);
+    }
 
 }

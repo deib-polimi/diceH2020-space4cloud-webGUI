@@ -1,4 +1,5 @@
 /*
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 Copyright 2016 Michele Ciavotta
 
@@ -42,9 +43,9 @@ import java.util.stream.Collectors;
 public class FilesController {
 
 	@Autowired
-	FileUtility fileUtility;
+	private FileUtility fileUtility;
 	@Autowired
-	Validator validator;
+	private Validator validator;
 
 	@RequestMapping(value = "/upload", method = RequestMethod.GET)
 	public @ResponseBody String hello() {
@@ -52,8 +53,8 @@ public class FilesController {
 	}
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase, Model model, RedirectAttributes redirectAttrs) {
-		boolean singleInputData = false;
+	public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase,
+							   Model model, RedirectAttributes redirectAttrs) {
 		Scenarios scenario = Scenarios.valueOf(useCase);
 		ArrayList<String> tmpValues = new ArrayList<>();
 
@@ -72,15 +73,22 @@ public class FilesController {
 
 		for (int i = 0; i < files.length; i++) {
 			String fileName = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("/") + 1);
-			File f = saveFile(files[i], fileName);
-			if (f == null) return "error";
+
+			File file;
+			try {
+				file = saveFile(files[i], fileName);
+			} catch (IOException e) {
+				model.addAttribute("message", String.format("Error handling '%s'", fileName));
+				return "error";
+			}
+
 			if (fileName.contains(".json")) {
-				Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(f.toPath());
-				if(idmp.isPresent()){
-					if(idmp.get().validate()){
-						redirectAttrs.addAttribute("instanceDataMultiProvider", f.toPath().toString());
+				Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(file.toPath());
+				if (idmp.isPresent()) {
+					if (idmp.get().validate()) {
+						redirectAttrs.addAttribute("instanceDataMultiProvider", file.getPath());
 						continue;
-					}else{
+					} else {
 						model.addAttribute("message", idmp.get().getValidationError());
 						return "launchSimulation_FileUpload";
 					}
@@ -88,34 +96,27 @@ public class FilesController {
 				model.addAttribute("message", "You have submitted an invalid json!");
 				return "launchSimulation_FileUpload";
 			} else {
-				if(fileName.contains(".txt")){
-					tmpValues.add(f.toPath().toString());
+				if (fileName.contains(".txt")) {
+					tmpValues.add(file.getPath());
 				}
 			}
 		}
 
 		redirectAttrs.addAttribute("pathList", tmpValues);
-		if(singleInputData) return "redirect:/launch/simulationSetupSingleInputData";
 		return "redirect:/launch/simulationSetup";
 	}
 
-	private File saveFile(MultipartFile file, String fileName) {
-		try {
+	private File saveFile(MultipartFile file, String fileName) throws IOException {
+		File outFile = fileUtility.provideFile(fileName);
+		try (BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
 			byte[] bytes = file.getBytes();
-			File f = fileUtility.provideFile(fileName);
-			BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(f));
 			buffStream.write(bytes);
-			buffStream.close();
-			return f;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
 		}
+		return outFile;
 	}
 
 	private static <T> boolean hasDuplicate(Iterable<T> all) {
-		Set<T> set = new HashSet<T>();
+		Set<T> set = new HashSet<>();
 		// Set#add returns false if the set does not change, which
 		// indicates that a duplicate element has been added.
 		for (T each: all) if (!set.add(each)) return true;
