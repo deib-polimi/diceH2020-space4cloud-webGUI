@@ -1,5 +1,5 @@
 /*
-Copyright 2016 Eugenio Gianniti
+Copyright 2016-2017 Eugenio Gianniti
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,29 +15,21 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.utility.policy;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import it.polimi.diceH2020.launcher.utility.FileManagementSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "file-management")
 public class DeletionPolicyFactory {
-    public enum Policy {DELETE, DELETE_ON_EXIT, KEEP_FILES}
 
-    private Policy deletionPolicy = Policy.DELETE;
-
-    public Policy getDeletionPolicy() {
-        return deletionPolicy;
-    }
-
-    public void setDeletionPolicy(Policy deletionPolicy) {
-        this.deletionPolicy = deletionPolicy;
-    }
+    @Autowired
+    private FileManagementSettings settings;
 
     @Bean
     public DeletionPolicy create() throws RuntimeException {
         DeletionPolicy policy;
-        switch (getDeletionPolicy()) {
+        switch (settings.getDeletionPolicy()) {
             case DELETE:
                 policy = new Delete();
                 break;

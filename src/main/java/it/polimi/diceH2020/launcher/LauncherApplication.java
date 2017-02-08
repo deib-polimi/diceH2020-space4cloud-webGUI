@@ -52,7 +52,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class LauncherApplication {
 
 	private static final int uploadTomcatMaxSize = -1; //for a correct redirect disable tomcat. set -1 to disable preupload check
-	private static Logger logger = Logger.getLogger(LauncherApplication.class.getName());
+	private final Logger logger = Logger.getLogger(getClass ());
 
 	@Autowired
 	private FileUtility fileUtility;
@@ -61,6 +61,7 @@ public class LauncherApplication {
 	public void handleContextRefresh(ContextRefreshedEvent event) throws Exception {
 		try {
 			fileUtility.createWorkingDir();
+			logger.info ("Working directory correctly created");
 		} catch (Exception e) {
 			logger.info("Error in the creation of local work directory!");
 		}
