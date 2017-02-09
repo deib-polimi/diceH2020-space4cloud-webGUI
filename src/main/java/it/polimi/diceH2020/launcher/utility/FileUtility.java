@@ -47,9 +47,14 @@ public class FileUtility {
 		return policy.delete(file);
 	}
 
-	public @NotNull File provideFile (@NotNull String fileName) {
+	public @NotNull File provideFile (@NotNull String fileName) throws FileNameClashException {
 		File file = new File(settings.getWorkingDirectory(), fileName);
-		policy.markForDeletion(file);
+		if (file.exists ()) {
+			throw new FileNameClashException (
+					String.format ("'%s' already exists in the working directory", fileName));
+		} else {
+			policy.markForDeletion (file);
+		}
 		return file;
 	}
 

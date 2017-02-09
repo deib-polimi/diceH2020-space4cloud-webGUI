@@ -1,4 +1,5 @@
 /*
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 Copyright 2016 Michele Ciavotta
 
@@ -16,7 +17,6 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
@@ -26,7 +26,6 @@ import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
 import it.polimi.diceH2020.launcher.utility.Compressor;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -36,30 +35,34 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Scope("prototype")
 @Component
 public class Experiment {
+	private final Logger logger = Logger.getLogger(getClass());
+
 	private String EVENT_ENDPOINT;
 	private String INPUTDATA_ENDPOINT;
 	private String RESULT_FOLDER;
 	private String SOLUTION_ENDPOINT;
-	private String STATE_ENDPOINT; //not used restTemplate.getForObject(STATE_ENDPOINT, String.class);
-	//private String SETTINGS_ENDPOINT;
+	private String STATE_ENDPOINT;
 	private String UPLOAD_ENDPOINT;
+	private String port;
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private DiceConsumer consumer;
 
 	@Autowired
 	private Settings settings;
-	private DiceConsumer consumer;
-	private String port;
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -70,25 +73,46 @@ public class Experiment {
 	@Autowired
 	private RestCommunicationWrapper restWrapper;
 
-	public Experiment(DiceConsumer consumer) {
-		port = consumer.getPort();
-		this.consumer = consumer;
+	@Autowired
+	private FileService fileService;
+
+	public Experiment(DiceConsumer diceConsumer) {
+		port = diceConsumer.getPort();
+		consumer = diceConsumer;
 	}
 
-	public synchronized boolean initialize(InteractiveExperiment intExp){
-		SimulationsManager simManager = intExp.getSimulationsManager();
-		ArrayList<String[]> txtList;
+	private synchronized boolean initialize(InteractiveExperiment experiment) {
+		SimulationsManager simManager = experiment.getSimulationsManager();
+		boolean success = sendFiles (simManager.getInputFolders (), ".txt",
+				String.format ("Impossible launching SimulationsManager %s: Replayer files are not present",
+						simManager.getId()));
+		if (success) {
+			success = sendFiles (simManager.getInputFolders (), ".net",
+					String.format ("Impossible launching SimulationsManager %s: .net file not present",
+							simManager.getId()));
+		}
+		if (success) {
+			success = sendFiles (simManager.getInputFolders (), ".def",
+					String.format ("Impossible launching SimulationsManager %s: .def file not present",
+							simManager.getId()));
+		}
+		return success;
+	}
+
+	private synchronized boolean sendFiles(@NotNull List<String> folders, @NotNull String extension,
+										   @NotNull String errorMessage) {
+		boolean success = true;
 		try {
-			txtList = FileService.getTxT(simManager.getInputFolders());
-			for(String[] txtInfo : txtList ){
-				if(!send(txtInfo[0], Compressor.decompress(txtInfo[1]))) return false;
-				//logger.info(nameMapFile+", "+nameRSFile + "have been sent");
+			Iterator<Map<String, String>> files = fileService.getFiles (folders, extension).iterator ();
+			while (success && files.hasNext ()) {
+				Map<String, String> fileInfo = files.next ();
+				success = send(fileInfo.get ("name"), Compressor.decompress(fileInfo.get ("content")));
 			}
 		} catch (IOException e) {
-			logger.error("Impossible launching SimulationsManager"+simManager.getId()+"![Replayers file are not present]");
-			return false;
+			logger.error(errorMessage);
+			success = false;
 		}
-		return true;
+		return success;
 	}
 
 	private boolean evaluateInitSolution() {
@@ -123,14 +147,13 @@ public class Experiment {
 		e.setState(States.RUNNING);
 		e.getSimulationsManager().refreshState();
 		ds.updateManager(e.getSimulationsManager());
-		//ds.updateExp(intExp); //TODO useful? @onetomany cascade..
 
 		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
 		String baseErrorString = expInfo+"Error! ";
 
-
-
-		logger.info(String.format("%s-> {Exp:%s  port:%s,  provider:\"%s\" scenario:\"%s\"}", expInfo, Long.toString(e.getId()),port,e.getProvider(),e.getSimulationsManager().getScenario().toString()));
+		logger.info(String.format("%s-> {Exp:%s  port:%s,  provider:\"%s\" scenario:\"%s\"}",
+				expInfo, Long.toString(e.getId()), port, e.getProvider(),
+				e.getSimulationsManager().getScenario().toString()));
 		logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
 
 
@@ -153,7 +176,6 @@ public class Experiment {
 			return false;
 		}
 		logger.info(expInfo+"JMT replayers files have been correctly sent");
-		//int num = e.getIter();
 
 		boolean charged_initsolution = generateInitialSolution();
 		if (!charged_initsolution) {
@@ -204,8 +226,8 @@ public class Experiment {
 		return true;
 	}
 
-	public boolean send(String filename, String content ){
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+	private boolean send(String filename, String content) {
+		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		map.add("name", filename);
 		map.add("filename", filename);
 
@@ -218,19 +240,18 @@ public class Experiment {
 			};
 			map.add("file", contentsAsResource);
 
-			try{ restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class); }
-			catch(Exception e){
+			try {
+				restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class);
+			} catch (Exception e) {
 				notifyWsUnreachability();
 				return false;
 			}
-
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error (String.format ("error trying to send '%s'", filename), e);
 			return false;
 		}
 		return true;
 	}
-
 
 	/**
 	 *  Wait until WS is in IDLE state.
@@ -326,7 +347,6 @@ public class Experiment {
 		STATE_ENDPOINT = settings.getFullAddress() + port + "/state";
 		UPLOAD_ENDPOINT = settings.getFullAddress() + port + "/upload";
 		SOLUTION_ENDPOINT = settings.getFullAddress() + port + "/solution";
-		//SETTINGS_ENDPOINT = settings.getFullAddress() + port +"/settings";
 		Path result = Paths.get(settings.getResultDir());
 		if (!Files.exists(result)) Files.createDirectory(result);
 		RESULT_FOLDER = result.toAbsolutePath().toString();
@@ -344,19 +364,16 @@ public class Experiment {
 		e.setSol(sol);
 		e.setExperimentalDuration(sol.getOptimizationTime());
 		e.setDone(true);
-		//e.setNumSolutions(e.getNumSolutions()+1);
-		//e.setResponseTime(sol.getSolutionPerJob(0).getDuration());
 		String msg = String.format("%sHill Climbing result  -> %s",expInfo, sol.toStringReduced());
 		logger.info(msg);
 		return true;
 	}
 
 	private boolean saveInitSolution() {
-
-		Solution sol = new Solution();
-
-		try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
-		catch(Exception e){
+		Solution sol;
+		try {
+			sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class);
+		} catch (Exception e) {
 			logger.info("Impossible receiving remote solution. ["+e+"]");
 			notifyWsUnreachability();
 			return false;
@@ -368,10 +385,7 @@ public class Experiment {
 			solSerialized = mapper.writeValueAsString(sol);
 			Files.write(Paths.get(solFilePath), solSerialized.getBytes());
 			return true;
-		} catch (JsonProcessingException e) {
-			return false;
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			return false;
 		}
 	}
@@ -405,26 +419,6 @@ public class Experiment {
 		if(res.equals("ERROR")){
 			ds.setChannelState(consumer,States.ERROR);
 			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
-		}
-	}
-
-	void wipeResultDir() throws IOException {
-		Path result = Paths.get(settings.getResultDir());
-		if (Files.exists(result)) {
-			Files.walkFileTree(result, new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					Files.delete(dir);
-					return FileVisitResult.CONTINUE;
-				}
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					Files.delete(file);
-					return FileVisitResult.CONTINUE;
-				}
-			});
-			Files.deleteIfExists(result);
-			Files.createDirectory(result);
 		}
 	}
 }

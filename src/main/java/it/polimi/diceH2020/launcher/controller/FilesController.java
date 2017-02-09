@@ -20,6 +20,7 @@ package it.polimi.diceH2020.launcher.controller;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.service.Validator;
+import it.polimi.diceH2020.launcher.utility.FileNameClashException;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,8 +36,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/files")
@@ -61,44 +62,41 @@ public class FilesController {
 		redirectAttrs.addAttribute("scenario", scenario);
 		model.addAttribute("scenario", scenario);
 
-		if(files == null || files.length == 0){
+		if (files == null || files.length == 0) {
 			model.addAttribute("message", "Wrong files!");
 			return "launchSimulation_FileUpload";
 		}
 
-		if (hasDuplicate(Arrays.stream(files).map(MultipartFile::getOriginalFilename).collect(Collectors.toList()))) {
-			model.addAttribute("message", "Duplicated files!");
-			return "launchSimulation_FileUpload";
-		}
+		for (MultipartFile multipartFile: files) {
+			String fileName = new File (multipartFile.getOriginalFilename ()).getName ();
 
-		for (int i = 0; i < files.length; i++) {
-			String fileName = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("/") + 1);
-
-			File file;
+			File savedFile;
 			try {
-				file = saveFile(files[i], fileName);
+				savedFile = saveFile (multipartFile, fileName);
+			} catch (FileNameClashException e) {
+				model.addAttribute ("message", String.format ("'%s' already exists", fileName));
+				return "launchSimulation_FileUpload";
 			} catch (IOException e) {
-				model.addAttribute("message", String.format("Error handling '%s'", fileName));
+				model.addAttribute ("message", String.format ("Error handling '%s'", fileName));
 				return "error";
 			}
 
-			if (fileName.contains(".json")) {
-				Optional<InstanceDataMultiProvider> idmp = validator.readInstanceDataMultiProvider(file.toPath());
-				if (idmp.isPresent()) {
-					if (idmp.get().validate()) {
-						redirectAttrs.addAttribute("instanceDataMultiProvider", file.getPath());
-						continue;
+			if (fileName.contains (".json")) {
+				Optional<InstanceDataMultiProvider> idmp =
+						validator.readInstanceDataMultiProvider (savedFile.toPath ());
+				if (idmp.isPresent ()) {
+					if (idmp.get ().validate ()) {
+						redirectAttrs.addAttribute ("instanceDataMultiProvider", savedFile.getPath ());
 					} else {
-						model.addAttribute("message", idmp.get().getValidationError());
+						model.addAttribute ("message", idmp.get ().getValidationError ());
 						return "launchSimulation_FileUpload";
 					}
+				} else {
+					model.addAttribute ("message", "You have submitted an invalid json!");
+					return "launchSimulation_FileUpload";
 				}
-				model.addAttribute("message", "You have submitted an invalid json!");
-				return "launchSimulation_FileUpload";
-			} else {
-				if (fileName.contains(".txt")) {
-					tmpValues.add(file.getPath());
-				}
+			} else if (fileName.contains (".txt") || fileName.contains (".def") || fileName.contains (".net")) {
+				tmpValues.add (savedFile.getPath ());
 			}
 		}
 
@@ -106,21 +104,13 @@ public class FilesController {
 		return "redirect:/launch/simulationSetup";
 	}
 
-	private File saveFile(MultipartFile file, String fileName) throws IOException {
+	private File saveFile(MultipartFile file, String fileName) throws FileNameClashException, IOException {
 		File outFile = fileUtility.provideFile(fileName);
 		try (BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
 			byte[] bytes = file.getBytes();
 			buffStream.write(bytes);
 		}
 		return outFile;
-	}
-
-	private static <T> boolean hasDuplicate(Iterable<T> all) {
-		Set<T> set = new HashSet<>();
-		// Set#add returns false if the set does not change, which
-		// indicates that a duplicate element has been added.
-		for (T each: all) if (!set.add(each)) return true;
-		return false;
 	}
 
 }
