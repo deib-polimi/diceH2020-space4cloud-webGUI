@@ -22,6 +22,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.service.Validator;
 import it.polimi.diceH2020.launcher.utility.FileNameClashException;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,74 +44,86 @@ import java.util.Optional;
 @RequestMapping("/files")
 public class FilesController {
 
-	@Autowired
-	private FileUtility fileUtility;
-	@Autowired
-	private Validator validator;
+    private final Logger logger = Logger.getLogger (getClass ());
 
-	@RequestMapping(value = "/upload", method = RequestMethod.GET)
-	public @ResponseBody String hello() {
-		return "done";
-	}
+    @Autowired
+    private FileUtility fileUtility;
 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase,
-							   Model model, RedirectAttributes redirectAttrs) {
-		Scenarios scenario = Scenarios.valueOf(useCase);
-		ArrayList<String> tmpValues = new ArrayList<>();
+    @Autowired
+    private Validator validator;
 
-		redirectAttrs.addAttribute("scenario", scenario);
-		model.addAttribute("scenario", scenario);
+    @RequestMapping(value = "/upload", method = RequestMethod.GET)
+    public @ResponseBody String hello() {
+        return "done";
+    }
 
-		if (files == null || files.length == 0) {
-			model.addAttribute("message", "Wrong files!");
-			return "launchSimulation_FileUpload";
-		}
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase,
+                               Model model, RedirectAttributes redirectAttrs) {
+        Scenarios scenario = Scenarios.valueOf(useCase);
+        ArrayList<String> tmpValues = new ArrayList<>();
 
-		for (MultipartFile multipartFile: files) {
-			String fileName = new File (multipartFile.getOriginalFilename ()).getName ();
+        redirectAttrs.addAttribute("scenario", scenario);
+        model.addAttribute("scenario", scenario);
 
-			File savedFile;
-			try {
-				savedFile = saveFile (multipartFile, fileName);
-			} catch (FileNameClashException e) {
-				model.addAttribute ("message", String.format ("'%s' already exists", fileName));
-				return "launchSimulation_FileUpload";
-			} catch (IOException e) {
-				model.addAttribute ("message", String.format ("Error handling '%s'", fileName));
-				return "error";
-			}
+        if (files == null || files.length == 0) {
+            String message = "Wrong files!";
+            logger.error (message);
+            model.addAttribute("message", message);
+            return "launchSimulation_FileUpload";
+        }
 
-			if (fileName.contains (".json")) {
-				Optional<InstanceDataMultiProvider> idmp =
-						validator.readInstanceDataMultiProvider (savedFile.toPath ());
-				if (idmp.isPresent ()) {
-					if (idmp.get ().validate ()) {
-						redirectAttrs.addAttribute ("instanceDataMultiProvider", savedFile.getPath ());
-					} else {
-						model.addAttribute ("message", idmp.get ().getValidationError ());
-						return "launchSimulation_FileUpload";
-					}
-				} else {
-					model.addAttribute ("message", "You have submitted an invalid json!");
-					return "launchSimulation_FileUpload";
-				}
-			} else if (fileName.contains (".txt") || fileName.contains (".def") || fileName.contains (".net")) {
-				tmpValues.add (savedFile.getPath ());
-			}
-		}
+        for (MultipartFile multipartFile: files) {
+            String fileName = new File (multipartFile.getOriginalFilename ()).getName ();
 
-		redirectAttrs.addAttribute("pathList", tmpValues);
-		return "redirect:/launch/simulationSetup";
-	}
+            File savedFile;
+            try {
+                savedFile = saveFile (multipartFile, fileName);
+            } catch (FileNameClashException e) {
+                String message = String.format ("'%s' already exists", fileName);
+                logger.error (message, e);
+                model.addAttribute ("message", message);
+                return "launchSimulation_FileUpload";
+            } catch (IOException e) {
+                String message = String.format ("Error handling '%s'", fileName);
+                logger.error (message, e);
+                model.addAttribute ("message", message);
+                return "error";
+            }
 
-	private File saveFile(MultipartFile file, String fileName) throws FileNameClashException, IOException {
-		File outFile = fileUtility.provideFile(fileName);
-		try (BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
-			byte[] bytes = file.getBytes();
-			buffStream.write(bytes);
-		}
-		return outFile;
-	}
+            if (fileName.contains (".json")) {
+                Optional<InstanceDataMultiProvider> idmp =
+                        validator.readInstanceDataMultiProvider (savedFile.toPath ());
+                if (idmp.isPresent ()) {
+                    if (idmp.get ().validate ()) {
+                        redirectAttrs.addAttribute ("instanceDataMultiProvider", savedFile.getPath ());
+                    } else {
+                        logger.error (idmp.get ().getValidationError ());
+                        model.addAttribute ("message", idmp.get ().getValidationError ());
+                        return "launchSimulation_FileUpload";
+                    }
+                } else {
+                    String message = "You have submitted an invalid json!";
+                    logger.error (message);
+                    model.addAttribute ("message", message);
+                    return "launchSimulation_FileUpload";
+                }
+            } else if (fileName.contains (".txt") || fileName.contains (".def") || fileName.contains (".net")) {
+                tmpValues.add (savedFile.getPath ());
+            }
+        }
+
+        redirectAttrs.addAttribute("pathList", tmpValues);
+        return "redirect:/launch/simulationSetup";
+    }
+
+    private File saveFile(MultipartFile file, String fileName) throws FileNameClashException, IOException {
+        File outFile = fileUtility.provideFile(fileName);
+        try (BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
+            byte[] bytes = file.getBytes();
+            buffStream.write(bytes);
+        }
+        return outFile;
+    }
 
 }

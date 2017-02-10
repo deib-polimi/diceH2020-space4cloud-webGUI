@@ -97,12 +97,16 @@ public class LaunchAnalysis {
 
 		if (pathList.size() == 0) {
 			cleanup(false);
-			redirectAttrs.addAttribute("message", "You haven't submitted any file!");
+			String message = "You haven't submitted any file!";
+			logger.error (message);
+			redirectAttrs.addAttribute("message", message);
 			return "redirect:/launchRetry";
 		}
 		if (instanceDataMultiProviderPath == null) {
 			cleanup(false);
-			redirectAttrs.addAttribute("message", "Select a Json file!");
+			String message = "Select a Json file!";
+			logger.error (message);
+			redirectAttrs.addAttribute("message", message);
 			return "redirect:/launchRetry";
 		}
 
@@ -112,12 +116,15 @@ public class LaunchAnalysis {
 		if (idmp.isPresent()) {
 			if (!idmp.get().validate()) {
 				cleanup(false);
-				model.addAttribute("message", idmp.get().getValidationError());
+				logger.error (idmp.get().getValidationError());
+				redirectAttrs.addAttribute("message", idmp.get().getValidationError());
 				return "redirect:/launchRetry";
 			}
 		} else {
 			cleanup(false);
-			model.addAttribute("message", "Error with InstanceDataMultiProvider");
+			String message = "Error with InstanceDataMultiProvider";
+			logger.error (message);
+			redirectAttrs.addAttribute("message", message);
 			return "redirect:/launchRetry";
 		}
 
@@ -126,6 +133,7 @@ public class LaunchAnalysis {
 		String check = scenarioValidation(instanceDataMultiProvider, scenario);
 		if (! check.equals("ok")) {
 			cleanup(false);
+			logger.error (check);
 			redirectAttrs.addAttribute("message", check);
 			return "redirect:/launchRetry";
 		}
@@ -137,7 +145,9 @@ public class LaunchAnalysis {
 			List<String> providersList = inputList.stream().map(InstanceDataMultiProvider::getProvider).collect(Collectors.toList());
 			if (! minNumTxt(providersList, pathList)) {
 				cleanup(false);
-				model.addAttribute("message", "Not enough TXT files selected.\nFor each provider in your JSON there must be 2 TXT files containing in their name the provider name.");
+				String message = "Not enough TXT files selected.\nFor each provider in your JSON there must be 2 TXT files containing in their name the provider name.";
+				logger.error (message);
+				redirectAttrs.addAttribute("message", message);
 				return "redirect:/launchRetry";
 			}
 		}
@@ -155,7 +165,9 @@ public class LaunchAnalysis {
 				generatedFiles.add(txtFolder);
 			} catch (FileNameClashException e) {
 				cleanup(true);
-				redirectAttrs.addAttribute("message", "Too many folders for TXTs with the same name have been created!");
+				String message = "Too many folders for TXTs with the same name have been created!";
+				logger.error (message, e);
+				redirectAttrs.addAttribute("message", message);
 				return "redirect:/launchRetry";
 			}
 
@@ -171,7 +183,9 @@ public class LaunchAnalysis {
 
 						if (txtToBeSaved.isEmpty()) {
 							cleanup(true);
-							model.addAttribute("message", "Missing TXT file for Instance: "+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey());
+							String message = "Missing TXT file for Instance: "+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey();
+							logger.error (message);
+							redirectAttrs.addAttribute("message", message);
 							return "redirect:/launchRetry";
 						}
 
@@ -189,18 +203,22 @@ public class LaunchAnalysis {
 								generatedFiles.add(generatedFile);
 							} catch (FileNameClashException e) {
 								cleanup(true);
-								model.addAttribute("message", e.getMessage());
+								redirectAttrs.addAttribute("message", e.getMessage());
 								logger.error("Cannot create file due to filename clash", e);
 								return "redirect:/launchRetry";
 							} catch (IOException e) {
 								cleanup(true);
-								model.addAttribute("message", "Problem with TXT paths. [TXT file for Instance:"+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey()+"]");
+								String message = "Problem with TXT paths. [TXT file for Instance:"+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey()+"]";
+								logger.error (message, e);
+								redirectAttrs.addAttribute("message", message);
 								return "redirect:/launchRetry";
 							}
 
 							if (fileContent.isEmpty ()) {
 								cleanup(true);
-								model.addAttribute("message", "Missing TXT file content for Instance: "+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey());
+								String message = "Missing TXT file content for Instance: "+input.getId()+", Job: "+jobIDs.getKey()+", Provider:"+provider.getKey()+", TypeVM:"+typeVMs.getKey();
+								logger.error (message);
+								redirectAttrs.addAttribute("message", message);
 								return "redirect:/launchRetry";
 							}
 
