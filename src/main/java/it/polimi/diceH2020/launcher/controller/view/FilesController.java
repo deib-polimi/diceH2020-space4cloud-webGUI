@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package it.polimi.diceH2020.launcher.controller;
+package it.polimi.diceH2020.launcher.controller.view;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;

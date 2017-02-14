@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package it.polimi.diceH2020.launcher.controller;
+package it.polimi.diceH2020.launcher.controller.view;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
