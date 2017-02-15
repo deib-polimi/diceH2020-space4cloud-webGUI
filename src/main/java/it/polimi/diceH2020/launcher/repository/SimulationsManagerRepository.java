@@ -1,4 +1,5 @@
 /*
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 Copyright 2016 Michele Ciavotta
 
@@ -46,6 +47,8 @@ public interface SimulationsManagerRepository extends JpaRepository<SimulationsM
 	List<States> findStatesByFolder(String folder);
 
 	SimulationsManager findById(Long id);
+
+	List<SimulationsManager> findByState(States state);
 
 	@Transactional
 	void deleteByFolder(String folder);

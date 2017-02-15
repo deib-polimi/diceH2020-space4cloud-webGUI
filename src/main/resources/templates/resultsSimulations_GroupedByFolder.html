@@ -93,14 +93,14 @@ limitations under the License.
 				<td>
 					<div class="clearfix" style="margin: 0 auto;">
 						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;cursor:pointer;">
-							<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptInputFolder?folder=${folder.folder}|}"></a>
+							<a class="link" style="z-index:10;" th:href="@{|/downloadInputZip?folder=${folder.folder}|}"></a>
 							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</div>
 				</td>
 				<td>
 					<div th:if="*{#strings.toString(folder.state)}==COMPLETED" class="linkFather" style="cursor:pointer;">
-						<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptOutputJsons?folder=${folder.folder}|}"></a>
+						<a class="link" style="z-index:10;" th:href="@{|/downloadSolutionZip?folder=${folder.folder}|}"></a>
 						<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 					</div>
 				</td>

@@ -23,22 +23,21 @@ import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
+import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.apache.log4j.Logger;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class DownloadsController {
@@ -59,8 +58,8 @@ public class DownloadsController {
 	 * Results/Folder/SimManager(for each provider)/(1 JSON)
 	 *
 	 */
-	@RequestMapping(value="/downloadAll", method=RequestMethod.GET)
-	public void downloadAll(@RequestParam(value="type") String type, HttpServletResponse response) {
+	@RequestMapping(value = "/downloadAll", method = RequestMethod.GET)
+	public void downloadAll(String type, HttpServletResponse response) {
 		List<SimulationsManager> smList;
 
 		switch(CloudType.valueOf(type)){
@@ -88,7 +87,7 @@ public class DownloadsController {
 	 * Results/Folder/SimManager(for each provider)/(1 JSON)
 	 *
 	 */
-	@RequestMapping(value="/downloadSelected", method=RequestMethod.GET)
+	@RequestMapping(value = "/downloadSelected", method = RequestMethod.GET)
 	public void downloadSelected(@RequestParam(value="folder[]") String[] folders, HttpServletResponse response) {
 		List<SimulationsManager> smList = new ArrayList<>();
 
@@ -137,10 +136,9 @@ public class DownloadsController {
 		return inputFiles;
 	}
 
-	@RequestMapping(value="/downloadZipOptInputFolder", method=RequestMethod.GET)
-	public void downloadZipOptInputFolder(@RequestParam(value="folder") String folder,
-										  HttpServletResponse response) {
-		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
+	@RequestMapping(value = "/downloadInputZip", method = RequestMethod.GET)
+	public void downloadInputZip (String folder, HttpServletResponse response) {
+		List<SimulationsManager> folderManagerList = simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<>();
 
 		for (SimulationsManager manager : folderManagerList) {
@@ -156,23 +154,62 @@ public class DownloadsController {
 		respondWithZipFile(files, response);
 	}
 
-	@RequestMapping(value="/downloadZipOptOutputJsons", method=RequestMethod.GET)
-	public void downloadZipOptOutputJsons(@RequestParam(value="folder") String folder,
-										  HttpServletResponse response) {
+	@RequestMapping(value = "/downloadSolutionZip", method = RequestMethod.GET)
+	public void downloadSolutionZip (String folder, HttpServletResponse response) {
 		List<SimulationsManager> folderManagerList = simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<>();
 
 		for (SimulationsManager manager : folderManagerList) {
-			List<InteractiveExperiment> intExpList = manager.getExperimentsList ();
-			for (InteractiveExperiment anIntExpList : intExpList) {
-				if (anIntExpList != null) {
-					if (anIntExpList.getState ().equals (States.COMPLETED)) {
-						files.put (anIntExpList.getInstanceName () + ".json", anIntExpList.getFinalSolution ());
+			List<InteractiveExperiment> experimentsList = manager.getExperimentsList ();
+			for (InteractiveExperiment experiment : experimentsList) {
+				if (experiment != null) {
+					if (experiment.getState ().equals (States.COMPLETED)) {
+						files.put (experiment.getInstanceName () + ".json", experiment.getFinalSolution ());
 					}
 				}
 			}
 		}
+
 		respondWithZipFile(files, response);
+	}
+
+	@RequestMapping(value = "/downloadSolutionJson/{id}", method = RequestMethod.GET)
+	public ResponseEntity<String> downloadSolutionJson(@PathVariable Long id) {
+		ResponseEntity<String> output = new ResponseEntity<> (HttpStatus.NOT_FOUND);
+
+		SimulationsManager manager = simulationsManagerRepository.findById (id);
+		if (manager != null) {
+			for (InteractiveExperiment experiment : manager.getExperimentsList ()) {
+				// TODO there is always only one InteractiveExperiment, all the monster should be treated accordingly
+				try {
+					String solution = Compressor.decompress (experiment.getFinalSolution ());
+					output = new ResponseEntity<> (solution, HttpStatus.OK);
+				} catch (IOException e) {
+					logger.error (String.format ("Could not decompress solutions JSON for experiment %d", id), e);
+					output = new ResponseEntity<> (HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+		}
+
+		return output;
+	}
+
+	@RequestMapping(value = "/downloadSolutionJson", method = RequestMethod.GET)
+	public List<SimulationsManagerRepresentation> downloadSolutionJson() {
+		List<SimulationsManagerRepresentation> managerRepresentations = new LinkedList<> ();
+
+		List<SimulationsManager> managers = simulationsManagerRepository.findByState (States.COMPLETED);
+		for (SimulationsManager manager : managers) {
+			Link link = ControllerLinkBuilder.linkTo (
+					ControllerLinkBuilder.methodOn (getClass ()).downloadSolutionJson (manager.getId ())
+			).withSelfRel ();
+
+			SimulationsManagerRepresentation representation = new SimulationsManagerRepresentation (manager);
+			representation.add (link);
+			managerRepresentations.add (representation);
+		}
+
+		return managerRepresentations;
 	}
 
 	private void respondWithZipFile(@NotNull Map<String, String> files, @NotNull HttpServletResponse response) {
