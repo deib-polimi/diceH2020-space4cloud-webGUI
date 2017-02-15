@@ -25,8 +25,8 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -222,8 +222,7 @@ public class DownloadsController {
 		if (zipPath != null) {
 			response.setContentType("application/zip");
 			response.addHeader("Content-Disposition", "attachment; filename=\"test.zip\"");
-			try {
-				InputStream is = new FileInputStream(zipPath);
+			try (BufferedInputStream is = new BufferedInputStream (new FileInputStream(zipPath))) {
 				IOUtils.copy(is, response.getOutputStream());
 				response.flushBuffer();
 			} catch (FileNotFoundException e) {
