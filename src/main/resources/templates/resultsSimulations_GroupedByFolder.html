@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +17,10 @@ limitations under the License.
 -->
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8" http-equiv="refresh" content="5000"></meta>
+	<meta charset="UTF-8" http-equiv="refresh" content="5000"/>
 	<title>Simulations</title>
-	<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../../css/simulations.css"/>
-	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../../css/common.css"/>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}" href="../static/css/simulations.css"/>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}" href="../static/css/common.css"/>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
@@ -43,7 +44,7 @@ limitations under the License.
 			<img  height="45" th:src="${'/images/downloadAll.png'}" style="padding: 0;" />
 			<a id="downloadAll" class="link" th:value="${'Do you really want to download everything? It may require some time.'}" th:href="@{|downloadAll?type=${cloudType}|}"></a>
 		</div>
-		
+
 		<div  class="downloadIcon linkFather" style="position: absolute; left:0px; top:-25px;">
 			<img height="45" th:src="${'/images/deleteSelected.png'}" style="padding: 0;" />
 			<a id="deleteSelected" class="link" th:value="${'Do you really want to delete selected simulations files?'}" th:href="@{|deleteSelected|}"></a>
@@ -76,37 +77,42 @@ limitations under the License.
 			</tr>
 			</thead>
 			<tbody>
-			<tr style="cursor:pointer;" th:each="folder,status : ${folderList}" th:onclick="'javascript:rowClicked(\'' + ${folder.folder} + '\');'">
-				<td class="chkboxCntnr" style="position:relative;z-index:9;"><input type="checkbox" name="chkbox" th:id="${folder.folder}" class="chkbox" style="z-index:10;"/></td>
+
+			<tr th:each="folder,status : ${folderList}">
+				<td class="chkboxCntnr" style="position:relative;z-index:9;">
+					<input type="checkbox" name="chkbox" th:id="${folder.folder}" class="chkbox" style="z-index:10;cursor:pointer;"/>
+				</td>
 				<td th:text="${status.index + 1}">Num</td>
 				<td th:text="${folder.completed + '/' + folder.num}">Size</td>
 				<td th:text="${folder.date}">Date</td>
 				<td th:text="${folder.time}">Time</td>
-				<td><img height="25" th:src="${'/images/' + #strings.toLowerCase(folder.state) + '.gif'}" style="margin: 0 auto;display:block;" /></td>
+				<td>
+					<img height="25" th:src="${'/images/' + #strings.toLowerCase(folder.state) + '.gif'}" style="margin: 0 auto;display:block;" />
+				</td>
 				<td th:text="${#strings.toString(folder.scenario)}">Type</td>
 				<td>
 					<div class="clearfix" style="margin: 0 auto;">
-						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;">
+						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;cursor:pointer;">
 							<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptInputFolder?folder=${folder.folder}|}"></a>
 							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</div>
 				</td>
 				<td>
-					<div th:if="*{#strings.toString(folder.state)}==COMPLETED" class="linkFather">
+					<div th:if="*{#strings.toString(folder.state)}==COMPLETED" class="linkFather" style="cursor:pointer;">
 						<a class="link" style="z-index:10;" th:href="@{|/downloadZipOptOutputJsons?folder=${folder.folder}|}"></a>
 						<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 					</div>
 				</td>
 				<td style="padding-right:0.25em;">
 					<div class="linkFather">
-						<a class="link delete" style="z-index:10;" th:value="${'Do you really want to delete Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/delete?id=${folder.folder}|}"></a>
+						<a class="link delete" style="z-index:10;cursor:pointer;" th:value="${'Do you really want to delete Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/delete?id=${folder.folder}|}"></a>
 						<img height="25" th:src="${'/images/delete.png'}" title="delete" style="margin: 0 auto;display:block;" />
 					</div>
 				</td>
 				<td style="padding-left:0.25em;">
 					<div class="linkFather">
-						<a class="link relaunch" style="z-index:10;" th:value="${'Do you really want to relaunch Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/relaunch?id=${folder.folder}|}"></a>
+						<a class="link relaunch" style="z-index:10;cursor:pointer;" th:value="${'Do you really want to relaunch Experiment in position: '  + __${status.index + 1}__ + '?'}" th:href="@{|/relaunch?id=${folder.folder}|}"></a>
 						<img height="25" th:src="${'/images/relaunch.png'}" title="relaunch" style="margin: 0 auto;display:block;" />
 					</div>
 				</td>
@@ -116,52 +122,52 @@ limitations under the License.
 	</div>
 </div>
 <script>
-	function rowClicked(value) {
-		location.href = "simOfFolder?folder=" + value;
-	}
-	var downloadAll = document.getElementById("downloadAll");
-	downloadAll.addEventListener('click', function(event){
-		event.preventDefault();
-		window.event.cancelBubble = true;
-		var choice = confirm(this.getAttribute('value'));
-		if(choice){
-			window.location.href = this.getAttribute('href');
-		}
-	})
-	var deleteLinks = document.getElementsByClassName('delete');
-	var delLength = deleteLinks.length;
-	for(i=0;i!=delLength;i++) {
-		deleteLinks[i].addEventListener('click', function(event) {
-			event.preventDefault();
-			window.event.cancelBubble = true;
+    var downloadAll = document.getElementById("downloadAll");
+    downloadAll.addEventListener('click', function(event){
+        event.preventDefault();
+        window.event.cancelBubble = true;
+        var choice = confirm(this.getAttribute('value'));
+        if(choice){
+            window.location.href = this.getAttribute('href');
+        }
+    })
 
-			var choice = confirm(this.getAttribute('value'));
+    var deleteLinks = document.getElementsByClassName('delete');
+    var delLength = deleteLinks.length;
+    for(var i = 0; i != delLength; ++i) {
+        deleteLinks[i].addEventListener('click', function(event) {
+            event.preventDefault();
+            window.event.cancelBubble = true;
 
-			if (choice) {
-				window.location.href = this.getAttribute('href');
-			}
-		});
-	}
-	
-	var relaunchLinks = document.getElementsByClassName('relaunch');
-	var relLength = relaunchLinks.length;
-	for(i=0;i!=relLength;i++) {
-		relaunchLinks[i].addEventListener('click', function(event) {
-			event.preventDefault();
-			window.event.cancelBubble = true;
+            var choice = confirm(this.getAttribute('value'));
 
-			var choice = confirm(this.getAttribute('value'));
+            if (choice) {
+                window.location.href = this.getAttribute('href');
+            }
+        });
+    }
 
-			if (choice) {
-				window.location.href = this.getAttribute('href');
-			}
-		});
-	}
-	var lastChecked = null;
+    var relaunchLinks = document.getElementsByClassName('relaunch');
+    var relLength = relaunchLinks.length;
+
+    for(i = 0; i != relLength; ++i) {
+        relaunchLinks[i].addEventListener('click', function(event) {
+            event.preventDefault();
+            window.event.cancelBubble = true;
+
+            var choice = confirm(this.getAttribute('value'));
+
+            if (choice) {
+                window.location.href = this.getAttribute('href');
+            }
+        });
+    }
+
+    var lastChecked = null;
     $(document).ready(function() {
         var $chkboxes = $('.chkbox');
         $chkboxes.click(function(e) {
-        	e.stopPropagation();
+            e.stopPropagation();
             if(!lastChecked) {
                 lastChecked = this;
                 return;
@@ -174,33 +180,32 @@ limitations under the License.
             }
             lastChecked = this;
         });
-        var $chkboxesCntnr = $('.chkboxCntnr');
         $chkboxes.click(function(e) {
-        	e.stopPropagation();
+            e.stopPropagation();
         });
     });
-    
-	function selected(event){
-		event.preventDefault();
-		window.event.cancelBubble = true;
-		var choice = confirm(this.getAttribute('value'));
-		var checkedBoxes = document.querySelectorAll('input[name=chkbox]:checked');
-		var ids = "";
-		for(var i=0; i != checkedBoxes.length;i++){
-			ids += checkedBoxes[i].id + ",";
-		}
-		if(choice){
-			if(ids.length>2000){
-				alert("You've selected too many files!");
-			}else{
-				window.location.href = this.getAttribute('href')+"?ids[]="+ids;
-			}
-		}
-	}
-	document.getElementById("downloadSelected").addEventListener('click', selected);
-	document.getElementById("deleteSelected").addEventListener('click', selected);
-	document.getElementById("relaunchSelected").addEventListener('click', selected);
-	
+
+    function selected(event){
+        event.preventDefault();
+        window.event.cancelBubble = true;
+        var choice = confirm(this.getAttribute('value'));
+        var checkedBoxes = document.querySelectorAll('input[name=chkbox]:checked');
+        var ids = "";
+        for(var i=0; i != checkedBoxes.length;i++){
+            ids += checkedBoxes[i].id + ",";
+        }
+        if(choice){
+            if(ids.length>2000){
+                alert("You've selected too many files!");
+            }else{
+                window.location.href = this.getAttribute('href')+"?folder[]="+ids;
+            }
+        }
+    }
+
+    document.getElementById("downloadSelected").addEventListener('click', selected);
+    document.getElementById("deleteSelected").addEventListener('click', selected);
+    document.getElementById("relaunchSelected").addEventListener('click', selected);
 </script>
 </body>
 </html>

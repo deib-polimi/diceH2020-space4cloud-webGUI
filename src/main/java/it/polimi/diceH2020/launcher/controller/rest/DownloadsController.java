@@ -14,29 +14,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package it.polimi.diceH2020.launcher.controller.view;
+package it.polimi.diceH2020.launcher.controller.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
-import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
-import it.polimi.diceH2020.launcher.utility.Compressor;
-import it.polimi.diceH2020.launcher.utility.ExcelWriter;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
 import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -46,7 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 public class DownloadsController {
 
 	private final Logger logger = Logger.getLogger(getClass ());
@@ -55,30 +49,10 @@ public class DownloadsController {
 	private SimulationsManagerRepository simulationsManagerRepository;
 
 	@Autowired
-	private InteractiveExperimentRepository intExperimentRepository;
-
-	@Autowired
-	private ExcelWriter excelWriter;
-
-	@Autowired
 	private FileUtility fileUtility;
 
 	@Autowired
 	private FileService fileService;
-
-	@RequestMapping(value="/download", method=RequestMethod.GET)
-	@ResponseBody void downloadPartialExcel(@RequestParam(value="id") Long id, HttpServletResponse response) {
-		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		Workbook wb = excelWriter.createWorkbook(manager);
-		try {
-			response.setContentType("application/vnd.ms-excel;charset=utf-8");
-			response.setHeader( "Content-Disposition", "attachment;filename = results.xls" );
-			wb.write(response.getOutputStream());
-			response.flushBuffer();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Inputs/Folder/(1 JSON, n TXT)
@@ -86,7 +60,7 @@ public class DownloadsController {
 	 *
 	 */
 	@RequestMapping(value="/downloadAll", method=RequestMethod.GET)
-	@ResponseBody void downloadAll(@RequestParam(value="type") String type, HttpServletResponse response) {
+	public void downloadAll(@RequestParam(value="type") String type, HttpServletResponse response) {
 		List<SimulationsManager> smList;
 
 		switch(CloudType.valueOf(type)){
@@ -115,11 +89,10 @@ public class DownloadsController {
 	 *
 	 */
 	@RequestMapping(value="/downloadSelected", method=RequestMethod.GET)
-	@ResponseBody void downloadSelected(@RequestParam(value="ids[]") String ids, HttpServletResponse response) {
+	public void downloadSelected(@RequestParam(value="folder[]") String[] folders, HttpServletResponse response) {
 		List<SimulationsManager> smList = new ArrayList<>();
 
-		String[] parts = ids.split(",");
-		for(String folderID : parts){
+		for(String folderID : folders){
 			smList.addAll(simulationsManagerRepository.findByFolderOrderByIdAsc(folderID));
 		}
 
@@ -140,93 +113,52 @@ public class DownloadsController {
 				}
 			}
 
-			List<Map<String, String>> inputFiles;
-			try {
-				inputFiles = fileService.getFiles (manager.getInputFolders(), ".txt");
-			} catch (IOException e) {
-				logger.error("Cannot download input files. Missing TXT file.", e);
-				return;
-			}
-			files.put("input"+File.separatorChar+folder+File.separatorChar+manager.getInputFileName(),manager.getInput() );
+			List<Map<String, String>> inputFiles = retrieveInputFiles (manager);
+
+			files.put("input"+File.separatorChar+folder+File.separatorChar+manager.getInputFileName(),
+					manager.getInput());
 
 			for (Map<String, String> inputFile : inputFiles) {
 				files.put ("input" + File.separatorChar + folder + File.separatorChar + inputFile.get ("name"),
 						inputFile.get ("content"));
 			}
 		}
+
 		respondWithZipFile(files, response);
 	}
 
-	@RequestMapping(value="/downloadJson", method=RequestMethod.GET)
-	@ResponseBody void downloadWIJson(@RequestParam(value="id") Long id, HttpServletResponse response)
-			throws JsonProcessingException, IOException {
-		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		response.setContentType("application/json;charset=utf-8");
-		response.setHeader( "Content-Disposition", "attachment;filename = " + manager.getInstanceName() + ".json" );
-		response.getWriter().write(Compressor.decompress(manager.getInput()));
-		response.getWriter().flush();
-		response.getWriter().close();
-	}
-
-	@RequestMapping(value="/downloadFinalJson", method=RequestMethod.GET)
-	@ResponseBody void downloadFinalSolOptJson(@RequestParam(value="id") Long id, HttpServletResponse response)
-			throws JsonProcessingException, IOException {
-		InteractiveExperiment exp = intExperimentRepository.findOne(id);
-		response.setContentType("application/json;charset=utf-8");
-		response.setHeader( "Content-Disposition", "attachment;filename = " + exp.getInstanceName()+ "SOL.json" );
-		response.getWriter().write(Compressor.decompress(exp.getFinalSolution()));
-		response.getWriter().flush();
-		response.getWriter().close();
-	}
-
-
-	@RequestMapping(value="/downloadZipOptSim", method=RequestMethod.GET)
-	@ResponseBody void downloadZipOptSimManInputs(@RequestParam(value="id") Long id,
-												  HttpServletResponse response) {
-		SimulationsManager manager = simulationsManagerRepository.findOne(id);
-		List<Map<String, String>> inputFiles;
+	private @NotNull List<Map<String, String>> retrieveInputFiles(@NotNull SimulationsManager manager) {
+		List<Map<String, String>> inputFiles = new ArrayList<> ();
 		try {
-			inputFiles = fileService.getFiles (manager.getInputFolders(), ".txt");
+			inputFiles.addAll (fileService.getFiles (manager.getInputFolders (), ".txt"));
 		} catch (IOException e) {
-			logger.error("Cannot download input files. Missing TXT file.", e);
-			return;
+			logger.error("Cannot download input files.", e);
 		}
-
-		Map<String, String> files = new HashMap<>();
-		files.put(manager.getInputFileName(), manager.getInput() );
-
-		for (Map<String, String> inputFile : inputFiles) {
-			files.put (inputFile.get ("name"), inputFile.get ("content"));
-		}
-		respondWithZipFile(files, response);
+		return inputFiles;
 	}
 
 	@RequestMapping(value="/downloadZipOptInputFolder", method=RequestMethod.GET)
-	@ResponseBody void downloadZipOptInputFolder(@RequestParam(value="folder") String folder,
-												 HttpServletResponse response) {
+	public void downloadZipOptInputFolder(@RequestParam(value="folder") String folder,
+										  HttpServletResponse response) {
 		List<SimulationsManager> folderManagerList =  simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<>();
 
 		for (SimulationsManager manager : folderManagerList) {
-			List<Map<String, String>> inputFiles;
-			try {
-				inputFiles = fileService.getFiles (manager.getInputFolders(), ".txt");
-			} catch (IOException e) {
-				logger.error("Cannot download input files. Missing TXT file.", e);
-				return;
-			}
-			files.put(manager.getInputFileName(),manager.getInput() );
+			List<Map<String, String>> inputFiles = retrieveInputFiles (manager);
+
+			files.put(manager.getInputFileName(), manager.getInput());
 
 			for (Map<String, String> inputFile : inputFiles) {
 				files.put (inputFile.get ("name"), inputFile.get ("content"));
 			}
 		}
+
 		respondWithZipFile(files, response);
 	}
 
 	@RequestMapping(value="/downloadZipOptOutputJsons", method=RequestMethod.GET)
-	@ResponseBody void downloadZipOptOutputJsons(@RequestParam(value="folder") String folder,
-												 HttpServletResponse response) {
+	public void downloadZipOptOutputJsons(@RequestParam(value="folder") String folder,
+										  HttpServletResponse response) {
 		List<SimulationsManager> folderManagerList = simulationsManagerRepository.findByFolderOrderByIdAsc(folder);
 		Map<String, String> files = new HashMap<>();
 
