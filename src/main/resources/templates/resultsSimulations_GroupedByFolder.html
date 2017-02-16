@@ -42,7 +42,9 @@ limitations under the License.
 	<div style="position: relative;width:100%;">
 		<div  class="downloadIcon linkFather" style="position: absolute; right:0px; top:-25px;">
 			<img  height="45" th:src="${'/images/downloadAll.png'}" style="padding: 0;" />
-			<a id="downloadAll" class="link" th:value="${'Do you really want to download everything? It may require some time.'}" th:href="@{|downloadAll?type=${cloudType}|}"></a>
+			<a id="downloadAll" class="link"
+			   th:value="${'Do you really want to download everything? It may require some time.'}"
+			   th:href="@{|download/all?type=${cloudType}|}"></a>
 		</div>
 
 		<div  class="downloadIcon linkFather" style="position: absolute; left:0px; top:-25px;">
@@ -55,7 +57,9 @@ limitations under the License.
 		</div>
 		<div  class="downloadIcon linkFather" style="position: absolute; left:100px; top:-25px;">
 			<img height="45" th:src="${'/images/downloadSelected.png'}" style="padding: 0;" />
-			<a id="downloadSelected" class="link" th:value="${'Do you really want to download selected simulations files? It may require some time.'}" th:href="@{|downloadSelected|}"></a>
+			<a id="downloadSelected" class="link"
+			   th:value="${'Do you really want to download selected simulations files? It may require some time.'}"
+			   th:href="@{|download/selected|}"></a>
 		</div>
 	</div>
 	<h1 style="margin:-15px 0 0 0;padding:0 0 10px 0;">Experiments</h1>
@@ -93,14 +97,14 @@ limitations under the License.
 				<td>
 					<div class="clearfix" style="margin: 0 auto;">
 						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;cursor:pointer;">
-							<a class="link" style="z-index:10;" th:href="@{|/downloadInputZip?folder=${folder.folder}|}"></a>
+							<a class="link" style="z-index:10;" th:href="@{|/download/input/zip?folder=${folder.folder}|}"></a>
 							<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 						</div>
 					</div>
 				</td>
 				<td>
 					<div th:if="*{#strings.toString(folder.state)}==COMPLETED" class="linkFather" style="cursor:pointer;">
-						<a class="link" style="z-index:10;" th:href="@{|/downloadSolutionZip?folder=${folder.folder}|}"></a>
+						<a class="link" style="z-index:10;" th:href="@{|/download/solution/zip?folder=${folder.folder}|}"></a>
 						<img height="25" th:src="${'/images/zip.png'}" style="margin: 0 auto;display:block;" />
 					</div>
 				</td>
