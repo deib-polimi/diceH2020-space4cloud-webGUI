@@ -39,7 +39,7 @@ import static reactor.bus.selector.Selectors.$;
 @Data
 public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 
-	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass());
 
 	@Autowired
 	private EventBus eventBus;
@@ -92,7 +92,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 		}
 		intExp.getSimulationsManager().refreshState();
 		ds.updateManager(intExp.getSimulationsManager());
-		if(executedCorrectly) ds.dispatcher.notifyReadyChannel(this);
+		if(executedCorrectly) ds.getDispatcher ().notifyReadyChannel(this);
 	}
 
 }

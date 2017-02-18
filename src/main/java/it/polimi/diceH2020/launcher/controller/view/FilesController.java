@@ -17,113 +17,75 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.controller.view;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
-import it.polimi.diceH2020.launcher.service.Validator;
-import it.polimi.diceH2020.launcher.utility.FileNameClashException;
-import it.polimi.diceH2020.launcher.utility.FileUtility;
+import it.polimi.diceH2020.launcher.controller.rest.BaseResponseBody;
+import it.polimi.diceH2020.launcher.controller.rest.RestFilesController;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 @Controller
-@RequestMapping("/files")
+@RequestMapping("/files/view")
 public class FilesController {
 
     private final Logger logger = Logger.getLogger (getClass ());
 
-    @Autowired
-    private FileUtility fileUtility;
-
-    @Autowired
-    private Validator validator;
-
-    @RequestMapping(value = "/upload", method = RequestMethod.GET)
-    public @ResponseBody String hello() {
-        return "done";
-    }
+    @Setter(onMethod = @__(@Autowired))
+    private RestFilesController internalController;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public String multipleSave(@RequestParam("file[]") MultipartFile[] files, @RequestParam("scenario") String useCase,
-                               Model model, RedirectAttributes redirectAttrs) {
-        Scenarios scenario = Scenarios.valueOf(useCase);
-        ArrayList<String> tmpValues = new ArrayList<>();
+    public String multipleSave(@RequestParam("file[]") List<MultipartFile> files,
+                               @RequestParam("scenario") String useCase,
+                               Model model, RedirectAttributes attributes) {
+        ResponseEntity<BaseResponseBody> responseEntity = internalController.multipleSave (files, useCase);
+        BaseResponseBody body = responseEntity.getBody ();
 
-        redirectAttrs.addAttribute("scenario", scenario);
+        Scenarios scenario = body.getScenario ();
+
+        attributes.addAttribute("scenario", scenario);
         model.addAttribute("scenario", scenario);
 
-        if (files == null || files.length == 0) {
-            String message = "Wrong files!";
-            logger.error (message);
-            model.addAttribute("message", message);
-            return "launchSimulation_FileUpload";
-        }
+        String returnedView;
 
-        for (MultipartFile multipartFile: files) {
-            String fileName = new File (multipartFile.getOriginalFilename ()).getName ();
-
-            File savedFile;
-            try {
-                savedFile = saveFile (multipartFile, fileName);
-            } catch (FileNameClashException e) {
-                String message = String.format ("'%s' already exists", fileName);
-                logger.error (message, e);
+        switch (responseEntity.getStatusCode ()) {
+            case INTERNAL_SERVER_ERROR: {
+                String message = body.getMessage ();
+                if (message == null) message = "Unspecified server error";
+                logger.error (message);
                 model.addAttribute ("message", message);
-                return "launchSimulation_FileUpload";
-            } catch (IOException e) {
-                String message = String.format ("Error handling '%s'", fileName);
-                logger.error (message, e);
-                model.addAttribute ("message", message);
-                return "error";
+                returnedView = "error";
+                break;
             }
-
-            if (fileName.contains (".json")) {
-                Optional<InstanceDataMultiProvider> idmp =
-                        validator.readInstanceDataMultiProvider (savedFile.toPath ());
-                if (idmp.isPresent ()) {
-                    if (idmp.get ().validate ()) {
-                        redirectAttrs.addAttribute ("instanceDataMultiProvider", savedFile.getPath ());
-                    } else {
-                        logger.error (idmp.get ().getValidationError ());
-                        model.addAttribute ("message", idmp.get ().getValidationError ());
-                        return "launchSimulation_FileUpload";
-                    }
-                } else {
-                    String message = "You have submitted an invalid json!";
-                    logger.error (message);
-                    model.addAttribute ("message", message);
-                    return "launchSimulation_FileUpload";
-                }
-            } else if (fileName.contains (".txt") || fileName.contains (".def") || fileName.contains (".net")) {
-                tmpValues.add (savedFile.getPath ());
+            case BAD_REQUEST: {
+                model.addAttribute ("message", body.getMessage ());
+                returnedView = "launchSimulation_FileUpload";
+                break;
+            }
+            case OK: {
+                Long id = body.getSubmissionId ();
+                attributes.addAttribute ("submissionId", id);
+                returnedView = "redirect:/launch/view/submit";
+                break;
+            }
+            default: {
+                String message = "Unrecognized HTTP status";
+                logger.error (message);
+                model.addAttribute ("message", message);
+                returnedView = "error";
             }
         }
 
-        redirectAttrs.addAttribute("pathList", tmpValues);
-        return "redirect:/launch/simulationSetup";
-    }
-
-    private File saveFile(MultipartFile file, String fileName) throws FileNameClashException, IOException {
-        File outFile = fileUtility.provideFile(fileName);
-        try (BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(outFile))) {
-            byte[] bytes = file.getBytes();
-            buffStream.write(bytes);
-        }
-        return outFile;
+        return returnedView;
     }
 
 }

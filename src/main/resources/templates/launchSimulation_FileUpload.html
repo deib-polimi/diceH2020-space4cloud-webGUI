@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +20,9 @@ limitations under the License.
 	<meta charset="UTF-8" />
 	<title>Simulations</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"
-		  href="../css/common.css" />
+		  href="../static/css/common.css" />
 	<link rel="stylesheet" type="text/css" th:href="@{/css/simulations.css}"
-		  href="../css/simulations.css" />
+		  href="../static/css/simulations.css" />
 </head>
 <body>
 <div id="topBar">
@@ -43,16 +44,19 @@ limitations under the License.
 </div>
 <h1>Select <span th:text="${scenario.getCloudType()}"></span> Cloud <span th:text="${scenario.getDescription()}"></span> files</h1>
 
-<form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/upload}" class="basic-grey">
-	<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+<form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/view/upload}" class="basic-grey">
+	<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or
+	 #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		<label> <span>Select Model:</span>
 			<select name="scenario" required="required" style="display:block;">
-				<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}" th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
+				<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}"
+						th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
 			</select>
 		</label>
 	</div>
 
-	<div th:if ="${#strings.toString(scenario) == 'PublicAvgWorkLoad' or #strings.toString(scenario) == 'StormPublicAvgWorkLoad'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+	<div th:if="${#strings.toString(scenario) == 'PublicAvgWorkLoad' or
+	#strings.toString(scenario) == 'StormPublicAvgWorkLoad'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		<label> <span>Select Technology:</span>
 			<select name="scenario" required="required" style="display:block;">
 				<option th:each="currentScenario: ${PublicScenarios}" th:value="${currentScenario}"
@@ -69,11 +73,12 @@ limitations under the License.
 	</div>
 
 	<div style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
-		txt files:
+		Input files:
 	</div>
 	<label>
 		<span>Select a folder:</span>
-		<input id="folder" type="file" name="file[]" class="input"  webkitdirectory="" directory="" multiple="" mozdirectory="" required="required"/>
+		<input id="folder" type="file" name="file[]" class="input"
+			   webkitdirectory="" directory="" multiple="" mozdirectory="" required="required"/>
 	</label>
 
 	<div style="width:100%;">

@@ -18,11 +18,16 @@ package it.polimi.diceH2020.launcher.service;
 
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
+import it.polimi.diceH2020.launcher.model.PendingSubmission;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.reactor.JobsDispatcher;
 import it.polimi.diceH2020.launcher.repository.InteractiveExperimentRepository;
+import it.polimi.diceH2020.launcher.repository.PendingSubmissionRepository;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
-import org.slf4j.LoggerFactory;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,29 +38,31 @@ import java.util.Map;
 
 @Service
 public class DiceService{
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DiceService.class.getName());
+	private final Logger logger = Logger.getLogger (getClass ());
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private SimulationsManagerRepository simManagerRepo;
 
-	@Autowired
-	JobsDispatcher dispatcher;
+	@Getter(AccessLevel.PACKAGE)
+	@Setter(onMethod = @__(@Autowired))
+	private JobsDispatcher dispatcher;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private InteractiveExperimentRepository intExpRepo;
 
-	public synchronized void simulation(SimulationsManager simManager){
+	@Setter(onMethod = @__(@Autowired))
+	private PendingSubmissionRepository pendingSubmissionRepository;
+
+	public synchronized void simulation(SimulationsManager simManager) {
 		updateManager(simManager);
-		simManager.getExperimentsList().stream().forEach(e-> {
-			dispatcher.enqueueJob(e);
-		});
+		simManager.getExperimentsList().forEach(e -> dispatcher.enqueueJob(e));
 	}
 
-	public synchronized void simulation(InteractiveExperiment exp){
+	public synchronized void simulation(InteractiveExperiment exp) {
 		dispatcher.enqueueJob(exp);
 	}
 
-	public synchronized void updateExp(InteractiveExperiment intExp){
+	private synchronized void updateExp(InteractiveExperiment intExp) {
 		long startTime = System.currentTimeMillis();
 		intExpRepo.saveAndFlush(intExp);
 		long endTime = System.currentTimeMillis();
@@ -63,57 +70,62 @@ public class DiceService{
 		logger.debug("[LOCKS] Exp"+intExp.getId()+"updated[state: "+intExp.getState()+"] in "+duration+" ");
 	}
 
-	public synchronized void updateManager(SimulationsManager simulationsManager){
+	public synchronized void updateManager(SimulationsManager simulationsManager) {
 		simManagerRepo.saveAndFlush(simulationsManager);
 		logger.debug("[LOCKS] SimManager"+simulationsManager.getId()+" has been updated.");
 	}
 
+	public synchronized void updateSubmission(PendingSubmission submission) {
+		pendingSubmissionRepository.saveAndFlush (submission);
+		logger.debug(String.format ("[LOCKS] Pending submission %d has been updated.", submission.getId()));
+	}
+
 	@PostConstruct
-	private void setUpEnvironment(){
+	private void setUpEnvironment() {
 		fixRunningSimulations();
 	}
 
-	public void fixRunningSimulations(){
-		List<InteractiveExperiment> previuoslyRunningExperiments = intExpRepo.findByStateOrderByIdAsc(States.RUNNING);
+	private void fixRunningSimulations() {
+		List<InteractiveExperiment> previouslyRunningExperiments = intExpRepo.findByStateOrderByIdAsc(States.RUNNING);
 		List<InteractiveExperiment> previouslyReadyExperiments = intExpRepo.findByStateOrderByIdAsc(States.READY);//jobs in Q
 
-		List<Long> managersToRefresh = new ArrayList<Long>();
+		List<Long> managersToRefresh = new ArrayList<>();
 
-		previuoslyRunningExperiments.addAll(previouslyReadyExperiments);
+		previouslyRunningExperiments.addAll(previouslyReadyExperiments);
 
-		for(int i=0;i<previuoslyRunningExperiments.size();i++){
-			previuoslyRunningExperiments.get(i).setState(States.ERROR);
-			Long smID = previuoslyRunningExperiments.get(i).getSimulationsManager().getId();
-			updateExp(previuoslyRunningExperiments.get(i));
-			if(!managersToRefresh.contains(smID)){
-				managersToRefresh.add(smID);
+		for (InteractiveExperiment previouslyRunningExperiment : previouslyRunningExperiments) {
+			previouslyRunningExperiment.setState (States.ERROR);
+			Long smID = previouslyRunningExperiment.getSimulationsManager ().getId ();
+			updateExp (previouslyRunningExperiment);
+			if (!managersToRefresh.contains (smID)) {
+				managersToRefresh.add (smID);
 			}
 		}
 
-		for(int i=0;i<managersToRefresh.size();i++){
-			SimulationsManager sm = simManagerRepo.findById(managersToRefresh.get(i));
-			sm.setState(States.INTERRUPTED);
-			updateManager(sm);
+		for (Long aManagersToRefresh : managersToRefresh) {
+			SimulationsManager sm = simManagerRepo.findById (aManagersToRefresh);
+			sm.setState (States.INTERRUPTED);
+			updateManager (sm);
 		}
 	}
 
-	public Map<String,String> getWsStatus(){
+	public Map<String,String> getWsStatus() {
 		return dispatcher.getWsStatus();
 	}
 
-	public int getQueueSize(){
+	public int getQueueSize() {
 		return dispatcher.getQueueSize();
 	}
 
-	public int getPrivateQueueSize(){
+	public int getPrivateQueueSize() {
 		return dispatcher.getNumPrivateExperiments();
 	}
 
-	public void signalPrivateExperimentEnd(){
+	void signalPrivateExperimentEnd() {
 		dispatcher.signalPrivateExperimentEnd();
 	}
 
-	public void setChannelState(DiceConsumer consumer, States state){
+	public void setChannelState(DiceConsumer consumer, States state) {
 		dispatcher.notifyChannelStatus(consumer, state);
 	}
 }
