@@ -25,6 +25,7 @@ import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import it.polimi.diceH2020.launcher.repository.SimulationsManagerRepository;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.FileUtility;
+import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +46,13 @@ public class DownloadsController {
 
 	private final Logger logger = Logger.getLogger(getClass ());
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private SimulationsManagerRepository simulationsManagerRepository;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private FileUtility fileUtility;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private FileService fileService;
 
 	/**
@@ -207,8 +208,9 @@ public class DownloadsController {
 					String solution = Compressor.decompress (experiment.getFinalSolution ());
 					output = new ResponseEntity<> (solution, HttpStatus.OK);
 				} catch (IOException e) {
-					logger.error (String.format ("Could not decompress solutions JSON for experiment %d", id), e);
-					output = new ResponseEntity<> (HttpStatus.INTERNAL_SERVER_ERROR);
+					String message = String.format ("Could not decompress solutions JSON for experiment %d", id);
+					logger.error (message, e);
+					output = new ResponseEntity<> (message, HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
 		}
