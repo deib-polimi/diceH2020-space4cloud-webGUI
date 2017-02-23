@@ -41,10 +41,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/files")
@@ -74,6 +71,7 @@ public class RestFilesController {
 
         boolean good_status = true;
         ArrayList<String> tmpValues = new ArrayList<>();
+        List<File> allSaved = new LinkedList<> ();
 
         if (files == null || files.isEmpty ()) {
             String message = "No files to process!";
@@ -91,6 +89,7 @@ public class RestFilesController {
                 File savedFile = null;
                 try {
                     savedFile = saveFile (multipartFile, fileName);
+                    allSaved.add (savedFile);
                 } catch (FileNameClashException e) {
                     String message = String.format ("'%s' already exists", fileName);
                     logger.error (message, e);
@@ -147,6 +146,8 @@ public class RestFilesController {
             body.add (submissionLink);
 
             response = new ResponseEntity<> (body, HttpStatus.OK);
+        } else {
+            if (fileUtility.delete (allSaved)) logger.debug ("Deleted the files created during a failed submission");
         }
 
         return response;
