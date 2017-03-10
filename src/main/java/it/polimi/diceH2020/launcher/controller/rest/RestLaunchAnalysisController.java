@@ -252,14 +252,14 @@ public class RestLaunchAnalysisController {
                                 body.setMessage (message);
                                 return new ResponseEntity<> (body, HttpStatus.BAD_REQUEST);
                             }
-
-                            sm.addInputFolder(txtFolder.getPath ());
-                            sm.setNumCompletedSimulations(0);
-                            sm.buildExperiments();
                         }
                     }
                 }
             }
+
+            sm.addInputFolder(txtFolder.getPath ());
+            sm.setNumCompletedSimulations(0);
+            sm.buildExperiments();
         }
 
         cleanup(id, null);
