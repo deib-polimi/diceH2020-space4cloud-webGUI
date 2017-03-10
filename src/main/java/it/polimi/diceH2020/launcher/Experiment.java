@@ -26,6 +26,7 @@ import it.polimi.diceH2020.launcher.service.DiceConsumer;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.RestCommunicationWrapper;
 import it.polimi.diceH2020.launcher.utility.Compressor;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -52,7 +53,7 @@ public class Experiment {
 	private final Logger logger = Logger.getLogger(getClass());
 
 	private String EVENT_ENDPOINT;
-	private String INPUTDATA_ENDPOINT;
+	private String INPUT_DATA_ENDPOINT;
 	private String RESULT_FOLDER;
 	private String SOLUTION_ENDPOINT;
 	private String STATE_ENDPOINT;
@@ -61,19 +62,19 @@ public class Experiment {
 
 	private DiceConsumer consumer;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private Settings settings;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private ObjectMapper mapper;
 
-	@Autowired
-	private DiceService ds;
+	@Setter(onMethod = @__(@Autowired))
+	private DiceService diceService;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private RestCommunicationWrapper restWrapper;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private FileService fileService;
 
 	public Experiment(DiceConsumer diceConsumer) {
@@ -84,16 +85,16 @@ public class Experiment {
 	private synchronized boolean initialize(InteractiveExperiment experiment) {
 		SimulationsManager simManager = experiment.getSimulationsManager();
 		boolean success = sendFiles (simManager.getInputFolders (), ".txt",
-				String.format ("Impossible launching SimulationsManager %s: Replayer files are not present",
+				String.format ("Impossible launching SimulationsManager %s: error with replayer files",
 						simManager.getId()));
 		if (success) {
 			success = sendFiles (simManager.getInputFolders (), ".net",
-					String.format ("Impossible launching SimulationsManager %s: .net file not present",
+					String.format ("Impossible launching SimulationsManager %s: error with .net file",
 							simManager.getId()));
 		}
 		if (success) {
 			success = sendFiles (simManager.getInputFolders (), ".def",
-					String.format ("Impossible launching SimulationsManager %s: .def file not present",
+					String.format ("Impossible launching SimulationsManager %s: error with .def file",
 							simManager.getId()));
 		}
 		return success;
@@ -146,7 +147,7 @@ public class Experiment {
 	public synchronized boolean launch(InteractiveExperiment e) {
 		e.setState(States.RUNNING);
 		e.getSimulationsManager().refreshState();
-		ds.updateManager(e.getSimulationsManager());
+		diceService.updateManager(e.getSimulationsManager());
 
 		String expInfo = String.format("|%s| ", Long.toString(e.getId()));
 		String baseErrorString = expInfo+"Error! ";
@@ -342,7 +343,7 @@ public class Experiment {
 
 	@PostConstruct
 	private void init() throws IOException {
-		INPUTDATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
+		INPUT_DATA_ENDPOINT = settings.getFullAddress() + port  + "/inputdata";
 		EVENT_ENDPOINT = settings.getFullAddress() + port + "/event";
 		STATE_ENDPOINT = settings.getFullAddress() + port + "/state";
 		UPLOAD_ENDPOINT = settings.getFullAddress() + port + "/upload";
@@ -393,7 +394,7 @@ public class Experiment {
 	private boolean sendInputData(InstanceDataMultiProvider data) {
 		if (data != null) {
 			String res;
-			try{ res = restWrapper.postForObject(INPUTDATA_ENDPOINT, data, String.class); }
+			try{ res = restWrapper.postForObject(INPUT_DATA_ENDPOINT, data, String.class); }
 			catch(Exception e){
 				notifyWsUnreachability();
 				return false;
@@ -411,13 +412,13 @@ public class Experiment {
 	}
 
 	private void notifyWsUnreachability(){
-		ds.setChannelState(consumer,States.INTERRUPTED);
+		diceService.setChannelState(consumer,States.INTERRUPTED);
 		logger.info("WS unreachable. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 	}
 
 	private void notifyWsErrorState(String res){
 		if(res.equals("ERROR")){
-			ds.setChannelState(consumer,States.ERROR);
+			diceService.setChannelState(consumer,States.ERROR);
 			logger.info("WS is in error state. (channel id: "+consumer.getId()+" port:"+consumer.getPort()+")");
 		}
 	}
