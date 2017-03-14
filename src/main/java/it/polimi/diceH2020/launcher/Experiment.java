@@ -107,13 +107,19 @@ public class Experiment {
 			Iterator<Map<String, String>> files = fileService.getFiles (folders, extension).iterator ();
 			while (success && files.hasNext ()) {
 				Map<String, String> fileInfo = files.next ();
-				success = send(fileInfo.get ("name"), Compressor.decompress(fileInfo.get ("content")));
+				success = send(fileInfo.get ("name"), cleanContent (fileInfo.get ("content")));
 			}
 		} catch (IOException e) {
 			logger.error(errorMessage);
 			success = false;
 		}
 		return success;
+	}
+
+	private String cleanContent (@NotNull String compressedContent) throws IOException {
+		String content = Compressor.decompress (compressedContent);
+		String[] writtenLines = content.split ("\\R+");
+		return String.join ("\n", writtenLines);
 	}
 
 	private boolean evaluateInitSolution() {
