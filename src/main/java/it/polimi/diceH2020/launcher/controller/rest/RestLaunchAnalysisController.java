@@ -45,10 +45,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -167,7 +164,7 @@ public class RestLaunchAnalysisController {
 
         if (inputList.size() > 1) {
             List<String> providersList = inputList.stream().map(InstanceDataMultiProvider::getProvider)
-                    .collect(Collectors.toList());
+                    .filter (Objects::nonNull).collect(Collectors.toList());
             if (! minNumTxt(providersList, pathList)) {
                 cleanup(id, null);
                 String message = "Not enough TXT files selected.\nFor each provider in your JSON there must be 2 TXT files containing in their name the provider name.";
