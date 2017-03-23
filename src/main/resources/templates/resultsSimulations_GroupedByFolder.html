@@ -75,6 +75,7 @@ limitations under the License.
 				<th>Time</th>
 				<th>State</th>
 				<th>Scenario</th>
+				<th>Objective Value</th>
 				<th>Input</th>
 				<th>Output</th>
 				<th colspan="2">Actions</th>
@@ -94,6 +95,7 @@ limitations under the License.
 					<img height="25" th:src="${'/images/' + #strings.toLowerCase(folder.state) + '.gif'}" style="margin: 0 auto;display:block;" />
 				</td>
 				<td th:text="${#strings.toString(folder.scenario)}">Type</td>
+				<td th:text="${folder.result}">Value</td>
 				<td>
 					<div class="clearfix" style="margin: 0 auto;">
 						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;cursor:pointer;">
