@@ -39,6 +39,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>it.polimi.diceH2020</groupId>
+			<artifactId>SPACE4Cloud-shared</artifactId>
+			<version>0.2.12-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -62,12 +68,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>it.polimi.diceH2020</groupId>
-			<artifactId>SPACE4Cloud-shared</artifactId>
-			<version>0.2.11-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

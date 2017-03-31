@@ -1,4 +1,5 @@
 /*
+Copyright 2017 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +25,7 @@ import java.util.Map.Entry;
 public class JsonSplitter {
 
 	public static List<InstanceDataMultiProvider> splitInstanceDataMultiProvider(InstanceDataMultiProvider instanceDataMultiProvider, Scenarios scenario){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
+		List<InstanceDataMultiProvider> instanceDataList;
 
 		switch(scenario){
 			case PrivateAdmissionControl:
@@ -46,15 +47,14 @@ public class JsonSplitter {
 				instanceDataList = buildInstanceDataStormPuAvg(instanceDataMultiProvider);
 				break;
 			default:
-				new Exception("Error with the selected scenario");
-				break;
+				throw new RuntimeException ("Error with the selected scenario");
 		}
 
 		return instanceDataList;
 	}
 
 	private static List<InstanceDataMultiProvider> buildInstanceDataPrAvg(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<InstanceDataMultiProvider>();
+		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
 			instanceData.setScenario(Optional.of(Scenarios.PrivateNoAdmissionControl));
@@ -65,7 +65,7 @@ public class JsonSplitter {
 	}
 
 	private static List<InstanceDataMultiProvider> buildInstanceDataPrPeak(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataMultiProviderList = new ArrayList<InstanceDataMultiProvider>();
+		List<InstanceDataMultiProvider> instanceDataMultiProviderList = new ArrayList<>();
 
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceDataMultiProvider idmp = buildPartialInput(instanceDataMultiProvider,provider);
@@ -78,7 +78,7 @@ public class JsonSplitter {
 	}
 
 	private static List<InstanceDataMultiProvider> buildInstanceDataPrPeakWithPhysicalAssignment(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<InstanceDataMultiProvider>();
+		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
@@ -91,7 +91,7 @@ public class JsonSplitter {
 	}
 
 	private static List<InstanceDataMultiProvider> buildInstanceDataPuAvg(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<InstanceDataMultiProvider>();
+		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
 			instanceData.setScenario(Optional.of(Scenarios.PublicAvgWorkLoad));
@@ -111,7 +111,7 @@ public class JsonSplitter {
 	}
 
 	private static List<InstanceDataMultiProvider> buildInstanceDataPuPeak(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<InstanceDataMultiProvider>();
+		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
 			instanceData.setScenario(Optional.of(Scenarios.PublicPeakWorkload));
@@ -127,7 +127,7 @@ public class JsonSplitter {
 	 * It does 2 mandatory mappings from InstanceDataMultiProvider: <br>
 	 * &emsp; •maps mapClassParameters to lstClass<br>
 	 * &emsp; •maps mapJobProfile to mapProfiles 
-	 * @param input
+	 * @param input InstanveDataMultiProvider to split
 	 * @return InstanceData with an initial set of parameters, those ones that are mandatory
 	 */
 	private static InstanceDataMultiProvider buildPartialInput(InstanceDataMultiProvider input, String provider){
@@ -138,12 +138,15 @@ public class JsonSplitter {
 		partialInput.setId(input.getId());
 		partialInput.setMapJobProfiles(new JobProfilesMap(map));
 		partialInput.setMapJobMLProfiles(input.getMapJobMLProfiles());
+		if (input.getMapDags () != null) {
+			partialInput.setMapDags (input.getMapDags ());
+		}
 
 		return partialInput;
 	}
 
 	private static Map<String, Map<String, Map<String, JobProfile>>>  fromMapJobProfileToMapProfiles(JobProfilesMap input, String provider){
-		Map<String, Map<String, Map<String, JobProfile>>> map = new HashMap<String, Map<String, Map<String, JobProfile>>>(input.getMapJobProfile());
+		Map<String, Map<String, Map<String, JobProfile>>> map = new HashMap<>(input.getMapJobProfile());
 		Set<String> providerToBeRemoved = input.getProviders();
 		providerToBeRemoved.remove(provider);
 
@@ -155,7 +158,7 @@ public class JsonSplitter {
 
 	private static Map<String, Map<String,Map<String,PublicCloudParameters>>> fromMapPublicCloudParametersToMapTypeVMs(PublicCloudParametersMap input, String provider){
 
-		Map<String, Map<String,Map<String,PublicCloudParameters>>> map = new HashMap<String, Map<String,Map<String,PublicCloudParameters>>>(input.getMapPublicCloudParameters());
+		Map<String, Map<String,Map<String,PublicCloudParameters>>> map = new HashMap<>(input.getMapPublicCloudParameters());
 		Set<String> providerToBeRemoved = input.getProviders();
 		providerToBeRemoved.remove(provider);
 
