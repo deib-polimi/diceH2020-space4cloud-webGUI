@@ -20,6 +20,7 @@ package it.polimi.diceH2020.launcher.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,6 +31,8 @@ import java.util.Optional;
 @Service
 public class Validator {
 
+    private final Logger logger = Logger.getLogger (getClass ());
+
     private ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module());
 
     private  <T> Optional<T> objectFromPath (Path pathFile, Class<T> cls) {
@@ -38,6 +41,7 @@ public class Validator {
             String serialized = String.join ("\n", Files.readAllLines (pathFile));
             returnValue = Optional.of(mapper.readValue(serialized, cls));
         } catch (IOException e) {
+            logger.debug ("Issue reading the JSON", e);
             returnValue = Optional.empty();
         }
         return returnValue;

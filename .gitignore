@@ -13,6 +13,6 @@
 /results/
 /solInstances/
 /TempWorkingDir/
-/launcherDB.mv.db
+/launcherDB.*.db
 /WUI-tmp/
 /WUI-input/
