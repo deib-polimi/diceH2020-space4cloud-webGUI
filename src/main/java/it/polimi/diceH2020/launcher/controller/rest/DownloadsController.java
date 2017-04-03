@@ -204,13 +204,17 @@ public class DownloadsController {
 		if (manager != null) {
 			for (InteractiveExperiment experiment : manager.getExperimentsList ()) {
 				// TODO there is always only one InteractiveExperiment, all the monster should be treated accordingly
-				try {
-					String solution = Compressor.decompress (experiment.getFinalSolution ());
-					output = new ResponseEntity<> (solution, HttpStatus.OK);
-				} catch (IOException e) {
-					String message = String.format ("Could not decompress solutions JSON for experiment %d", id);
-					logger.error (message, e);
-					output = new ResponseEntity<> (message, HttpStatus.INTERNAL_SERVER_ERROR);
+				if (experiment.isDone ()) {
+					try {
+						String solution = Compressor.decompress (experiment.getFinalSolution ());
+						output = new ResponseEntity<> (solution, HttpStatus.OK);
+					} catch (IOException e) {
+						String message = String.format ("Could not decompress solutions JSON for experiment %d", id);
+						logger.error (message, e);
+						output = new ResponseEntity<> (message, HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+				} else {
+					output = new ResponseEntity<> (HttpStatus.NO_CONTENT);
 				}
 			}
 		}

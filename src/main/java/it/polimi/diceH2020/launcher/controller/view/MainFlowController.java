@@ -153,15 +153,17 @@ public class MainFlowController {
 			Optional<Double> result = Optional.empty ();
 			// I expect this list to be always one element long
 			for (InteractiveExperiment experiment: simMan.getExperimentsList ()) {
-				try {
-					Solution solution = experiment.getSol ();
-					result = Optional.of (solution.getCost ());
-				} catch (JsonParseException | JsonMappingException e) {
-					logger.debug (String.format ("Error while parsing the solution JSON for experiment no. %d",
-							experiment.getId ()), e);
-				} catch (IOException e) {
-					logger.debug (String.format ("Error while reading the solution for experiment no. %d",
-							experiment.getId ()), e);
+				if (experiment.isDone ()) {
+					try {
+						Solution solution = experiment.getSol ();
+						result = Optional.of (solution.getCost ());
+					} catch (JsonParseException | JsonMappingException e) {
+						logger.debug (String.format ("Error while parsing the solution JSON for experiment no. %d",
+								experiment.getId ()), e);
+					} catch (IOException e) {
+						logger.debug (String.format ("Error while reading the solution for experiment no. %d",
+								experiment.getId ()), e);
+					}
 				}
 			}
 			tmpMap.put ("result", result.map (Object::toString).orElse ("N/D"));
