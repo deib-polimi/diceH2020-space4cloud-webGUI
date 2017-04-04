@@ -27,12 +27,14 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.IOException;
 
 @Entity
 @Data
+@ToString(exclude = "simulationsManager")
 public class InteractiveExperiment {
 
 	@Id
