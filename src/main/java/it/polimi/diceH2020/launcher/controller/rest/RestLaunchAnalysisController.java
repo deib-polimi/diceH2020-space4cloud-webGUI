@@ -351,8 +351,11 @@ public class RestLaunchAnalysisController {
     private void cleanup (Long id, List<File> generated) {
         PendingSubmission submission = submissionRepository.findOne (id);
 
-        File inputJSONFile = new File (submission.getInstanceData ());
-        fileUtility.delete(inputJSONFile);
+        String jsonPath = submission.getInstanceData ();
+        if (jsonPath != null) {
+            File inputJSONFile = new File (jsonPath);
+            fileUtility.delete (inputJSONFile);
+        }
 
         List<String> inputPaths = submission.getPaths ();
         deleteUploadedFiles(inputPaths);
