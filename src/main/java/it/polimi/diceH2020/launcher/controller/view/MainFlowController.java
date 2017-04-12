@@ -90,7 +90,7 @@ public class MainFlowController {
 		publicScenariosModels.add(Scenarios.StormPublicAvgWorkLoad);
 		model.addAttribute("PublicScenarios", publicScenariosModels);
 
-		return "launchSimulation_FileUpload";
+		return "fileUpload";
 	}
 
 	@RequestMapping(value="/launchRetry", method=RequestMethod.GET)
@@ -105,7 +105,7 @@ public class MainFlowController {
 		model.addAttribute("scenario", Scenarios.valueOf(scenario));
 		model.addAttribute("Scenarios",  privateScenariosModels);
 		model.addAttribute("message", message);
-		return "launchSimulation_FileUpload";
+		return "fileUpload";
 	}
 
 	@RequestMapping(value="/resPub", method=RequestMethod.GET)
@@ -116,7 +116,7 @@ public class MainFlowController {
 								Scenarios.PublicPeakWorkload, Scenarios.StormPublicAvgWorkLoad));
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Public");
-		return "resultsSimulations_GroupedByFolder";
+		return "simulationResults";
 	}
 
 	@RequestMapping(value="/resPri", method=RequestMethod.GET)
@@ -128,7 +128,7 @@ public class MainFlowController {
 								Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Private");
-		return "resultsSimulations_GroupedByFolder";
+		return "simulationResults";
 	}
 
 	private List<Map<String,String>> getFolderList(List<SimulationsManager> smList){

@@ -68,7 +68,7 @@ public class FilesController {
             }
             case BAD_REQUEST: {
                 model.addAttribute ("message", body.getMessage ());
-                returnedView = "launchSimulation_FileUpload";
+                returnedView = "fileUpload";
                 break;
             }
             case OK: {
