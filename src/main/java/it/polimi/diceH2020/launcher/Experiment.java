@@ -34,6 +34,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +48,7 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Scope("prototype")
 @Component
@@ -111,7 +113,7 @@ public class Experiment {
         return success;
     }
 
-    private boolean send(String filename, String content) {
+    private boolean send (String filename, String content) {
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("name", filename);
         map.add("filename", filename);
@@ -125,17 +127,46 @@ public class Experiment {
             };
             map.add("file", contentsAsResource);
 
-            try {
-                restWrapper.postForObject(UPLOAD_ENDPOINT, map, String.class);
-            } catch (Exception e) {
-                notifyUnreachableWs ();
-                return false;
-            }
+            makePostCall (UPLOAD_ENDPOINT, map, String.format ("sending '%s'", filename));
         } catch (UnsupportedEncodingException e) {
             logger.error (String.format ("error trying to send '%s'", filename), e);
             return false;
         }
         return true;
+    }
+
+    private <T> Optional<String> makePostCall (@NotNull String endpoint, @NotNull T object,
+                                               @NotNull String doingWhat) {
+        Optional<String> result = Optional.empty ();
+
+        try {
+            String response = restWrapper.postForObject (endpoint, object, String.class);
+            result = Optional.ofNullable (response);
+        } catch (ResourceAccessException e) {
+            logger.error (String.format ("WS unreachable when %s", doingWhat), e);
+            notifyUnreachableWs ();
+        } catch (RestClientException e) {
+            logger.error (String.format ("Unspecified exception while %s", doingWhat), e);
+        }
+
+        return result;
+    }
+
+    private <T> Optional<T> makeGetCall (@NotNull String endpoint, @NotNull Class<T> clazz,
+                                         @NotNull String doingWhat) {
+        Optional<T> result = Optional.empty ();
+
+        try {
+            T response = restWrapper.getForObject (endpoint, clazz);
+            result = Optional.ofNullable (response);
+        } catch (ResourceAccessException e) {
+            logger.error (String.format ("WS unreachable when %s", doingWhat), e);
+            notifyUnreachableWs ();
+        } catch (RestClientException e) {
+            logger.error (String.format ("Unspecified exception while %s", doingWhat), e);
+        }
+
+        return result;
     }
 
     private void notifyUnreachableWs () {
@@ -154,6 +185,31 @@ public class Experiment {
         String content = Compressor.decompress (compressedContent);
         String[] writtenLines = content.split ("\\R+");
         return String.join ("\n", writtenLines);
+    }
+
+    private boolean checkWsTransition (@NotNull Events event, @NotNull String source, @NotNull String target) {
+        Optional<String> maybeState = makePostCall (EVENT_ENDPOINT, event,
+                String.format ("sending event: %s", event.toString ()));
+
+        while (maybeState.isPresent () && source.equals (maybeState.get ())) {
+            try {
+                Thread.sleep (2000);
+            } catch (InterruptedException e) {
+                // no op
+            }
+
+            maybeState = makeGetCall (STATE_ENDPOINT, String.class, "getting WS state");
+        }
+
+        boolean success = maybeState.isPresent () && target.equals (maybeState.get ());
+
+        if (! success) maybeState.ifPresent (this::notifyWsErrorState);
+
+        return success;
+    }
+
+    private Optional<Solution> retrieveSolution () {
+        return makeGetCall (SOLUTION_ENDPOINT, Solution.class, "fetching Solution");
     }
 
     public synchronized boolean launch(InteractiveExperiment e) {
@@ -178,35 +234,38 @@ public class Experiment {
 
         logger.info(String.format("%sAttempt to send .json",expInfo));
         boolean chargedInputData = sendInputData(e.getInputData());
-        if (! chargedInputData) return false;
+        if (! chargedInputData) {
+            logger.error (baseErrorString + " Sending input data");
+            return false;
+        }
         logger.info(String.format("%s.json has been correctly sent",expInfo));
 
 
         logger.info(String.format("%sAttempt to send JMT replayers files",expInfo));
 
-        if (!initialize(e)){
-            logger.info(baseErrorString+" Problem with JMT replayers files");
+        if (! initialize (e)) {
+            logger.error (baseErrorString+" Problem with JMT replayers files");
             return false;
         }
         logger.info(expInfo+"JMT replayers files have been correctly sent");
 
         boolean chargedInitialSolution = generateInitialSolution();
         if (! chargedInitialSolution) {
-            logger.info(baseErrorString + " Generation of the initial solution");
+            logger.error (baseErrorString + " Generation of the initial solution");
             return false;
         }
         logger.info(String.format("%s---------- Initial solution correctly generated",expInfo));
 
         boolean evaluatedInitialSolution = evaluateInitSolution();
         if (! evaluatedInitialSolution) {
-            logger.info(baseErrorString + " Evaluating the initial solution");
+            logger.error (baseErrorString + " Evaluating the initial solution");
             return false;
         }
         logger.info(String.format("%s---------- Initial solution correctly evaluated",expInfo));
 
         boolean savedInitialSolution = saveInitSolution();
         if (! savedInitialSolution) {
-            logger.info(baseErrorString + " Getting or saving initial solution");
+            logger.error (baseErrorString + " Getting or saving initial solution");
             return false;
         }
         logger.info(String.format("%s---------- Initial solution correctly saved",expInfo));
@@ -215,22 +274,21 @@ public class Experiment {
         logger.info(String.format("%s---------- Starting hill climbing", expInfo));
         boolean finish = executeLocalSearch();
 
-        if (!finish) {
-            logger.info(baseErrorString + " Local search");
+        if (! finish) {
+            logger.error (baseErrorString + " Local search");
             return false;
         }
 
         boolean savedFinalSolution = saveFinalSolution(e, expInfo);
         if (! savedFinalSolution) {
-            logger.info(baseErrorString + " Getting or saving final solution");
+            logger.error (baseErrorString + " Getting or saving final solution");
             return false;
         }
         logger.info(String.format("%s---------- Finished hill climbing", expInfo));
 
-        try{
-            restWrapper.postForObject(EVENT_ENDPOINT, Events.MIGRATE, String.class); //from FINISHED to idle
-        }catch(Exception exc){
-            notifyUnreachableWs ();
+        boolean backToIdle = checkWsTransition (Events.MIGRATE, "FINISHED", "IDLE");
+        if (! backToIdle) {
+            logger.error (baseErrorString + " WS did not become Idle after completing");
             return false;
         }
         logger.info(String.format("%s---------- Finished optimization ----------", expInfo));
@@ -245,49 +303,34 @@ public class Experiment {
      *  Useful when WS has been stopped.
      */
     private boolean checkWSIdle() {
-        return checkWSIdle(50);  //quick fix(0-->50): WS cannot be stopped from launcher till now.
+        Optional<String> maybeState = makeGetCall (STATE_ENDPOINT, String.class,
+                "checking WS Idle state");
+        return maybeState.map ("IDLE"::equals).orElse (false);
     }
 
-    private boolean checkWSIdle(int iteration) {
-        if (iteration > 50) { return false; }
-        String res;
+    private boolean sendInputData (InstanceDataMultiProvider data) {
+        boolean returnValue = false;
 
-        try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
-        catch(Exception e){
-            notifyUnreachableWs ();
-            return false;
-        }
-
-        if (res.equals("IDLE")) return true;
-        else {
-            try {
-                Thread.sleep(10000);
-                return checkWSIdle(++iteration);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-                return false;
-            }
-        }
-    }
-
-    private boolean sendInputData(InstanceDataMultiProvider data) {
         if (data != null) {
-            String res;
-            try{ res = restWrapper.postForObject(INPUT_DATA_ENDPOINT, data, String.class); }
-            catch(Exception e){
-                notifyUnreachableWs ();
-                return false;
-            }
-            if (res.equals("CHARGED_INPUTDATA")) return true;
-            else {
-                logger.info("Error for experiment: " + data.getId() + " server responded in an unexpected way: " + res);
-                notifyWsErrorState(res);
-                return false;
-            }
+            Optional<String> maybeState = makePostCall (INPUT_DATA_ENDPOINT, data, "sending input data");
+            returnValue = maybeState.map (state -> {
+                boolean success;
+
+                if ("CHARGED_INPUTDATA".equals (state)) {
+                    success = true;
+                } else {
+                    logger.error ("Error for experiment: " + data.getId () + " server responded in an unexpected way: " + state);
+                    notifyWsErrorState (state);
+                    success = false;
+                }
+
+                return success;
+            }).orElse (false);
         } else {
-            logger.info("Error in one experiment, problem in input data serialization");
-            return false;
+            logger.error ("Error in one experiment, problem in input data serialization");
         }
+
+        return returnValue;
     }
 
     private synchronized boolean initialize(InteractiveExperiment experiment) {
@@ -309,127 +352,47 @@ public class Experiment {
     }
 
     private boolean generateInitialSolution() {
-        String res;
-
-        try {
-            res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_INIT, String.class);
-        } catch (RestClientException e) {
-            logger.error ("Problem generating the initial solution", e);
-            notifyUnreachableWs ();
-            return false;
-        }
-
-        if (res.equals("RUNNING_INIT")){
-            res = "RUNNING_INIT";
-            while (res.equals("RUNNING_INIT")){
-                try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-
-                try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
-                catch(RestClientException e){
-                    logger.error ("Problem retrieving state", e);
-                    notifyUnreachableWs ();
-                    return false;
-                }
-            }
-            if (res.equals("CHARGED_INITSOLUTION")){
-                return true;
-            }
-        }
-        notifyWsErrorState(res);
-        return false;
+        return checkWsTransition (Events.TO_RUNNING_INIT, "RUNNING_INIT", "CHARGED_INITSOLUTION");
     }
 
     private boolean evaluateInitSolution() {
-        String res;
-
-        try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_EVALUATING_INIT, String.class); }
-        catch(Exception e){
-            notifyUnreachableWs ();
-            return false;
-        }
-
-        if (res.equals("EVALUATING_INIT")) {
-            res = "EVALUATING_INIT";
-            while (res.equals("EVALUATING_INIT")) {
-                try { Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-
-                try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
-                catch(Exception e){
-                    notifyUnreachableWs ();
-                    return false;
-                }
-            }
-        }
-        if (res.equals("EVALUATED_INITSOLUTION")){
-            return true;
-        }
-        notifyWsErrorState(res);
-        return false;
+        return checkWsTransition (Events.TO_EVALUATING_INIT, "EVALUATING_INIT", "EVALUATED_INITSOLUTION");
     }
 
     private boolean saveInitSolution() {
-        Solution sol;
-        try {
-            sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class);
-        } catch (Exception e) {
-            logger.info("Impossible receiving remote solution. ["+e+"]");
-            notifyUnreachableWs ();
-            return false;
-        }
+        Optional<Solution> maybeSolution = retrieveSolution ();
 
-        String solFilePath = RESULT_FOLDER + File.separator + sol.getId() + "-MINLP.json";
-        String solSerialized;
-        try {
-            solSerialized = mapper.writeValueAsString(sol);
-            Files.write(Paths.get(solFilePath), solSerialized.getBytes());
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        Optional<Boolean> result = maybeSolution.map (solution -> {
+            String solFilePath = RESULT_FOLDER + File.separator + solution.getId () + "-MINLP.json";
+            boolean success;
+            try {
+                String solSerialized = mapper.writeValueAsString (solution);
+                Files.write (Paths.get (solFilePath), solSerialized.getBytes ());
+                success = true;
+            } catch (IOException e) {
+                success = false;
+            }
+            return success;
+        });
+
+        return result.orElse (false);
     }
 
     private boolean executeLocalSearch() {
-        String res;
-
-        try{ res = restWrapper.postForObject(EVENT_ENDPOINT, Events.TO_RUNNING_LS, String.class); }
-        catch(Exception e){
-            notifyUnreachableWs ();
-            return false;
-        }
-
-        if (res.equals("RUNNING_LS")) {
-            res = "RUNNING_LS";
-            while (res.equals("RUNNING_LS")) {
-                try{ Thread.sleep(2000); }catch(InterruptedException e){e.printStackTrace();}
-
-                try{ res = restWrapper.getForObject(STATE_ENDPOINT, String.class); }
-                catch(Exception e){
-                    notifyUnreachableWs ();
-                    return false;
-                }
-            }
-        }
-        if (res.equals("FINISH")){
-            return true;
-        }
-        notifyWsErrorState(res);
-        return false;
+        return checkWsTransition (Events.TO_RUNNING_LS, "RUNNING_LS", "FINISH");
     }
 
     private boolean saveFinalSolution(InteractiveExperiment e, String expInfo) {
-        Solution sol;
+        Optional<Solution> maybeSolution = retrieveSolution ();
 
-        try{ sol = restWrapper.getForObject(SOLUTION_ENDPOINT, Solution.class); }
-        catch(Exception exc){
-            notifyUnreachableWs ();
-            return false;
-        }
+        maybeSolution.ifPresent (solution -> {
+            e.setSol(solution);
+            e.setExperimentalDuration (solution.getOptimizationTime());
+            e.setDone (true);
+            String msg = String.format ("%sHill Climbing result  -> %s", expInfo, solution.toStringReduced());
+            logger.info (msg);
+        });
 
-        e.setSol(sol);
-        e.setExperimentalDuration(sol.getOptimizationTime());
-        e.setDone(true);
-        String msg = String.format("%sHill Climbing result  -> %s",expInfo, sol.toStringReduced());
-        logger.info(msg);
-        return true;
+        return maybeSolution.isPresent ();
     }
 }
