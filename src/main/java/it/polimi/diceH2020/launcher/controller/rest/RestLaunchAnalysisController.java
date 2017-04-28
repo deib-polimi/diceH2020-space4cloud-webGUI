@@ -71,6 +71,14 @@ public class RestLaunchAnalysisController {
         return submissions.stream ().map (this::prepareRepresentation).collect (Collectors.toList ());
     }
 
+    @RequestMapping(value = "/submit", method = RequestMethod.DELETE)
+    public void deletePendingSubmissions () {
+        for (PendingSubmission submission: submissionRepository.findAll ()) {
+            cleanup (submission.getId (), null);
+            logger.info ("All the pending submissions have been deleted.");
+        }
+    }
+
     @RequestMapping(value = "/submit/{id}", method = RequestMethod.GET)
     public ResponseEntity<PendingSubmissionRepresentation> getPendingSubmission (@PathVariable Long id) {
         ResponseEntity<PendingSubmissionRepresentation> response;
@@ -95,6 +103,19 @@ public class RestLaunchAnalysisController {
         representation.add (link);
 
         return representation;
+    }
+
+    @RequestMapping(value = "/submit/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deletePendingSubmission (@PathVariable Long id) {
+        ResponseEntity<?> response = new ResponseEntity<> (HttpStatus.NOT_FOUND);
+
+        if (submissionRepository.exists (id)) {
+            cleanup (id, null);
+            logger.info (String.format ("Pending submission %d has been deleted.", id));
+            response = new ResponseEntity<> (HttpStatus.OK);
+        }
+
+        return response;
     }
 
     @RequestMapping(value = "/submit/{id}", method = RequestMethod.POST)

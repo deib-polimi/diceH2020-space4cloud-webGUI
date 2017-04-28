@@ -25,7 +25,7 @@ error_aux ()
 }
 alias error='error_aux $LINENO '
 
-while getopts :s:u: opt; do
+while getopts :s:u:y opt; do
     case "$opt" in
         s)
             input_scenario="$OPTARG"
@@ -33,8 +33,11 @@ while getopts :s:u: opt; do
         u)
             input_url="$OPTARG"
             ;;
+        y)
+            dry_run=yes
+            ;;
         \?)
-            error unrecognized option "-$OPTARG"
+            error unrecognized option: "-$OPTARG"
             ;;
         :)
             error "-$OPTARG" option requires an argument
@@ -63,8 +66,10 @@ files="$(cat "$tmpfile")"
 eval curl -i -F "scenario=$scenario" $files "$url/files/upload" | tee "$tmpfile"
 echo
 
-endpoint="$(grep '"submit"' "$tmpfile" | tr '\{\}' '\n' | grep '"href"' \
-    | cut -d \" -f 4)"
-rm "$tmpfile"
+if [ "x${dry_run}" != xyes ]; then
+    endpoint="$(grep '"submit"' "$tmpfile" | tr '\{\}' '\n' | grep '"href"' \
+                     | cut -d \" -f 4)"
+    rm "$tmpfile"
 
-curl -i -X POST "$endpoint"
+    curl -i -X POST "$endpoint"
+fi
