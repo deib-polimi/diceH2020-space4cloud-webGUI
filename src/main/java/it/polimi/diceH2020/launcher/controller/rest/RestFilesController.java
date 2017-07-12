@@ -70,8 +70,8 @@ public class RestFilesController {
         ResponseEntity<BaseResponseBody> response = new ResponseEntity<> (body, HttpStatus.INTERNAL_SERVER_ERROR);
 
         boolean good_status = true;
-        ArrayList<String> tmpValues = new ArrayList<>();
-        List<File> allSaved = new LinkedList<> ();
+        ArrayList<String> additionalFileNames = new ArrayList<>();
+        List<File> allSavedFiles = new LinkedList<> ();
 
         if (files == null || files.isEmpty ()) {
             String message = "No files to process!";
@@ -89,7 +89,7 @@ public class RestFilesController {
                 File savedFile = null;
                 try {
                     savedFile = saveFile (multipartFile, fileName);
-                    allSaved.add (savedFile);
+                    allSavedFiles.add (savedFile);
                 } catch (FileNameClashException e) {
                     String message = String.format ("'%s' already exists", fileName);
                     logger.error (message, e);
@@ -124,8 +124,10 @@ public class RestFilesController {
                             response = new ResponseEntity<> (body, HttpStatus.BAD_REQUEST);
                             good_status = false;
                         }
-                    } else if (fileName.contains (".txt") || fileName.contains (".def") || fileName.contains (".net")) {
-                        tmpValues.add (savedFile.getPath ());
+                    } else if (fileName.contains (".txt") || fileName.contains (".jsimg")
+                            || fileName.contains (".def") || fileName.contains (".net")
+                            || fileName.contains (".stat")) {
+                        additionalFileNames.add (savedFile.getPath ());
                     }
                 }
             }
@@ -134,7 +136,7 @@ public class RestFilesController {
         if (good_status) {
             body.setMessage ("Successful file upload");
 
-            submission.setPaths (tmpValues);
+            submission.setPaths (additionalFileNames);
             diceService.updateSubmission (submission);
 
             body.setSubmissionId (submission.getId ());
@@ -147,7 +149,9 @@ public class RestFilesController {
 
             response = new ResponseEntity<> (body, HttpStatus.OK);
         } else {
-            if (fileUtility.delete (allSaved)) logger.debug ("Deleted the files created during a failed submission");
+            if (fileUtility.delete (allSavedFiles)) {
+                logger.debug ("Deleted the files created during a failed submission");
+            }
         }
 
         return response;

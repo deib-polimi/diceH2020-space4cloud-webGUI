@@ -335,19 +335,35 @@ public class Experiment {
 
     private synchronized boolean initialize(InteractiveExperiment experiment) {
         SimulationsManager simManager = experiment.getSimulationsManager();
+
         boolean success = sendFiles (simManager.getInputFolders (), ".txt",
                 String.format ("Impossible launching SimulationsManager %s: error with replayer files",
                         simManager.getId()));
+
         if (success) {
             success = sendFiles (simManager.getInputFolders (), ".net",
                     String.format ("Impossible launching SimulationsManager %s: error with .net file",
                             simManager.getId()));
         }
+
         if (success) {
             success = sendFiles (simManager.getInputFolders (), ".def",
                     String.format ("Impossible launching SimulationsManager %s: error with .def file",
                             simManager.getId()));
         }
+
+        if (success) {
+            success = sendFiles (simManager.getInputFolders (), ".stat",
+                    String.format ("Impossible launching SimulationsManager %s: error with .stat file",
+                            simManager.getId()));
+        }
+
+        if (success) {
+            success = sendFiles (simManager.getInputFolders (), ".jsimg",
+                    String.format ("Impossible launching SimulationsManager %s: error with .jsimg file",
+                            simManager.getId()));
+        }
+
         return success;
     }
 
