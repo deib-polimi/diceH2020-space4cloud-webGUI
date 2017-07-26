@@ -18,6 +18,7 @@ package it.polimi.diceH2020.launcher.controller.rest;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.launcher.Experiment;
 import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -131,7 +132,9 @@ public class DownloadsController {
 	private @NotNull List<Map<String, String>> retrieveInputFiles(@NotNull SimulationsManager manager) {
 		List<Map<String, String>> inputFiles = new ArrayList<> ();
 		try {
-			inputFiles.addAll (fileService.getFiles (manager.getInputFolders (), ".txt"));
+			for (String ext: Experiment.EXTENSIONS) {
+				inputFiles.addAll (fileService.getFiles (manager.getInputFolders (), ext));
+			}
 		} catch (IOException e) {
 			logger.error("Cannot download input files.", e);
 		}

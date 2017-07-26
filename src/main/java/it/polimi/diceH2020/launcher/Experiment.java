@@ -53,6 +53,8 @@ import java.util.Optional;
 @Scope("prototype")
 @Component
 public class Experiment {
+    public static final String[] EXTENSIONS = {".txt", ".def", ".net", ".stat", ".jsimg"};
+
     private final Logger logger = Logger.getLogger(getClass());
 
     private String EVENT_ENDPOINT;
@@ -335,33 +337,14 @@ public class Experiment {
 
     private synchronized boolean initialize(InteractiveExperiment experiment) {
         SimulationsManager simManager = experiment.getSimulationsManager();
+        List<String> inputFolders = simManager.getInputFolders ();
+        boolean success = true;
 
-        boolean success = sendFiles (simManager.getInputFolders (), ".txt",
-                String.format ("Impossible launching SimulationsManager %s: error with replayer files",
-                        simManager.getId()));
-
-        if (success) {
-            success = sendFiles (simManager.getInputFolders (), ".net",
-                    String.format ("Impossible launching SimulationsManager %s: error with .net file",
-                            simManager.getId()));
-        }
-
-        if (success) {
-            success = sendFiles (simManager.getInputFolders (), ".def",
-                    String.format ("Impossible launching SimulationsManager %s: error with .def file",
-                            simManager.getId()));
-        }
-
-        if (success) {
-            success = sendFiles (simManager.getInputFolders (), ".stat",
-                    String.format ("Impossible launching SimulationsManager %s: error with .stat file",
-                            simManager.getId()));
-        }
-
-        if (success) {
-            success = sendFiles (simManager.getInputFolders (), ".jsimg",
-                    String.format ("Impossible launching SimulationsManager %s: error with .jsimg file",
-                            simManager.getId()));
+        for (String ext : EXTENSIONS) {
+            String errorMessage = String.format (
+                    "Impossible launching SimulationsManager %s: error with %s files",
+                    simManager.getId(), ext);
+            success = sendFiles (inputFolders, ext, errorMessage);
         }
 
         return success;
