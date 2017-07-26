@@ -212,6 +212,12 @@ public class RestLaunchAnalysisController {
                 logger.error (message, e);
                 body.setMessage (message);
                 return new ResponseEntity<> (body, HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (IOException e) {
+                cleanup (id, generatedFiles);
+                String message = "Could not create a folders for TXTs!";
+                logger.error (message, e);
+                body.setMessage (message);
+                return new ResponseEntity<> (body, HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             for (Map.Entry<String, Map<String, Map<String, JobProfile>>> jobIDs :

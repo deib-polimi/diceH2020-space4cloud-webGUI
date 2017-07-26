@@ -18,6 +18,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.utility;
 
 import it.polimi.diceH2020.launcher.utility.policy.DeletionPolicy;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,10 +38,10 @@ public class FileUtility {
 
 	private Random random = new Random();
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private DeletionPolicy policy;
 
-	@Autowired
+	@Setter(onMethod = @__(@Autowired))
 	private FileManagementSettings settings;
 
 	public boolean delete (@NotNull File file) {
@@ -70,7 +71,7 @@ public class FileUtility {
 	}
 
 	public boolean delete(@NotNull List<File> pFiles) {
-		return pFiles.stream().map(this::delete).allMatch(r -> r);
+		return pFiles.stream ().allMatch (this::delete);
 	}
 
 	public @NotNull File createTempZip(@NotNull Map<String, String> inputFiles) throws IOException {
@@ -80,11 +81,12 @@ public class FileUtility {
 		List<File> tempFiles = new LinkedList<>();
 		for (Map.Entry<String, String> entry : inputFiles.entrySet()) {
 			File tmp = new File(folder, entry.getKey());
-			tmp.getParentFile().mkdirs();
-			tempFiles.add(tmp);
-			Files.write(tmp.toPath(),
-					Compressor.decompress(entry.getValue()).getBytes(),
-					StandardOpenOption.CREATE_NEW);
+			if (tmp.getParentFile ().mkdirs () || tmp.getParentFile ().isDirectory ()) {
+				tempFiles.add (tmp);
+				Files.write (tmp.toPath (),
+						Compressor.decompress (entry.getValue ()).getBytes (),
+						StandardOpenOption.CREATE_NEW);
+			} else throw new IOException ("could not prepare directory structure for ZIP file");
 		}
 
 		String fileName = String.format("%s.zip", folder.getName());
@@ -138,7 +140,7 @@ public class FileUtility {
 		return new ZipEntry(cleanPath);
 	}
 
-	public @NotNull File createInputSubFolder() throws FileNameClashException {
+	public @NotNull File createInputSubFolder() throws FileNameClashException, IOException {
 		return createNewFolder(settings.getInputDirectory());
 	}
 
@@ -151,7 +153,8 @@ public class FileUtility {
 		return requestedFile;
 	}
 
-	private synchronized @NotNull File createNewFolder(@NotNull File parentFolder) throws FileNameClashException {
+	private synchronized @NotNull File createNewFolder(@NotNull File parentFolder)
+			throws FileNameClashException, IOException {
 		final String baseSubFolderName = generateUniqueString();
 		File destFolder = new File(parentFolder, baseSubFolderName);
 
@@ -160,9 +163,9 @@ public class FileUtility {
 		}
 
 		if (destFolder.exists()) {
-			throw new FileNameClashException (String.format ("Cannot create folder '%s'", baseSubFolderName));
-		} else {
-			destFolder.mkdirs ();
+			throw new FileNameClashException (String.format ("Folder '%s' already exists", baseSubFolderName));
+		} else if (! destFolder.mkdirs ()) {
+			throw new IOException (String.format ("Cannot create folder '%s'", baseSubFolderName));
 		}
 
 		return destFolder;
@@ -170,8 +173,8 @@ public class FileUtility {
 
 	public @NotNull String generateUniqueString() {
 		Date now = new Date();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat ("Edd-MM-yyyy_HH-mm-ss");
-		return String.format ("%s-%d", simpleDateFormat.format(now), random.nextInt (99999));
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat ("yyyy-MM-dd_HH-mm-ss");
+		return String.format ("%s-%05d", simpleDateFormat.format(now), random.nextInt (99999));
 	}
 
 	public void writeContentToFile(@NotNull String content, @NotNull File file) throws IOException {
