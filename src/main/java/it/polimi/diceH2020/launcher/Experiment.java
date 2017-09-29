@@ -45,15 +45,13 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Scope("prototype")
 @Component
 public class Experiment {
-    public static final String[] EXTENSIONS = {".txt", ".def", ".net", ".stat", ".jsimg"};
+    public static final List<String> EXTENSIONS =
+            Arrays.asList (".txt", ".def", ".net", ".stat", ".jsimg");
 
     private final Logger logger = Logger.getLogger(getClass());
 
@@ -339,8 +337,10 @@ public class Experiment {
         SimulationsManager simManager = experiment.getSimulationsManager();
         List<String> inputFolders = simManager.getInputFolders ();
         boolean success = true;
+        Iterator<String> it = EXTENSIONS.iterator ();
 
-        for (String ext : EXTENSIONS) {
+        while (success && it.hasNext ()) {
+            String ext = it.next ();
             String errorMessage = String.format (
                     "Impossible launching SimulationsManager %s: error with %s files",
                     simManager.getId(), ext);

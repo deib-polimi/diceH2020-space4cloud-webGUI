@@ -1,6 +1,6 @@
 /*
+Copyright 2016-2017 Eugenio Gianniti
 Copyright 2016 Michele Ciavotta
-Copyright 2016 Eugenio Gianniti
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,34 +18,40 @@ package it.polimi.diceH2020.launcher.utility;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class Compressor {
+    // This is what Base64 *coders use by default
+    private final static Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
-    public static @NotNull String compress(@NotNull String str) throws IOException {
-        //System.out.println("Input String length: " + str.length());
+    public static @NotNull String compress(@NotNull String content) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        GZIPOutputStream gzip = new GZIPOutputStream(out);
-        gzip.write(str.getBytes());
-        gzip.close();
-        String outStr = out.toString("ISO-8859-1");
-        //System.out.println("Output String length: " + outStr.length());
-        return outStr;
-    }
 
-    public static @NotNull String decompress(@NotNull String string) throws IOException {
-        //System.out.println("Input String length: " + string.length());
-        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(string.getBytes("ISO-8859-1")));
-        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
-        StringBuilder builder = new StringBuilder();
-        String line;
-        while ((line = bf.readLine()) != null) {
-            builder.append(line).append('\n');
+        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+            gzip.write (content.getBytes ());
         }
-        String output = builder.toString();
-        //System.out.println("Output String length: " + output.length());
-        return output;
+
+        Base64.Encoder encoder = Base64.getUrlEncoder ();
+        return encoder.encodeToString (out.toByteArray ());
     }
 
+    public static @NotNull String decompress(@NotNull String encoded) throws IOException {
+        StringBuilder builder = new StringBuilder ();
+        Base64.Decoder decoder = Base64.getUrlDecoder ();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new GZIPInputStream(new ByteArrayInputStream(
+                        decoder.decode (encoded))), DEFAULT_CHARSET))) {
+            String line;
+            while ((line = reader.readLine ()) != null) {
+                builder.append (line).append ('\n');
+            }
+        }
+
+        return builder.toString();
+    }
 }
