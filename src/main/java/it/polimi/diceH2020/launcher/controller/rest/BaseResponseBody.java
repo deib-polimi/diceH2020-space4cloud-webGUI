@@ -20,13 +20,18 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.hateoas.ResourceSupport;
+
+import java.util.List;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Setter(AccessLevel.PACKAGE)
+@ToString
 public class BaseResponseBody extends ResourceSupport {
     private String message = null;
     private Scenarios scenario = null;
     private Long submissionId = null;
+    private List<String> acceptedFiles = null;
 }

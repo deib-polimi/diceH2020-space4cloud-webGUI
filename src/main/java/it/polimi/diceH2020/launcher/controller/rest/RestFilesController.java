@@ -41,7 +41,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/files")
@@ -67,10 +70,11 @@ public class RestFilesController {
         body.setScenario (scenario);
         submission.setScenario (scenario);
 
+        body.setAcceptedFiles (new LinkedList<> ());
         ResponseEntity<BaseResponseBody> response = new ResponseEntity<> (body, HttpStatus.INTERNAL_SERVER_ERROR);
 
         boolean good_status = true;
-        ArrayList<String> additionalFileNames = new ArrayList<>();
+        List<String> additionalFileNames = new LinkedList<>();
         List<File> allSavedFiles = new LinkedList<> ();
 
         if (files == null || files.isEmpty ()) {
@@ -111,6 +115,7 @@ public class RestFilesController {
                         if (idmp.isPresent ()) {
                             if (idmp.get ().validate ()) {
                                 submission.setInstanceData (savedFile.getPath ());
+                                body.getAcceptedFiles ().add (savedFile.getName ());
                             } else {
                                 logger.error (idmp.get ().getValidationError ());
                                 body.setMessage (idmp.get ().getValidationError ());
@@ -128,6 +133,7 @@ public class RestFilesController {
                             || fileName.contains (".def") || fileName.contains (".net")
                             || fileName.contains (".stat")) {
                         additionalFileNames.add (savedFile.getPath ());
+                        body.getAcceptedFiles ().add (savedFile.getName ());
                     }
                 }
             }
@@ -147,6 +153,7 @@ public class RestFilesController {
             ).withRel ("submit");
             body.add (submissionLink);
 
+            logger.info (body);
             response = new ResponseEntity<> (body, HttpStatus.OK);
         } else {
             if (fileUtility.delete (allSavedFiles)) {
