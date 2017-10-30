@@ -45,8 +45,7 @@ limitations under the License.
 <h1>Select <span th:text="${scenario.getCloudType()}"></span> Cloud <span th:text="${scenario.getDescription()}"></span> files</h1>
 
 <form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/view/upload}" class="basic-grey">
-	<div th:if ="${#strings.toString(scenario) == 'PrivateAdmissionControl' or
-	 #strings.toString(scenario)  == 'PrivateAdmissionControlWithPhysicalAssignment'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+	<div th:if ="${#strings.toString(scenario.getCloudType()) == 'PRIVATE' and scenario.getAdmissionControl()}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		<label> <span>Select Model:</span>
 			<select name="scenario" required="required" style="display:block;">
 				<option th:each="currentScenario: ${Scenarios}" th:value="${currentScenario}"
@@ -55,20 +54,16 @@ limitations under the License.
 		</label>
 	</div>
 
-	<div th:if="${#strings.toString(scenario) == 'PublicAvgWorkLoad' or
-	#strings.toString(scenario) == 'StormPublicAvgWorkLoad'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
+	<div th:if="${#strings.toString(scenario.getCloudType()) == 'PUBLIC' and !scenario.getLTC()'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		<label> <span>Select Technology:</span>
 			<select name="scenario" required="required" style="display:block;">
 				<option th:each="currentScenario: ${PublicScenarios}" th:value="${currentScenario}"
-						th:text="${#strings.capitalize(currentScenario.getSwn())}"></option>
+						th:text="${#strings.capitalize(currentScenario.getTechnoogy())}"></option>
 			</select>
 		</label>
 	</div>
 
-	<div th:if ="${#strings.toString(scenario) != 'PrivateAdmissionControl' and
-	 #strings.toString(scenario)  != 'PrivateAdmissionControlWithPhysicalAssignment' and
-	 #strings.toString(scenario) != 'StormPublicAvgWorkLoad' and
-	 #strings.toString(scenario) != 'PublicAvgWorkLoad'}" >
+   <div th:if ="${(#strings.toString(scenario.getCloudType()) == 'PRIVATE' and !scenario.getAdmissionControl != 'PrivateAdmissionControl') or (#strings.toString(scenario.getCloudType()) == 'PUBLIC' and scenario.getLTC()}">
 		<input type="hidden" name="scenario" required="required" th:value="${scenario}" />
 	</div>
 
