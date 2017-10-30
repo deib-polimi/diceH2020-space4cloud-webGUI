@@ -17,7 +17,7 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.repository;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,11 +31,11 @@ import java.util.List;
 public interface SimulationsManagerRepository extends JpaRepository<SimulationsManager, Long>{
 
 	//@Query("select s from SimulationsManager s where s.id in ( select a.id from ( select min (u.id) id from Simulations_Manager u group by u.folder ) a order by a.id ASC )")
-	@Query("SELECT MIN(id) from SimulationsManager where scenario = ?1 or scenario = ?2 or scenario = ?3 GROUP BY folder ") //?1
-	List<Long> findPublicSimManGroupedByFolders(Scenarios s1, Scenarios s2, Scenarios s3);
+	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = PUBLIC GROUP BY folder ") //?1
+	List<Long> findPublicSimManGroupedByFolders();
 
-	@Query("SELECT MIN(id) from SimulationsManager where scenario = ?1 or scenario = ?2  or scenario = ?3 GROUP BY folder ") //?1
-	List<Long> findPrivateSimManGroupedByFolders(Scenarios s1,Scenarios s2,Scenarios s3);
+	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = PRIVATE GROUP BY folder ") //?1
+	List<Long> findPrivateSimManGroupedByFolders();
 
 	int countByFolder(String folder);
 

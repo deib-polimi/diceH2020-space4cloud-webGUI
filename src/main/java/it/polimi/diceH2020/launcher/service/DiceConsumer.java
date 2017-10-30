@@ -87,7 +87,7 @@ public class DiceConsumer implements Consumer<Event<InteractiveExperiment>>{
 			intExp.getSimulationsManager().setNumFailedSimulations(intExp.getSimulationsManager().getNumFailedSimulations()+1);
 			intExp.setState(States.ERROR);
 		}
-		if(intExp.getSimulationsManager().getScenario().getCloudType().equals(CloudType.Private)){
+		if(intExp.getSimulationsManager().getScenario().getCloudType().equals(CloudType.PRIVATE)){
 			ds.signalPrivateExperimentEnd();
 		}
 		intExp.getSimulationsManager().refreshState();

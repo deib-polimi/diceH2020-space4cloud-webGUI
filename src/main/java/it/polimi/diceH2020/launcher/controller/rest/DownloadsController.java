@@ -17,7 +17,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller.rest;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.Experiment;
 import it.polimi.diceH2020.launcher.FileService;
 import it.polimi.diceH2020.launcher.States;
@@ -66,17 +66,11 @@ public class DownloadsController {
 		List<SimulationsManager> smList;
 
 		switch(CloudType.valueOf(type)){
-			case Private:
-				smList = simulationsManagerRepository.findByIdInOrderByIdAsc(
-						simulationsManagerRepository.findPrivateSimManGroupedByFolders(
-								Scenarios.PrivateAdmissionControl, Scenarios.PrivateNoAdmissionControl,
-								Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
+			case PRIVATE:
+				smList = simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders());
 				break;
-			case Public:
-				smList = simulationsManagerRepository.findByIdInOrderByIdAsc(
-						simulationsManagerRepository.findPublicSimManGroupedByFolders(
-								Scenarios.PublicAvgWorkLoad, Scenarios.PublicPeakWorkload,
-								Scenarios.StormPublicAvgWorkLoad));
+			case PUBLIC:
+				smList = simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders());
 				break;
 			default:
 				return;

@@ -18,7 +18,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller.rest;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.model.PendingSubmission;
 import it.polimi.diceH2020.launcher.service.DiceService;
 import it.polimi.diceH2020.launcher.service.Validator;
@@ -62,11 +62,10 @@ public class RestFilesController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity<BaseResponseBody> multipleSave(@RequestParam("file[]") List<MultipartFile> files,
-                                                         @RequestParam("scenario") String useCase) {
+                                                         @RequestParam("scenario") Scenario scenario) {
         BaseResponseBody body = new BaseResponseBody ();
         PendingSubmission submission = new PendingSubmission ();
 
-        Scenarios scenario = Scenarios.valueOf(useCase);
         body.setScenario (scenario);
         submission.setScenario (scenario);
 

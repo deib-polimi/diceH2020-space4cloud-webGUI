@@ -15,7 +15,7 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.model;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -29,7 +29,7 @@ public class PendingSubmission {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Scenarios scenario;
+    private Scenario scenario;
 
     @Column(length = 10000)
     private String instanceData;

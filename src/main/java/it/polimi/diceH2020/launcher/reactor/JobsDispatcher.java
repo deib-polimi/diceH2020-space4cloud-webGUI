@@ -114,7 +114,7 @@ public class JobsDispatcher extends QueueHandler<InteractiveExperiment> {
 	@Override
 	protected int getJobToSend(){
 		for(int nextJob=0; nextJob<jobsQueue.size();nextJob++){
-			if(jobsQueue.get(nextJob).getSimulationsManager().getScenario().getCloudType().equals(CloudType.Private)){
+			if(jobsQueue.get(nextJob).getSimulationsManager().getScenario().getCloudType().equals(CloudType.PRIVATE)){
 				if(numPrivateConcurrentExp.get() < maxNumPrivateConcurrentExp){
 					numPrivateConcurrentExp.incrementAndGet();
 					return nextJob;

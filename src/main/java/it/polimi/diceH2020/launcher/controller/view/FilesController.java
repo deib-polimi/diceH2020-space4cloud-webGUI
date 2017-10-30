@@ -17,7 +17,7 @@ limitations under the License.
 */
 package it.polimi.diceH2020.launcher.controller.view;
 
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.controller.rest.BaseResponseBody;
 import it.polimi.diceH2020.launcher.controller.rest.RestFilesController;
 import lombok.Setter;
@@ -45,12 +45,12 @@ public class FilesController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String multipleSave(@RequestParam("file[]") List<MultipartFile> files,
-                               @RequestParam("scenario") String useCase,
+                               @RequestParam("scenario") Scenario useCase,
                                Model model, RedirectAttributes attributes) {
         ResponseEntity<BaseResponseBody> responseEntity = internalController.multipleSave (files, useCase);
         BaseResponseBody body = responseEntity.getBody ();
 
-        Scenarios scenario = body.getScenario ();
+        Scenario scenario = body.getScenario ();
 
         attributes.addAttribute("scenario", scenario);
         model.addAttribute("scenario", scenario);

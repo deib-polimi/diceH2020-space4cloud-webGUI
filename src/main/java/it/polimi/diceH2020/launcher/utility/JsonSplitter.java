@@ -17,109 +17,32 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.utility;
 
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.*;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class JsonSplitter {
 
-	public static List<InstanceDataMultiProvider> splitInstanceDataMultiProvider(InstanceDataMultiProvider instanceDataMultiProvider, Scenarios scenario){
-		List<InstanceDataMultiProvider> instanceDataList;
-
-		switch(scenario){
-			case PrivateAdmissionControl:
-				instanceDataList = buildInstanceDataPrPeak(instanceDataMultiProvider);
-				break;
-			case PrivateAdmissionControlWithPhysicalAssignment:
-				instanceDataList = buildInstanceDataPrPeakWithPhysicalAssignment(instanceDataMultiProvider);
-				break;
-			case PrivateNoAdmissionControl:
-				instanceDataList = buildInstanceDataPrAvg(instanceDataMultiProvider);
-				break;
-			case PublicPeakWorkload:
-				instanceDataList = buildInstanceDataPuPeak(instanceDataMultiProvider);
-				break;
-			case PublicAvgWorkLoad:
-				instanceDataList = buildInstanceDataPuAvg(instanceDataMultiProvider);
-				break;
-			case StormPublicAvgWorkLoad:
-				instanceDataList = buildInstanceDataStormPuAvg(instanceDataMultiProvider);
-				break;
-			default:
-				throw new RuntimeException ("Error with the selected scenario");
-		}
-
-		return instanceDataList;
-	}
-
-	private static List<InstanceDataMultiProvider> buildInstanceDataPrAvg(InstanceDataMultiProvider instanceDataMultiProvider){
+	public static List<InstanceDataMultiProvider> splitInstanceDataMultiProvider(InstanceDataMultiProvider instanceDataMultiProvider, Scenario scenario){
 		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.PrivateNoAdmissionControl));
-			instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
+			instanceData.setScenario(scenario);
+			if(scenario.getCloudType() == CloudType.PRIVATE) {
+				instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
+				///CHECK: is this not required for private with no admission control?
+				if(scenario.getAdmissionControl()) {
+					instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
+				}
+			} else if(scenario.getLTC()) {
+				instanceData.setMapPublicCloudParameters(new PublicCloudParametersMap(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
+			}
 			instanceDataList.add(instanceData);
 		}
 		return instanceDataList;
-	}
 
-	private static List<InstanceDataMultiProvider> buildInstanceDataPrPeak(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataMultiProviderList = new ArrayList<>();
-
-		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
-			InstanceDataMultiProvider idmp = buildPartialInput(instanceDataMultiProvider,provider);
-			idmp.setScenario(Optional.of(Scenarios.PrivateAdmissionControl));
-			idmp.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
-			idmp.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
-			instanceDataMultiProviderList.add(idmp);
-		}
-		return instanceDataMultiProviderList;
-	}
-
-	private static List<InstanceDataMultiProvider> buildInstanceDataPrPeakWithPhysicalAssignment(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
-
-		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
-			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
-			instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
-			instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
-			instanceDataList.add(instanceData);
-		}
-		return instanceDataList;
-	}
-
-	private static List<InstanceDataMultiProvider> buildInstanceDataPuAvg(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
-		for(String provider : instanceDataMultiProvider.getProvidersList()){
-			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.PublicAvgWorkLoad));
-			instanceDataList.add(instanceData);
-		}
-		return instanceDataList;
-	}
-
-	private static List<InstanceDataMultiProvider> buildInstanceDataStormPuAvg(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
-		for(String provider : instanceDataMultiProvider.getProvidersList()){
-			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.StormPublicAvgWorkLoad));
-			instanceDataList.add(instanceData);
-		}
-		return instanceDataList;
-	}
-
-	private static List<InstanceDataMultiProvider> buildInstanceDataPuPeak(InstanceDataMultiProvider instanceDataMultiProvider){
-		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
-		for(String provider : instanceDataMultiProvider.getProvidersList()){
-			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
-			instanceData.setScenario(Optional.of(Scenarios.PublicPeakWorkload));
-			instanceData.setMapPublicCloudParameters(new PublicCloudParametersMap(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
-			instanceDataList.add(instanceData);
-		}
-
-		return instanceDataList;
 	}
 
 	/**

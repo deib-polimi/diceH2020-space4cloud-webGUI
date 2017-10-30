@@ -16,7 +16,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ import java.util.List;
 @ToString
 public class BaseResponseBody extends ResourceSupport {
     private String message = null;
-    private Scenarios scenario = null;
+    private Scenario scenario = null;
     private Long submissionId = null;
     private List<String> acceptedFiles = null;
 }

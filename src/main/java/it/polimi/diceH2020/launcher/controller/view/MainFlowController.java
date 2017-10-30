@@ -19,7 +19,9 @@ package it.polimi.diceH2020.launcher.controller.view;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Technology;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
@@ -62,11 +64,11 @@ public class MainFlowController {
 		model.addAttribute("queueSize", ds.getQueueSize());
 		model.addAttribute("privateQueueSize", ds.getPrivateQueueSize());
 
-		Map<Integer,Scenarios> scenarios = new HashMap<>();
-		scenarios.put(0,Scenarios.PrivateAdmissionControl);
-		scenarios.put(1,Scenarios.PrivateNoAdmissionControl);
-		scenarios.put(2,Scenarios.PublicPeakWorkload);
-		scenarios.put(3,Scenarios.PublicAvgWorkLoad);
+		Map<Integer,Scenario> scenarios = new HashMap<>();
+		scenarios.put(0, new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
+		scenarios.put(1, new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, false));
+		scenarios.put(2, new Scenario(Technology.SPARK, CloudType.PUBLIC, true, null, null));
+		scenarios.put(3, new Scenario(Technology.SPARK, CloudType.PUBLIC, true, null, null));
 
 		model.addAttribute("scenarios", scenarios);
 		return "home";
@@ -78,31 +80,31 @@ public class MainFlowController {
 			sessionStatus.isComplete();
 		}
 
-		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		model.addAttribute("scenario", scenario);
 
-		List<Scenarios> privateScenariosModels = new ArrayList<>();
-		privateScenariosModels.add(Scenarios.PrivateAdmissionControl);
-		privateScenariosModels.add(Scenarios.PrivateAdmissionControlWithPhysicalAssignment);
+		List<Scenario> privateScenariosModels = new ArrayList<>();
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, true, true));
 		model.addAttribute("Scenarios", privateScenariosModels);
 
-		List<Scenarios> publicScenariosModels = new ArrayList<>();
-		publicScenariosModels.add(Scenarios.PublicAvgWorkLoad);
-		publicScenariosModels.add(Scenarios.StormPublicAvgWorkLoad);
+		List<Scenario> publicScenariosModels = new ArrayList<>();
+		publicScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, false, null, null));
+		publicScenariosModels.add(new Scenario(Technology.STORM, CloudType.PUBLIC, false, null, null));
 		model.addAttribute("PublicScenarios", publicScenariosModels);
 
 		return "fileUpload";
 	}
 
 	@RequestMapping(value="/launchRetry", method=RequestMethod.GET)
-	public String launch(@RequestParam("scenario") String scenario, @RequestParam("message") String message,
+	public String launch(@RequestParam("scenario") Scenario scenario, @RequestParam("message") String message,
 						 SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
-		List<Scenarios> privateScenariosModels = new ArrayList<>();
-		privateScenariosModels.add(Scenarios.PrivateAdmissionControl);
-		privateScenariosModels.add(Scenarios.PrivateAdmissionControlWithPhysicalAssignment);
-		model.addAttribute("scenario", Scenarios.valueOf(scenario));
+		List<Scenario> privateScenariosModels = new ArrayList<>();
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, true, true));
+		model.addAttribute("scenario", scenario);
 		model.addAttribute("Scenarios",  privateScenariosModels);
 		model.addAttribute("message", message);
 		return "fileUpload";
@@ -110,10 +112,7 @@ public class MainFlowController {
 
 	@RequestMapping(value="/resPub", method=RequestMethod.GET)
 	public String listPub(Model model) {
-		List<SimulationsManager> smList = simulationsManagerRepository
-				.findByIdInOrderByIdAsc(simulationsManagerRepository
-						.findPublicSimManGroupedByFolders(Scenarios.PublicAvgWorkLoad,
-								Scenarios.PublicPeakWorkload, Scenarios.StormPublicAvgWorkLoad));
+		List<SimulationsManager> smList = simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPublicSimManGroupedByFolders());
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Public");
 		return "simulationResults";
@@ -121,11 +120,7 @@ public class MainFlowController {
 
 	@RequestMapping(value="/resPri", method=RequestMethod.GET)
 	public String listPri(Model model){
-		List<SimulationsManager> smList = simulationsManagerRepository
-				.findByIdInOrderByIdAsc(simulationsManagerRepository
-						.findPrivateSimManGroupedByFolders(Scenarios.PrivateAdmissionControl,
-								Scenarios.PrivateNoAdmissionControl,
-								Scenarios.PrivateAdmissionControlWithPhysicalAssignment));
+		List<SimulationsManager> smList = simulationsManagerRepository.findByIdInOrderByIdAsc(simulationsManagerRepository.findPrivateSimManGroupedByFolders());
 		model.addAttribute("folderList", getFolderList(smList));
 		model.addAttribute("cloudType", "Private");
 		return "simulationResults";
@@ -142,7 +137,7 @@ public class MainFlowController {
 
 			tmpMap.put("date", simMan.getDate());
 			tmpMap.put("time", simMan.getTime());
-			tmpMap.put("scenario", simMan.getScenario().getAcronym());
+			tmpMap.put("scenario", simMan.getScenario().toString());
 			tmpMap.put("id", simMan.getId().toString());
 			tmpMap.put("state", state.toString());
 			tmpMap.put("input", simMan.getInput());

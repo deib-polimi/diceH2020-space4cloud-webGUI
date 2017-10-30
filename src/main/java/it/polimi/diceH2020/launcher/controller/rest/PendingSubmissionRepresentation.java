@@ -16,7 +16,7 @@ limitations under the License.
 package it.polimi.diceH2020.launcher.controller.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.model.PendingSubmission;
 import lombok.Getter;
 import org.springframework.hateoas.ResourceSupport;
@@ -25,7 +25,7 @@ import org.springframework.hateoas.ResourceSupport;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class PendingSubmissionRepresentation extends ResourceSupport {
     private Long submissionId = null;
-    private Scenarios scenario = null;
+    private Scenario scenario = null;
 
     PendingSubmissionRepresentation (PendingSubmission submission) {
         submissionId = submission.getId ();

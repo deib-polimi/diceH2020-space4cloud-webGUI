@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.InstanceDataMultiProvider;
-import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenarios;
+import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.utility.Compressor;
 import it.polimi.diceH2020.launcher.utility.SimulationsUtilities;
@@ -53,7 +53,7 @@ public class SimulationsManager {
 
 	private String provider;
 
-	private Scenarios scenario; //	contains also CloudType cloudType;
+	private Scenario scenario; //	contains also CloudType cloudType;
 
 	@Column(length = 20000) 
 	private ArrayList<String> inputFolders;
