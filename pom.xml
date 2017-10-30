@@ -35,7 +35,7 @@
         <!-- excel -->
         <org.apache.poi.version>3.13</org.apache.poi.version>
         <jackson.version>2.7.4</jackson.version>
-        <DS4C-shared.version>0.3.1-SNAPSHOT</DS4C-shared.version>
+        <DS4C-shared.version>0.3.2-dev</DS4C-shared.version>
     </properties>
 
     <dependencies>
