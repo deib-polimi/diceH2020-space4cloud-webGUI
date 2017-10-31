@@ -45,7 +45,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableRetry
 @SpringBootApplication
 @ComponentScan({"it.polimi.diceH2020.*"})
-@EntityScan("it.polimi.diceH2020.launcher.model")
+@EntityScan({"it.polimi.diceH2020.launcher.model","it.polimi.diceH2020.SPACE4Cloud.shared.settings"})
 @EnableJpaRepositories("it.polimi.diceH2020.launcher.repository")
 @EnableAsync
 @EnableScheduling

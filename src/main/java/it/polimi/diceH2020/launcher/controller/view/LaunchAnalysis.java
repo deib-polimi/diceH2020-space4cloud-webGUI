@@ -60,7 +60,7 @@ public class LaunchAnalysis {
 		BaseResponseBody body = response.getBody ();
 
 		model.addAttribute ("scenario", body.getScenario ());
-		redirectAttributes.addAttribute ("scenario", body.getScenario ());
+		redirectAttributes.addAttribute ("scenario", body.getScenario().getStringRepresentation());
 
 		String returnedView;
 		switch (response.getStatusCode ()) {

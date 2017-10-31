@@ -289,6 +289,7 @@ public class RestLaunchAnalysisController {
       cleanup(id, null);
 
       for (SimulationsManager simulationsManager : simManagerList) {
+         logger.trace("Simulation with " + simulationsManager.toString() + " - Scenario is " + simulationsManager.getScenario().getStringRepresentation());
          diceService.simulation(simulationsManager);
 
          Link link = ControllerLinkBuilder.linkTo (
@@ -338,7 +339,7 @@ public class RestLaunchAnalysisController {
                }
                break;
             case PUBLIC: 
-               if(scenario.getLTC()) {
+               if(scenario.getLongTermCommitment()) {
                   if (instanceDataMultiProvider.getMapPublicCloudParameters() == null ||
                         instanceDataMultiProvider.getMapPublicCloudParameters().getMapPublicCloudParameters() == null) {
                      returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";

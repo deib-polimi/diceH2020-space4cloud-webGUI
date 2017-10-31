@@ -62,10 +62,11 @@ public class RestFilesController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity<BaseResponseBody> multipleSave(@RequestParam("file[]") List<MultipartFile> files,
-                                                         @RequestParam("scenario") Scenario scenario) {
+                                                         @RequestParam("scenario") String scenarioStringRepresentation) {
         BaseResponseBody body = new BaseResponseBody ();
         PendingSubmission submission = new PendingSubmission ();
 
+        Scenario scenario = Scenario.generateScenario(scenarioStringRepresentation);
         body.setScenario (scenario);
         submission.setScenario (scenario);
 
@@ -88,7 +89,7 @@ public class RestFilesController {
             while (good_status && multipartFileIterator.hasNext ()) {
                 MultipartFile multipartFile = multipartFileIterator.next ();
                 String fileName = new File (multipartFile.getOriginalFilename ()).getName ();
-
+                logger.trace("Analyzing file " + fileName);
                 File savedFile = null;
                 try {
                     savedFile = saveFile (multipartFile, fileName);
@@ -145,7 +146,6 @@ public class RestFilesController {
             diceService.updateSubmission (submission);
 
             body.setSubmissionId (submission.getId ());
-
             Link submissionLink = ControllerLinkBuilder.linkTo (
                     ControllerLinkBuilder.methodOn (RestLaunchAnalysisController.class)
                             .submitById (submission.getId ())

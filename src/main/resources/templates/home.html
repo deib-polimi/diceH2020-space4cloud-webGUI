@@ -132,12 +132,12 @@ limitations under the License.
 			<h2 class="linkText" style="white-space: nowrap;overflow:hidden;">Private <span class="optionalText">Cloud</span> Analysis</h2>
 			<div class="folderLinks">
 				<div class="linkFather" style="margin-top:70px;">
-					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(scenarios.get(0).getDescription())}"></h4>
-					<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(0))}|}" class="link" ></a>
+					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(descriptions.get(0))}"></h4>
+					<a th:href="@{|/launch?cloudType=PRIVATE&amp;longTermCommitment=&amp;admissionControl=true|}" class="link" ></a>
 				</div>
 				<div class="linkFather" style="margin-top:50px;">
-					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(scenarios.get(1).getDescription())}"></h4>
-					<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(1))}|}" class="link" ></a>
+					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(descriptions.get(1))}"></h4>
+					<a th:href="@{|/launch?cloudType=PRIVATE&amp;longTermCommitment=&amp;admissionControl=false|}" class="link" ></a>
 				</div>
 				<img th:src="${'/images/info_logo.png'}"  style="width: 30px;height: 30px;display: block;margin:10px;bottom: 0;position: absolute;left: 0;"/>
 			</div>
@@ -149,12 +149,12 @@ limitations under the License.
              </a> -->
 			<div class="folderLinks">
 				<div class="linkFather" style="margin-top:70px;">
-					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(scenarios.get(2).getDescription())}"></h4>
-					<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(2))}|}" class="link" ></a>
+					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(descriptions.get(2))}"></h4>
+					<a th:href="@{|/launch?cloudType=PUBLIC&amp;longTermCommitment=true&amp;admissionControl=|}" class="link" ></a>
 				</div>
 				<div class="linkFather" style="margin-top:50px;">
-					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(scenarios.get(3).getDescription())}"></h4>
-					<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(3))}|}" class="link" ></a>
+					<h4 class="linkText" style="color:white; width:100%; float:left;white-space: nowrap;overflow:hidden;text-align:left;" th:text="${#strings.toString(descriptions.get(3))}"></h4>
+					<a th:href="@{|/launch?cloudType=PUBLIC&amp;longTermCommitment=false&amp;admissionControl=|}" class="link" ></a>
 				</div>
 				<img th:src="${'/images/info_logo.png'}"  style="width: 30px;height: 30px;display: block;margin:10px;bottom: 0;position: absolute;left: 0;"/>
 			</div>
@@ -175,14 +175,14 @@ limitations under the License.
 			<div class="clearfix" style="width:100%;margin-top:10px">
 				<div style="float:left; width:50%;">
 					<div class="button linkFather">
-						<h3 class="linkText" th:text="${#strings.toString(scenarios.get(0).getDescription())}" style="white-space: nowrap;overflow:hidden;">Capacity Constraint</h3>
-						<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(0))}|}" class="link" ></a>
+						<h3 class="linkText" th:text="${#strings.toString(descriptions.get(0))}" style="white-space: nowrap;overflow:hidden;">Capacity Constraint</h3>
+						<a th:href="@{|/launch?cloudType=PRIVATE&amp;longTermCommitment=&amp;admissionControl=true|}" class="link" ></a>
 					</div>
 				</div>
 				<div style="float:right;width:50%;">
 					<div class="button linkFather">
-						<h3 class="linkText" th:text="${#strings.toString(scenarios.get(1).getDescription())}" style="white-space: nowrap;overflow:hidden;">No Capacity Constraint<br/>Fixed Concurrency Level</h3>
-						<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(1))}|}" class="link" ></a>
+						<h3 class="linkText" th:text="${#strings.toString(descriptions.get(1))}" style="white-space: nowrap;overflow:hidden;">No Capacity Constraint<br/>Fixed Concurrency Level</h3>
+					<a th:href="@{|/launch?cloudType=PRIVATE&amp;longTermCommitment=&amp;admissionControl=false|}" class="link" ></a>
 					</div>
 				</div>
 			</div>
@@ -196,14 +196,14 @@ limitations under the License.
 			<div class="clearfix" style="width:100%;margin-top:10px">
 				<div style="float:left; ;width:50%;">
 					<div class="button linkFather">
-						<h3 class="linkText" th:text="${#strings.toString(scenarios.get(2).getDescription())}" style="white-space: nowrap;overflow:hidden;">Reserved and On-Demand</h3>
-						<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(2))}|}" class="link" ></a>
+						<h3 class="linkText" th:text="${#strings.toString(descriptions.get(2))}" style="white-space: nowrap;overflow:hidden;">Reserved and On-Demand</h3>
+						<a th:href="@{|/launch?cloudType=PUBLIC&amp;longTermCommitment=true&amp;admissionControl=|}" class="link" ></a>
 					</div>
 				</div>
 				<div style="float:right;width:50%;">
 					<div class="button linkFather">
-						<h3 class="linkText" th:text="${#strings.toString(scenarios.get(3).getDescription())}" style="white-space: nowrap;overflow:hidden;">Only On-Demand</h3>
-						<a th:href="@{|/launch?scenario=${#strings.toString(scenarios.get(3))}|}" class="link" ></a>
+						<h3 class="linkText" th:text="${#strings.toString(descriptions.get(3))}" style="white-space: nowrap;overflow:hidden;">Only On-Demand</h3>
+						<a th:href="@{|/launch?cloudType=PUBLIC&amp;longTermCommitment=false&amp;admissionControl=|}" class="link" ></a>
 					</div>
 				</div>
 			</div>

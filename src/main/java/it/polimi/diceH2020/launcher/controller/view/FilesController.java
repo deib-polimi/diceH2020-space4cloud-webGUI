@@ -45,15 +45,19 @@ public class FilesController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String multipleSave(@RequestParam("file[]") List<MultipartFile> files,
-                               @RequestParam("scenario") Scenario useCase,
+                               @RequestParam("scenario") String useCase,
                                Model model, RedirectAttributes attributes) {
         ResponseEntity<BaseResponseBody> responseEntity = internalController.multipleSave (files, useCase);
+        logger.trace("After internalController.multipleSave");
         BaseResponseBody body = responseEntity.getBody ();
+        logger.trace("After getBody");
 
         Scenario scenario = body.getScenario ();
-
-        attributes.addAttribute("scenario", scenario);
+        logger.trace("After getScenario");
+        attributes.addAttribute("scenario", scenario.getStringRepresentation());
+        logger.trace("After first addAttributes");
         model.addAttribute("scenario", scenario);
+        logger.trace("After set of attributes");
 
         String returnedView;
 
@@ -84,7 +88,7 @@ public class FilesController {
                 returnedView = "error";
             }
         }
-
+        logger.trace("returnedView is " + returnedView);
         return returnedView;
     }
 

@@ -53,6 +53,7 @@ public class SimulationsManager {
 
 	private String provider;
 
+	@ManyToOne
 	private Scenario scenario; //	contains also CloudType cloudType;
 
 	@Column(length = 20000) 

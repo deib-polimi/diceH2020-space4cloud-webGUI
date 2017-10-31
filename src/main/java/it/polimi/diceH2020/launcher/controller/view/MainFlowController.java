@@ -64,47 +64,53 @@ public class MainFlowController {
 		model.addAttribute("queueSize", ds.getQueueSize());
 		model.addAttribute("privateQueueSize", ds.getPrivateQueueSize());
 
-		Map<Integer,Scenario> scenarios = new HashMap<>();
-		scenarios.put(0, new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
-		scenarios.put(1, new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, false));
-		scenarios.put(2, new Scenario(Technology.SPARK, CloudType.PUBLIC, true, null, null));
-		scenarios.put(3, new Scenario(Technology.SPARK, CloudType.PUBLIC, true, null, null));
+		List<String> descriptions = new ArrayList<>();
+		descriptions.add("Private cloud with Admission Control");
+		descriptions.add("Private cloud without Admission Control");
+		descriptions.add("Public cloud with LTC");
+		descriptions.add("Public cloud without LTC");
 
-		model.addAttribute("scenarios", scenarios);
+		model.addAttribute("descriptions", descriptions);
 		return "home";
 	}
 
 	@RequestMapping(value="/launch", method=RequestMethod.GET)
-	public String launch(@RequestParam("scenario") String scenario, SessionStatus sessionStatus, Model model) {
+	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("longTermCommitment") String longTermCommitment, @RequestParam("admissionControl") String admissionControl, SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
 
-		model.addAttribute("scenario", scenario);
+		model.addAttribute("cloudType", cloudType);
+		model.addAttribute("longTermCommitment", longTermCommitment);
+		model.addAttribute("admissionControl", admissionControl);
 
-		List<Scenario> privateScenariosModels = new ArrayList<>();
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, true, true));
-		model.addAttribute("Scenarios", privateScenariosModels);
-
-		List<Scenario> publicScenariosModels = new ArrayList<>();
-		publicScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, false, null, null));
-		publicScenariosModels.add(new Scenario(Technology.STORM, CloudType.PUBLIC, false, null, null));
-		model.addAttribute("PublicScenarios", publicScenariosModels);
-
+		List<Scenario> scenarios = new ArrayList<>();
+		switch(CloudType.valueOf(cloudType)) {
+			case PRIVATE:
+				scenarios.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, Boolean.valueOf(admissionControl)));
+				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PRIVATE, null, false, Boolean.valueOf(admissionControl)));
+				break;
+			case PUBLIC:
+				scenarios.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
+				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
+				scenarios.add(new Scenario(Technology.STORM, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
+				break;
+			default:
+				throw new RuntimeException("Unknown type of cloud");
+		}
+		model.addAttribute("scenarios", scenarios);
 		return "fileUpload";
 	}
 
 	@RequestMapping(value="/launchRetry", method=RequestMethod.GET)
-	public String launch(@RequestParam("scenario") Scenario scenario, @RequestParam("message") String message,
-						 SessionStatus sessionStatus, Model model) {
+	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("longTermCommitment") String longTermCommitment, @RequestParam("admissionControl") String admissionControl,  @RequestParam("message") String message,  SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
 		List<Scenario> privateScenariosModels = new ArrayList<>();
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, true));
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, true, true));
-		model.addAttribute("scenario", scenario);
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, false, true));
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, true, true));
+		model.addAttribute("scenario", new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, false, Boolean.valueOf(admissionControl)));
 		model.addAttribute("Scenarios",  privateScenariosModels);
 		model.addAttribute("message", message);
 		return "fileUpload";
@@ -137,7 +143,7 @@ public class MainFlowController {
 
 			tmpMap.put("date", simMan.getDate());
 			tmpMap.put("time", simMan.getTime());
-			tmpMap.put("scenario", simMan.getScenario().toString());
+			tmpMap.put("scenario", simMan.getScenario().getShortDescription());
 			tmpMap.put("id", simMan.getId().toString());
 			tmpMap.put("state", state.toString());
 			tmpMap.put("input", simMan.getInput());
@@ -148,7 +154,9 @@ public class MainFlowController {
 			Optional<Double> result = Optional.empty ();
 			// I expect this list to be always one element long
 			for (InteractiveExperiment experiment: simMan.getExperimentsList ()) {
+				logger.trace("Found experiment");
 				if (experiment.isDone ()) {
+					logger.trace("Experiment is done");
 					try {
 						Solution solution = experiment.getSol ();
 						result = Optional.of (solution.getCost ());
@@ -208,6 +216,8 @@ public class MainFlowController {
 
 	private synchronized void doRelaunch(@NotNull List<SimulationsManager> managers,
 										 @NotNull RedirectAttributes redirectAttributes) {
+
+		logger.trace("Relaunch");
 		if (! invalidUpdate(managers)) {
 			for (SimulationsManager sm : managers) {
 				for (InteractiveExperiment exp : sm.getExperimentsList()) {

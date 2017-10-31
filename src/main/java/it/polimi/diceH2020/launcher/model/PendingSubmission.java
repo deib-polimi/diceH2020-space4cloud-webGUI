@@ -18,6 +18,7 @@ package it.polimi.diceH2020.launcher.model;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import lombok.Data;
 
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -26,9 +27,10 @@ import java.util.List;
 public class PendingSubmission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     private Scenario scenario;
 
     @Column(length = 10000)

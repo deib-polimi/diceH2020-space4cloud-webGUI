@@ -31,10 +31,10 @@ import java.util.List;
 public interface SimulationsManagerRepository extends JpaRepository<SimulationsManager, Long>{
 
 	//@Query("select s from SimulationsManager s where s.id in ( select a.id from ( select min (u.id) id from Simulations_Manager u group by u.folder ) a order by a.id ASC )")
-	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = PUBLIC GROUP BY folder ") //?1
+	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = 'PUBLIC' GROUP BY folder ") //?1
 	List<Long> findPublicSimManGroupedByFolders();
 
-	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = PRIVATE GROUP BY folder ") //?1
+	@Query("SELECT MIN(id) from SimulationsManager where scenario.cloudType = 'PRIVATE' GROUP BY folder ") //?1
 	List<Long> findPrivateSimManGroupedByFolders();
 
 	int countByFolder(String folder);

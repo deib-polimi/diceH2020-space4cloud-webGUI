@@ -36,7 +36,7 @@ public class JsonSplitter {
 				if(scenario.getAdmissionControl()) {
 					instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
 				}
-			} else if(scenario.getLTC()) {
+			} else if(scenario.getLongTermCommitment()) {
 				instanceData.setMapPublicCloudParameters(new PublicCloudParametersMap(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
 			}
 			instanceDataList.add(instanceData);

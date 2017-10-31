@@ -213,6 +213,7 @@ public class Experiment {
     }
 
     public synchronized boolean launch(InteractiveExperiment e) {
+        logger.trace("Experiment::launch");
         e.setState(States.RUNNING);
         e.getSimulationsManager().refreshState();
         diceService.updateManager(e.getSimulationsManager());

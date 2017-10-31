@@ -147,7 +147,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+                <configuration>
+                   <requiresUnpack>
+                      <dependency>
+                         <groupId>it.polimi.diceH2020</groupId>
+                         <artifactId>SPACE4Cloud-shared</artifactId>
+                      </dependency>
+                   </requiresUnpack>
+             </configuration>
+          </plugin>
         </plugins>
     </build>
 
