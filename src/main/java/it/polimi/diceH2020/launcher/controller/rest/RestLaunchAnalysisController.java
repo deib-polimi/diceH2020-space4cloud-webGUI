@@ -171,8 +171,9 @@ public class RestLaunchAnalysisController {
       }
 
       InstanceDataMultiProvider instanceDataMultiProvider = maybeInstanceData.get();
+      instanceDataMultiProvider.setScenario(scenario);
 
-      String check = scenarioValidation(instanceDataMultiProvider, scenario);
+      String check = scenarioValidation(instanceDataMultiProvider);
       if (! check.equals("ok")) {
          cleanup(id, null);
          logger.error (check);
@@ -181,7 +182,7 @@ public class RestLaunchAnalysisController {
       }
 
       List<InstanceDataMultiProvider> inputList =
-         JsonSplitter.splitInstanceDataMultiProvider(instanceDataMultiProvider, scenario);
+         JsonSplitter.splitInstanceDataMultiProvider(instanceDataMultiProvider);
 
       if (inputList.size() > 1) {
          List<String> providersList = inputList.stream().map(InstanceDataMultiProvider::getProvider)
@@ -306,8 +307,9 @@ public class RestLaunchAnalysisController {
       return String.format ("J%s%s%s", idC, provider, vmType);
    }
 
-   private String scenarioValidation(InstanceDataMultiProvider instanceDataMultiProvider, Scenario scenario) {
+   private String scenarioValidation(InstanceDataMultiProvider instanceDataMultiProvider) {
       String returnString = "ok";
+      Scenario scenario = instanceDataMultiProvider.getScenario();
 
       if (instanceDataMultiProvider.getMapJobProfiles() == null ||
             instanceDataMultiProvider.getMapClassParameters() == null) {

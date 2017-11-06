@@ -19,17 +19,23 @@ package it.polimi.diceH2020.launcher.utility;
 import it.polimi.diceH2020.SPACE4Cloud.shared.inputDataMultiProvider.*;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class JsonSplitter {
+	private static final Logger logger = Logger.getLogger(JsonSplitter.class);
 
-	public static List<InstanceDataMultiProvider> splitInstanceDataMultiProvider(InstanceDataMultiProvider instanceDataMultiProvider, Scenario scenario){
+	public static List<InstanceDataMultiProvider> splitInstanceDataMultiProvider(InstanceDataMultiProvider instanceDataMultiProvider){
+		Scenario scenario = instanceDataMultiProvider.getScenario();
 		List<InstanceDataMultiProvider> instanceDataList = new ArrayList<>();
 		for(String provider : instanceDataMultiProvider.getProvidersList()){ //useless loop, used for compliance 
+			if(instanceDataMultiProvider.getScenario() != null)
+				logger.trace(instanceDataMultiProvider.getScenario().getStringRepresentation());
 			InstanceDataMultiProvider instanceData = buildPartialInput(instanceDataMultiProvider,provider);
 			instanceData.setScenario(scenario);
+			logger.trace("Scenario of instanceData is " + scenario.getStringRepresentation());
 			if(scenario.getCloudType() == CloudType.PRIVATE) {
 				instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
 				///CHECK: is this not required for private with no admission control?
@@ -54,7 +60,6 @@ public class JsonSplitter {
 	 * @return InstanceData with an initial set of parameters, those ones that are mandatory
 	 */
 	private static InstanceDataMultiProvider buildPartialInput(InstanceDataMultiProvider input, String provider){
-
 		Map<String, Map<String, Map<String, JobProfile>>> map = fromMapJobProfileToMapProfiles(input.getMapJobProfiles(), provider);
 		InstanceDataMultiProvider partialInput = new InstanceDataMultiProvider();
 		partialInput.setMapClassParameters(input.getMapClassParameters());

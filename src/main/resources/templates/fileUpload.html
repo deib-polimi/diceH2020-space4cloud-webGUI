@@ -42,14 +42,13 @@ limitations under the License.
 <div th:if ="${message} != null" class="basic-grey" >
 	<p class ="text" th:text = "${message}"></p>
 </div>
-<h1>Select files for <span th:text="${cloudType}"></span> Cloud <span th:text="${longTermCommitment != '' ? (longTermCommitment != 'true' ? ' with longTermCommitment' : ' without longTermCommitment') : ''}"></span> </h1>
+<h1>Select files for <span th:text="${cloudType}"></span> Cloud <span th:text="${longTermCommitment != '' ? (longTermCommitment == 'true' ? ' with longTermCommitment' : ' without longTermCommitment') : ''}"></span> </h1>
 
 <form id="form" method="POST" enctype="multipart/form-data" th:action="@{/files/view/upload}" class="basic-grey">
 	<div th:if ="${#strings.toString(cloudType) == 'PRIVATE'}" style="width:100%;text-align:center;font-size: small;color: black;margin: 5px;">
 		<label> <span>Select Technology</span>
 			<select name="scenario" required="required" style="display:block;">
-				<option th:each="currentScenario: ${scenarios}" th:value="${currentScenario}"
-						th:text="${#strings.capitalize(currentScenario.getModel())}"></option>
+				<option th:each="currentScenario: ${scenarios}" th:value="${currentScenario.getStringRepresentation()}" th:text="${#strings.capitalize(currentScenario.getTechnology().name())}"></option>
 			</select>
 		</label>
 	</div>
