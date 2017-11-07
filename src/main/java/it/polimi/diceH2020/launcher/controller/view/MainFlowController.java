@@ -87,13 +87,13 @@ public class MainFlowController {
 		List<Scenario> scenarios = new ArrayList<>();
 		switch(CloudType.valueOf(cloudType)) {
 			case PRIVATE:
-				scenarios.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, false, Boolean.valueOf(admissionControl)));
-				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PRIVATE, null, false, Boolean.valueOf(admissionControl)));
+				scenarios.add(new Scenario(Technology.SPARK, CloudType.PRIVATE, null, Boolean.valueOf(admissionControl)));
+				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PRIVATE, null, Boolean.valueOf(admissionControl)));
 				break;
 			case PUBLIC:
-				scenarios.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
-				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
-				scenarios.add(new Scenario(Technology.STORM, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null, null));
+				scenarios.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
+				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
+				scenarios.add(new Scenario(Technology.STORM, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
 				break;
 			default:
 				throw new RuntimeException("Unknown type of cloud");
@@ -108,9 +108,9 @@ public class MainFlowController {
 			sessionStatus.isComplete();
 		}
 		List<Scenario> privateScenariosModels = new ArrayList<>();
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, false, true));
-		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, true, true));
-		model.addAttribute("scenario", new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, false, Boolean.valueOf(admissionControl)));
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, true));
+		privateScenariosModels.add(new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, true));
+		model.addAttribute("scenario", new Scenario(Technology.SPARK, CloudType.valueOf(cloudType), null, Boolean.valueOf(admissionControl)));
 		model.addAttribute("Scenarios",  privateScenariosModels);
 		model.addAttribute("message", message);
 		return "fileUpload";
