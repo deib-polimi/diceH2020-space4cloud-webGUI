@@ -223,7 +223,7 @@ public class Experiment {
 
         logger.info(String.format("%s-> {Exp:%s  port:%s,  provider:\"%s\" scenario:\"%s\"}",
                 expInfo, Long.toString(e.getId()), port, e.getProvider(),
-                e.getSimulationsManager().getScenario().toString()));
+                e.getSimulationsManager().getScenario().getStringRepresentation()));
         logger.info(String.format("%s---------- Starting optimization ----------", expInfo));
 
 
