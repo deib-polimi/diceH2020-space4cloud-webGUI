@@ -23,6 +23,7 @@ import it.polimi.diceH2020.SPACE4Cloud.shared.settings.CloudType;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Scenario;
 import it.polimi.diceH2020.SPACE4Cloud.shared.settings.Technology;
 import it.polimi.diceH2020.SPACE4Cloud.shared.solution.Solution;
+import it.polimi.diceH2020.SPACE4Cloud.shared.solution.SolutionPerJob;
 import it.polimi.diceH2020.launcher.States;
 import it.polimi.diceH2020.launcher.model.InteractiveExperiment;
 import it.polimi.diceH2020.launcher.model.SimulationsManager;
@@ -150,8 +151,11 @@ public class MainFlowController {
 			tmpMap.put("folder",simMan.getFolder());
 			tmpMap.put("num", String.valueOf(simulationsManagerRepository.countByFolder(simMan.getFolder())));
 			tmpMap.put("completed", simMan.getNumCompletedSimulations().toString());
-
 			Optional<Double> result = Optional.empty ();
+			Optional<Boolean> feasible = Optional.empty();
+			Optional<String> provider = Optional.empty();
+			Optional<String> vms = Optional.empty();
+			String buildingVms = "";
 			// I expect this list to be always one element long
 			for (InteractiveExperiment experiment: simMan.getExperimentsList ()) {
 				logger.trace("Found experiment");
@@ -160,6 +164,20 @@ public class MainFlowController {
 					try {
 						Solution solution = experiment.getSol ();
 						result = Optional.of (solution.getCost ());
+						feasible = Optional.of(solution.isFeasible());
+						provider = Optional.of(solution.getProvider());
+						Map<String, Integer> vmsCounter = new HashMap<String, Integer>();
+						for(SolutionPerJob solutionPerJob : solution.getLstSolutions()) {
+							final String typeVMselected = solutionPerJob.getTypeVMselected().getId();
+							vmsCounter.put(typeVMselected, (vmsCounter.get(typeVMselected) != null ? vmsCounter.get(typeVMselected) : 0) + solutionPerJob.getNumberVM());
+						}
+						for(Map.Entry<String, Integer> vm : vmsCounter.entrySet()) {
+							if(!buildingVms.isEmpty()) {
+								buildingVms += ", ";
+							}
+							buildingVms += vm.getKey() + "=" + String.valueOf(vm.getValue());
+						}
+						vms = Optional.of(buildingVms);
 					} catch (JsonParseException | JsonMappingException e) {
 						logger.debug (String.format ("Error while parsing the solution JSON for experiment no. %d",
 								experiment.getId ()), e);
@@ -170,6 +188,9 @@ public class MainFlowController {
 				}
 			}
 			tmpMap.put ("result", result.map (Object::toString).orElse ("N/D"));
+			tmpMap.put ("feasible", feasible.map (Object::toString).orElse (""));
+			tmpMap.put ("provider", provider.map (Object::toString).orElse (""));
+			tmpMap.put ("vms", vms.map (Object::toString).orElse (""));
 
 			returnList.add(tmpMap);
 		}

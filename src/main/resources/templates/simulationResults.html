@@ -75,6 +75,9 @@ limitations under the License.
 				<th>Time</th>
 				<th>State</th>
 				<th>Scenario</th>
+				<th>Feasibility</th>
+				<th>VM Provider</th>
+				<th>VMs</th>
 				<th>Cost</th>
 				<th>Input</th>
 				<th>Output</th>
@@ -95,7 +98,23 @@ limitations under the License.
 					<img height="25" th:src="${'/images/' + #strings.toLowerCase(folder.state) + '.gif'}" style="margin: 0 auto;display:block;" />
 				</td>
 				<td th:text="${#strings.toString(folder.scenario)}">Type</td>
-				<td th:text="${folder.result}">Value</td>
+				<td>
+					<div th:if="${(#strings.toString(folder.state) == 'COMPLETED') and (#strings.toString(folder.feasible) == 'true')}">
+						<img height="25" th:src="${'/images/completed.gif'}" style="margin: 0 auto;display:block;" />
+					</div>
+					<div th:if="${(#strings.toString(folder.state) == 'COMPLETED') and (#strings.toString(folder.feasible) == 'false')}">
+						<img height="25" th:src="${'/images/failed.gif'}" style="margin: 0 auto;display:block;" />
+					</div>
+				</td>
+				<td>
+					<div th:if="${(#strings.toString(folder.state) == 'COMPLETED') and (#strings.toString(folder.feasible) == 'true')}" th:text="${folder.provider}"></div>
+				</td>
+				<td>
+					<div th:if="${(#strings.toString(folder.state) == 'COMPLETED') and (#strings.toString(folder.feasible) == 'true')}" th:text="${folder.vms}"></div>
+				</td>
+				<td>
+					<div th:if="${(#strings.toString(folder.state) == 'COMPLETED') and (#strings.toString(folder.feasible) == 'true')}" th:text="${folder.result}"></div>
+				</td>
 				<td>
 					<div class="clearfix" style="margin: 0 auto;">
 						<div th:if="*{folder.input}!=null" class="linkFather" style="float:left;cursor:pointer;">
