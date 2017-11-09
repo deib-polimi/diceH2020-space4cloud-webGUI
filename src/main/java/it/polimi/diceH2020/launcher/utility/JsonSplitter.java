@@ -39,9 +39,7 @@ public class JsonSplitter {
 			if(scenario.getCloudType() == CloudType.PRIVATE) {
 				instanceData.setMapVMConfigurations(instanceDataMultiProvider.getMapVMConfigurations());
 				///CHECK: is this not required for private with no admission control?
-				if(scenario.getAdmissionControl()) {
-					instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
-				}
+				instanceData.setPrivateCloudParameters(instanceDataMultiProvider.getPrivateCloudParameters());
 			} else if(scenario.getLongTermCommitment()) {
 				instanceData.setMapPublicCloudParameters(new PublicCloudParametersMap(fromMapPublicCloudParametersToMapTypeVMs(instanceDataMultiProvider.getMapPublicCloudParameters(), provider)));
 			}
