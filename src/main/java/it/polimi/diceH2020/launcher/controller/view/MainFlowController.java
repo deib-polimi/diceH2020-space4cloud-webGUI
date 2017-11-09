@@ -164,7 +164,7 @@ public class MainFlowController {
 					try {
 						Solution solution = experiment.getSol ();
 						result = Optional.of (solution.getCost ());
-						feasible = Optional.of(solution.isFeasible());
+						feasible = Optional.of(solution.getFeasible());
 						provider = Optional.of(solution.getProvider());
 						Map<String, Integer> vmsCounter = new HashMap<String, Integer>();
 						for(SolutionPerJob solutionPerJob : solution.getLstSolutions()) {
@@ -187,7 +187,7 @@ public class MainFlowController {
 					}
 				}
 			}
-			tmpMap.put ("result", result.map (Object::toString).orElse ("N/D"));
+			tmpMap.put ("result", result.map (value -> String.format("%.2f", value)).orElse ("N/D"));
 			tmpMap.put ("feasible", feasible.map (Object::toString).orElse (""));
 			tmpMap.put ("provider", provider.map (Object::toString).orElse (""));
 			tmpMap.put ("vms", vms.map (Object::toString).orElse (""));
