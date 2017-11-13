@@ -14,6 +14,7 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 
+import copy
 import csv
 import json
 import sys
@@ -57,7 +58,8 @@ for line in sys.stdin:
         out["v"] = parameters["v"]
         out["Deadline"] = parameters["d"]
 
-    rows.append (out)
+        rows.append (copy.deepcopy (out))
+
 
 writer = csv.DictWriter (sys.stdout, fieldnames = headers)
 writer.writeheader ()
