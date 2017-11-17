@@ -68,21 +68,21 @@ public class MainFlowController {
 		List<String> descriptions = new ArrayList<>();
 		descriptions.add("Private cloud with Admission Control");
 		descriptions.add("Private cloud without Admission Control");
-		descriptions.add("Public cloud with LTC");
-		descriptions.add("Public cloud without LTC");
+		descriptions.add("Public cloud with Complex Pricing Model");
+		descriptions.add("Public cloud without Complex Pricing Model");
 
 		model.addAttribute("descriptions", descriptions);
 		return "home";
 	}
 
 	@RequestMapping(value="/launch", method=RequestMethod.GET)
-	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("longTermCommitment") String longTermCommitment, @RequestParam("admissionControl") String admissionControl, SessionStatus sessionStatus, Model model) {
+	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("useComplexPricingModel") String useComplexPricingModel, @RequestParam("admissionControl") String admissionControl, SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
 
 		model.addAttribute("cloudType", cloudType);
-		model.addAttribute("longTermCommitment", longTermCommitment);
+		model.addAttribute("useComplexPricingModel", useComplexPricingModel);
 		model.addAttribute("admissionControl", admissionControl);
 
 		List<Scenario> scenarios = new ArrayList<>();
@@ -92,9 +92,9 @@ public class MainFlowController {
 				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PRIVATE, null, Boolean.valueOf(admissionControl)));
 				break;
 			case PUBLIC:
-				scenarios.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
-				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
-				scenarios.add(new Scenario(Technology.STORM, CloudType.PUBLIC, Boolean.valueOf(longTermCommitment), null));
+				scenarios.add(new Scenario(Technology.SPARK, CloudType.PUBLIC, Boolean.valueOf(useComplexPricingModel), null));
+				scenarios.add(new Scenario(Technology.HADOOP, CloudType.PUBLIC, Boolean.valueOf(useComplexPricingModel), null));
+				scenarios.add(new Scenario(Technology.STORM, CloudType.PUBLIC, Boolean.valueOf(useComplexPricingModel), null));
 				break;
 			default:
 				throw new RuntimeException("Unknown type of cloud");
@@ -104,7 +104,7 @@ public class MainFlowController {
 	}
 
 	@RequestMapping(value="/launchRetry", method=RequestMethod.GET)
-	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("longTermCommitment") String longTermCommitment, @RequestParam("admissionControl") String admissionControl,  @RequestParam("message") String message,  SessionStatus sessionStatus, Model model) {
+	public String launch(@RequestParam("cloudType") String cloudType, @RequestParam("useComplexPricingModel") String useComplexPricingModel, @RequestParam("admissionControl") String admissionControl,  @RequestParam("message") String message,  SessionStatus sessionStatus, Model model) {
 		if(model.containsAttribute("sim_manager")){
 			sessionStatus.isComplete();
 		}
