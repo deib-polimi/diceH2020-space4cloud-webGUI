@@ -341,7 +341,7 @@ public class RestLaunchAnalysisController {
                }
                break;
             case PUBLIC: 
-               if(scenario.getLongTermCommitment()) {
+               if(scenario.getUseComplexPricingModel()) {
                   if (instanceDataMultiProvider.getMapPublicCloudParameters() == null ||
                         instanceDataMultiProvider.getMapPublicCloudParameters().getMapPublicCloudParameters() == null) {
                      returnString = "Json is missing some required parameters(MapPublicCloudParameters)!";
