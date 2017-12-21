@@ -14,6 +14,7 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 
+import copy
 import csv
 import json
 import sys
@@ -35,8 +36,6 @@ for line in sys.stdin:
     out = {}
     out["Instance"] = data["id"]
     out["Provider"] = data["provider"]
-    out["Cost"] = data["cost"]
-    out["Penalty"] = data["penalty"]
     out["Scenario"] = data["scenario"]
 
     for phase in data["lstPhases"]:
@@ -51,13 +50,16 @@ for line in sys.stdin:
         out["Error"] = job["error"]
         out["VM Type"] = job["typeVMselected"]["id"]
         out["Users"] = job["numberUsers"]
+        out["Cost"] = job["cost"]
 
         parameters = job["job"]
         out["m"] = parameters["m"]
         out["v"] = parameters["v"]
         out["Deadline"] = parameters["d"]
+        out["Penalty"] = parameters["penalty"]
 
-    rows.append (out)
+        rows.append (copy.deepcopy (out))
+
 
 writer = csv.DictWriter (sys.stdout, fieldnames = headers)
 writer.writeheader ()
