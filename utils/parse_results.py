@@ -36,8 +36,6 @@ for line in sys.stdin:
     out = {}
     out["Instance"] = data["id"]
     out["Provider"] = data["provider"]
-    out["Cost"] = data["cost"]
-    out["Penalty"] = data["penalty"]
     out["Scenario"] = data["scenario"]
 
     for phase in data["lstPhases"]:
@@ -52,11 +50,13 @@ for line in sys.stdin:
         out["Error"] = job["error"]
         out["VM Type"] = job["typeVMselected"]["id"]
         out["Users"] = job["numberUsers"]
+        out["Cost"] = job["cost"]
 
         parameters = job["job"]
         out["m"] = parameters["m"]
         out["v"] = parameters["v"]
         out["Deadline"] = parameters["d"]
+        out["Penalty"] = parameters["penalty"]
 
         rows.append (copy.deepcopy (out))
 
