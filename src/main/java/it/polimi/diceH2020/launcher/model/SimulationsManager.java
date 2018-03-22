@@ -1,4 +1,5 @@
 /*
+Copyright 2018 Eugenio Gianniti
 Copyright 2016 Jacopo Rigoli
 Copyright 2016 Michele Ciavotta
 
@@ -56,7 +57,7 @@ public class SimulationsManager {
 	@ManyToOne
 	private Scenario scenario; //	contains also CloudType cloudType;
 
-	@Column(length = 20000) 
+	@Column(length = 20000)
 	private ArrayList<String> inputFolders;
 
 	private States state;
@@ -66,10 +67,7 @@ public class SimulationsManager {
 	@Transient
 	private InstanceDataMultiProvider inputData;
 
-//	@Transient
-//	private String tabID; //for session navigation. See the controller doc for other information
-
-	@Column(length = 10000)
+	@Column(length = 65535)
 	private String input;
 
 	private String inputFileName;
@@ -91,13 +89,13 @@ public class SimulationsManager {
 		numFailedSimulations = 0;
 		numCompletedSimulations = 0;
 
-		experimentsList = new ArrayList<InteractiveExperiment>();
-		inputFolders = new ArrayList<String>();
+		experimentsList = new ArrayList<>();
+		inputFolders = new ArrayList<>();
 
-		inputFileName = new String();
-		input = new String();
-		resultFilePath = new String();
-		folder = new String();
+		inputFileName = "";
+		input = "";
+		resultFilePath = "";
+		folder = "";
 
 		state = States.READY;
 	}
@@ -119,14 +117,9 @@ public class SimulationsManager {
 		}
 	}
 
-	public void writeFinalResults() {
-		;
-	}
-
 	public void buildExperiments() {
 		experimentsList.clear();
 		InteractiveExperiment experiment = new InteractiveExperiment(getInstanceName(), this.provider, this);
-		//System.out.println(getInstanceName());
 		experimentsList.add(experiment);
 	}
 
@@ -134,13 +127,13 @@ public class SimulationsManager {
 		this.inputData = inputData;
 
 		try {
-			ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);;
+			ObjectMapper mapper = new ObjectMapper().registerModule(
+					new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);
 			setInput(Compressor.compress(mapper.writeValueAsString(inputData)));
 		} catch (IOException e) {
 			setInput("Error");
 		}
 		setInstanceName(inputData.getId());
-		//System.out.println("id:"+inputData.getId());
 	}
 
 	public InstanceDataMultiProvider getDecompressedInputData() {
@@ -148,8 +141,11 @@ public class SimulationsManager {
 			return inputData;
 		} else if (getInput() != null) {
 			try {
-				ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);;
-				return getInput().equals("") || getInput().equals("Error") ? null : mapper.readValue(Compressor.decompress(getInput()), InstanceDataMultiProvider.class);
+				ObjectMapper mapper = new ObjectMapper().registerModule(
+						new Jdk8Module()).enable(SerializationFeature.INDENT_OUTPUT);
+				return getInput().equals("") || getInput().equals("Error")
+						? null
+						: mapper.readValue(Compressor.decompress(getInput()), InstanceDataMultiProvider.class);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
@@ -161,5 +157,5 @@ public class SimulationsManager {
 	public void addInputFolder(String txtFolder) {
 		inputFolders.add(txtFolder);
 	}
-	
+
 }
